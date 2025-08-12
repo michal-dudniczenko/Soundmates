@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using Soundmates.Domain.Entities;
 
 namespace Soundmates.Infrastructure.Identity;
 
