@@ -5,11 +5,11 @@ using Soundmates.Infrastructure.Database;
 
 namespace Soundmates.Infrastructure.Repositories;
 
-public class MatchesRepository : IMatchesRepository
+public class MatchRepository : IMatchRepository
 {
     private readonly ApplicationDbContext _context;
 
-    public MatchesRepository(ApplicationDbContext context)
+    public MatchRepository(ApplicationDbContext context)
     {
         _context = context;
     }
@@ -24,10 +24,10 @@ public class MatchesRepository : IMatchesRepository
         RepositoryUtils.ValidateLimitOffset(limit: limit, offset: offset);
 
         return await _context.Matches
+            .AsNoTracking()
             .OrderBy(e => e.Id)
             .Skip(offset)
             .Take(limit)
-            .AsNoTracking()
             .ToListAsync();
     }
 
@@ -45,7 +45,7 @@ public class MatchesRepository : IMatchesRepository
 
         if (entity == null)
         {
-            throw new KeyNotFoundException(RepositoryUtils.GetKeyNotFoundMessage<Dislike>(entityId: entityId));
+            throw new KeyNotFoundException(RepositoryUtils.GetKeyNotFoundMessage<Match>(entityId: entityId));
         }
 
         _context.Matches.Remove(entity);
@@ -79,11 +79,11 @@ public class MatchesRepository : IMatchesRepository
         }
 
         return await _context.Matches
+            .AsNoTracking()
             .Where(e => e.User1Id == userId || e.User2Id == userId)
             .OrderBy(e => e.Id)
             .Skip(offset)
             .Take(limit)
-            .AsNoTracking()
             .ToListAsync();
     }
 }
