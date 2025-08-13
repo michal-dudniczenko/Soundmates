@@ -4,10 +4,10 @@ namespace Soundmates.Infrastructure.Identity;
 
 public class ApplicationUser : IdentityUser<int>
 {
-    public required string Name { get; set; }
-    public required string Description { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
     public int BirthYear { get; set; }
-    public required string City { get; set; }
-    public required string Country { get; set; }
+    public string City { get; set; } = string.Empty;
+    public string Country { get; set; } = string.Empty;
     public bool IsActive { get; set; } = true;
 }
