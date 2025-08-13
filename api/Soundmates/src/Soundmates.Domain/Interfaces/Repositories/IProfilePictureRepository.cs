@@ -2,7 +2,7 @@
 
 namespace Soundmates.Domain.Interfaces.Repositories;
 
-public interface IProfilePicturesRepository : IBaseRepository<ProfilePicture>
+public interface IProfilePictureRepository : IBaseRepository<ProfilePicture>
 {
     Task<IEnumerable<ProfilePicture>> GetUserProfilePicturesAsync(int userId, int limit = 50, int offset = 0);
 }

@@ -2,7 +2,10 @@
 
 namespace Soundmates.Domain.Interfaces.Repositories;
 
-public interface IUserRepository : IBaseRepository<User>
+public interface IUserRepository
 {
-    Task<IEnumerable<User>> GetActiveUsersAsync(int limit = 50, int offset = 0);
+    Task<User?> GetByIdAsync(int userId);
+    Task<User?> GetByEmailAsync(string email);
+    Task<IEnumerable<User>> GetAllAsync(int limit = 50, int offset = 0);
+    Task<IEnumerable<User>> GetAllActiveAsync(int limit = 50, int offset = 0);
 }
