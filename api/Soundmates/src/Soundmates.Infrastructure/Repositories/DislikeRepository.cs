@@ -39,19 +39,6 @@ public class DislikeRepository : IDislikeRepository
         await _context.SaveChangesAsync();
     }
 
-    public async Task RemoveAsync(int entityId)
-    {
-        var entity = await _context.Dislikes.FindAsync(entityId);
-
-        if (entity == null)
-        {
-            throw new KeyNotFoundException(RepositoryUtils.GetKeyNotFoundMessage<Dislike>(entityId: entityId));
-        }
-
-        _context.Dislikes.Remove(entity);
-        await _context.SaveChangesAsync();
-    }
-
     public async Task UpdateAsync(Dislike entity)
     {
         ArgumentNullException.ThrowIfNull(entity);
@@ -64,6 +51,15 @@ public class DislikeRepository : IDislikeRepository
         }
 
         _context.Dislikes.Update(entity);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task RemoveAsync(int entityId)
+    {
+        var entity = await _context.Dislikes.FindAsync(entityId)
+            ?? throw new KeyNotFoundException(RepositoryUtils.GetKeyNotFoundMessage<Dislike>(entityId: entityId));
+
+        _context.Dislikes.Remove(entity);
         await _context.SaveChangesAsync();
     }
 

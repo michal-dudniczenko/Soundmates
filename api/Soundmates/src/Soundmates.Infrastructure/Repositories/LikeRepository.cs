@@ -41,12 +41,8 @@ public class LikeRepository : ILikeRepository
 
     public async Task RemoveAsync(int entityId)
     {
-        var entity = await _context.Likes.FindAsync(entityId);
-
-        if (entity == null)
-        {
-            throw new KeyNotFoundException(RepositoryUtils.GetKeyNotFoundMessage<Like>(entityId: entityId));
-        }
+        var entity = await _context.Likes.FindAsync(entityId)
+            ?? throw new KeyNotFoundException(RepositoryUtils.GetKeyNotFoundMessage<Like>(entityId: entityId));
 
         _context.Likes.Remove(entity);
         await _context.SaveChangesAsync();

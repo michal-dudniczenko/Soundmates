@@ -41,12 +41,8 @@ public class MusicSampleRepository : IMusicSampleRepository
 
     public async Task RemoveAsync(int entityId)
     {
-        var entity = await _context.MusicSamples.FindAsync(entityId);
-
-        if (entity == null)
-        {
-            throw new KeyNotFoundException(RepositoryUtils.GetKeyNotFoundMessage<MusicSample>(entityId: entityId));
-        }
+        var entity = await _context.MusicSamples.FindAsync(entityId)
+            ?? throw new KeyNotFoundException(RepositoryUtils.GetKeyNotFoundMessage<MusicSample>(entityId: entityId));
 
         _context.MusicSamples.Remove(entity);
         await _context.SaveChangesAsync();

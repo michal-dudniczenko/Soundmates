@@ -41,12 +41,8 @@ public class MessageRepository : IMessageRepository
 
     public async Task RemoveAsync(int entityId)
     {
-        var entity = await _context.Messages.FindAsync(entityId);
-
-        if (entity == null)
-        {
-            throw new KeyNotFoundException(RepositoryUtils.GetKeyNotFoundMessage<Message>(entityId: entityId));
-        }
+        var entity = await _context.Messages.FindAsync(entityId)
+            ?? throw new KeyNotFoundException(RepositoryUtils.GetKeyNotFoundMessage<Message>(entityId: entityId));
 
         _context.Messages.Remove(entity);
         await _context.SaveChangesAsync();

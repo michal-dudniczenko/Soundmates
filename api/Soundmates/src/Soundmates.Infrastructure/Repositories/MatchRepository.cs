@@ -41,12 +41,8 @@ public class MatchRepository : IMatchRepository
 
     public async Task RemoveAsync(int entityId)
     {
-        var entity = await _context.Matches.FindAsync(entityId);
-
-        if (entity == null)
-        {
-            throw new KeyNotFoundException(RepositoryUtils.GetKeyNotFoundMessage<Match>(entityId: entityId));
-        }
+        var entity = await _context.Matches.FindAsync(entityId)
+            ?? throw new KeyNotFoundException(RepositoryUtils.GetKeyNotFoundMessage<Match>(entityId: entityId));
 
         _context.Matches.Remove(entity);
         await _context.SaveChangesAsync();

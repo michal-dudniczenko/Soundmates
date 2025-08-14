@@ -41,12 +41,8 @@ public class ProfilePictureRepository : IProfilePictureRepository
 
     public async Task RemoveAsync(int entityId)
     {
-        var entity = await _context.ProfilePictures.FindAsync(entityId);
-
-        if (entity == null)
-        {
-            throw new KeyNotFoundException(RepositoryUtils.GetKeyNotFoundMessage<ProfilePicture>(entityId: entityId));
-        }
+        var entity = await _context.ProfilePictures.FindAsync(entityId)
+            ?? throw new KeyNotFoundException(RepositoryUtils.GetKeyNotFoundMessage<ProfilePicture>(entityId: entityId));
 
         _context.ProfilePictures.Remove(entity);
         await _context.SaveChangesAsync();
