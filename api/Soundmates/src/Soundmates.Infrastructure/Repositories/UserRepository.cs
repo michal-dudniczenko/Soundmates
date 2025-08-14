@@ -1,42 +1,25 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Soundmates.Domain.Entities;
 using Soundmates.Domain.Interfaces.Repositories;
+using Soundmates.Infrastructure.Auth;
 using Soundmates.Infrastructure.Database;
-using Soundmates.Infrastructure.Identity;
 
 namespace Soundmates.Infrastructure.Repositories;
 
 public class UserRepository : IUserRepository
 {
     private readonly ApplicationDbContext _context;
+    private readonly AuthService _authService;
 
-    public UserRepository(ApplicationDbContext context)
+    public UserRepository(ApplicationDbContext context, AuthService authService)
     {
         _context = context;
+        _authService = authService;
     }
 
-    public async Task<User?> GetByIdAsync(int userId)
+    public async Task<User?> GetByIdAsync(int entityId)
     {
-        var user = await _context.Users.FindAsync(userId);
-
-        if (user != null)
-        {
-            return user.ToDomain();
-        }
-
-        return null;
-    }
-
-    public async Task<User?> GetByEmailAsync(string email)
-    {
-        var user = await _context.Users.FirstOrDefaultAsync(e => e.Email == email);
-
-        if (user != null)
-        {
-            return user.ToDomain();
-        }
-
-        return null;
+        return await _context.Users.FindAsync(entityId);
     }
 
     public async Task<IEnumerable<User>> GetAllAsync(int limit = 50, int offset = 0)
@@ -48,8 +31,44 @@ public class UserRepository : IUserRepository
             .OrderBy(e => e.Id)
             .Skip(offset)
             .Take(limit)
-            .Select(e => e.ToDomain())
             .ToListAsync();
+    }
+
+    public async Task AddAsync(User entity)
+    {
+        ArgumentNullException.ThrowIfNull(entity);
+
+        await _context.Users.AddAsync(entity);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task UpdateAsync(User entity)
+    {
+        ArgumentNullException.ThrowIfNull(entity);
+
+        var exists = await _context.Users.AnyAsync(e => e.Id == entity.Id);
+
+        if (!exists)
+        {
+            throw new KeyNotFoundException(RepositoryUtils.GetKeyNotFoundMessage<User>(entityId: entity.Id));
+        }
+
+        _context.Users.Update(entity);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task RemoveAsync(int entityId)
+    {
+        var entity = await _context.Users.FindAsync(entityId)
+            ?? throw new KeyNotFoundException(RepositoryUtils.GetKeyNotFoundMessage<User>(entityId: entityId));
+
+        _context.Users.Remove(entity);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task<User?> GetByEmailAsync(string email)
+    {
+        return await _context.Users.FirstOrDefaultAsync(e => e.Email == email);
     }
 
     public async Task<IEnumerable<User>> GetAllActiveAsync(int limit = 50, int offset = 0)
@@ -62,7 +81,38 @@ public class UserRepository : IUserRepository
             .OrderBy(e => e.Id)
             .Skip(offset)
             .Take(limit)
-            .Select(e => e.ToDomain())
             .ToListAsync();
+    }
+
+    public async Task DeactivateUserAccountAsync(int userId)
+    {
+        var user = await _context.Users.FindAsync(userId)
+            ?? throw new KeyNotFoundException(RepositoryUtils.GetKeyNotFoundMessage<User>(entityId: userId));
+
+        user.IsActive = false;
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task UpdateUserPasswordAsync(int userId, string newPassword)
+    {
+        var user = await _context.Users.FindAsync(userId)
+           ?? throw new KeyNotFoundException(RepositoryUtils.GetKeyNotFoundMessage<User>(entityId: userId));
+
+        user.PasswordHash = _authService.GetPasswordHash(newPassword);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task UpdateUserRefreshTokenAsync(int userId, string newRefreshToken)
+    {
+        var user = await _context.Users.FindAsync(userId)
+            ?? throw new KeyNotFoundException(RepositoryUtils.GetKeyNotFoundMessage<User>(entityId: userId));
+
+        user.RefreshTokenHash = _authService.GetRefreshTokenHash(newRefreshToken);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task<bool> CheckIfEmailExistsAsync(string email)
+    {
+        return await _context.Users.AnyAsync(e => e.Email == email);
     }
 }

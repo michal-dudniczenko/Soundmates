@@ -1,13 +1,11 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Soundmates.Domain.Entities;
-using Soundmates.Infrastructure.Identity;
 
 namespace Soundmates.Infrastructure.Database;
 
-public class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityRole<int>, int>
+public class ApplicationDbContext : DbContext
 {
+    public DbSet<User> Users { get; set; }
     public DbSet<MusicSample> MusicSamples { get; set; }
     public DbSet<ProfilePicture> ProfilePictures { get; set; }
     public DbSet<Message> Messages { get; set; }
@@ -20,79 +18,79 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityR
     {
     }
 
-    protected override void OnModelCreating(ModelBuilder builder)
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        base.OnModelCreating(builder);
+        base.OnModelCreating(modelBuilder);
 
-        builder.Entity<MusicSample>()
-            .HasOne<ApplicationUser>()
+        modelBuilder.Entity<MusicSample>()
+            .HasOne<User>()
             .WithMany()
             .HasForeignKey(e => e.UserId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.Entity<ProfilePicture>()
-            .HasOne<ApplicationUser>()
+        modelBuilder.Entity<ProfilePicture>()
+            .HasOne<User>()
             .WithMany()
             .HasForeignKey(e => e.UserId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.Entity<Message>()
-            .HasOne<ApplicationUser>()
+        modelBuilder.Entity<Message>()
+            .HasOne<User>()
             .WithMany()
             .HasForeignKey(e => e.SenderId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.Entity<Message>()
-            .HasOne<ApplicationUser>()
+        modelBuilder.Entity<Message>()
+            .HasOne<User>()
             .WithMany()
             .HasForeignKey(e => e.ReceiverId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.Entity<Like>()
-            .HasOne<ApplicationUser>()
+        modelBuilder.Entity<Like>()
+            .HasOne<User>()
             .WithMany()
             .HasForeignKey(e => e.GiverId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.Entity<Like>()
-            .HasOne<ApplicationUser>()
+        modelBuilder.Entity<Like>()
+            .HasOne<User>()
             .WithMany()
             .HasForeignKey(e => e.ReceiverId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.Entity<Dislike>()
-            .HasOne<ApplicationUser>()
+        modelBuilder.Entity<Dislike>()
+            .HasOne<User>()
             .WithMany()
             .HasForeignKey(e => e.GiverId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.Entity<Dislike>()
-            .HasOne<ApplicationUser>()
+        modelBuilder.Entity<Dislike>()
+            .HasOne<User>()
             .WithMany()
             .HasForeignKey(e => e.ReceiverId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.Entity<Match>()
-            .HasOne<ApplicationUser>()
+        modelBuilder.Entity<Match>()
+            .HasOne<User>()
             .WithMany()
             .HasForeignKey(e => e.User1Id)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.Entity<Match>()
-            .HasOne<ApplicationUser>()
+        modelBuilder.Entity<Match>()
+            .HasOne<User>()
             .WithMany()
             .HasForeignKey(e => e.User2Id)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.Entity<Like>()
+        modelBuilder.Entity<Like>()
             .HasIndex(e => new { e.GiverId, e.ReceiverId })
             .IsUnique();
 
-        builder.Entity<Dislike>()
+        modelBuilder.Entity<Dislike>()
             .HasIndex(e => new { e.GiverId, e.ReceiverId })
             .IsUnique();
 
-        builder.Entity<Match>()
+        modelBuilder.Entity<Match>()
             .HasIndex(e => new { e.User1Id, e.User2Id })
             .IsUnique();
     }
