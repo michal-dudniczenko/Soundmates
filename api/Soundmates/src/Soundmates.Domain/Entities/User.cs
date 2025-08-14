@@ -29,4 +29,8 @@ public class User
     public required string Country { get; set; }
 
     public bool IsActive { get; set; } = true;
+
+    public required string PasswordHash { get; set; }
+
+    public string? RefreshTokenHash { get; set; } = null;
 }
