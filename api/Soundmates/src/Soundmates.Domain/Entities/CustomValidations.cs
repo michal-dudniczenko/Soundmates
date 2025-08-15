@@ -9,7 +9,7 @@ public class BirthYearAttribute : ValidationAttribute
     {
         if (value is int year)
         {
-            int currentYear = DateTime.Now.Year;
+            int currentYear = DateTime.UtcNow.Year;
             if (year >= 1900 && year <= currentYear)
             {
                 return ValidationResult.Success;
