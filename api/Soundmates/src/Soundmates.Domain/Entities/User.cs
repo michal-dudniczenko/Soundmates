@@ -33,4 +33,5 @@ public class User
     public required string PasswordHash { get; set; }
 
     public string? RefreshTokenHash { get; set; } = null;
+    public DateTime RefreshTokenExpiresAt { get; set; }
 }
