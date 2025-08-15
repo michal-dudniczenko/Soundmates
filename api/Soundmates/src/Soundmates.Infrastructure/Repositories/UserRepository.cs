@@ -77,7 +77,26 @@ public class UserRepository : IUserRepository
 
         return await _context.Users
             .AsNoTracking()
-            .Where(e => e.IsActive)
+            .Where(e => e.IsActive && !e.IsFirstLogin)
+            .OrderBy(e => e.Id)
+            .Skip(offset)
+            .Take(limit)
+            .ToListAsync();
+    }
+
+    public async Task<IEnumerable<User>> GetPotentialMatchesAsync(int userId, int limit = 50, int offset = 0)
+    {
+        RepositoryUtils.ValidateLimitOffset(limit: limit, offset: offset);
+
+        return await _context.Users
+            .AsNoTracking()
+            .Where(otherUser =>
+                otherUser.Id != userId &&
+                otherUser.IsActive &&
+                !otherUser.IsFirstLogin &&
+                !_context.Likes.Any(l => l.GiverId == userId && l.ReceiverId == otherUser.Id) &&
+                !_context.Dislikes.Any(d => d.GiverId == userId && d.ReceiverId == otherUser.Id)
+            )
             .OrderBy(e => e.Id)
             .Skip(offset)
             .Take(limit)
@@ -91,6 +110,7 @@ public class UserRepository : IUserRepository
 
         user.IsActive = false;
         await _context.SaveChangesAsync();
+        await LogOutUserAsync(userId);
     }
 
     public async Task UpdateUserPasswordAsync(int userId, string newPassword)
@@ -102,17 +122,46 @@ public class UserRepository : IUserRepository
         await _context.SaveChangesAsync();
     }
 
-    public async Task UpdateUserRefreshTokenAsync(int userId, string newRefreshToken)
+    public async Task LogInUserAsync(int userId, string newRefreshToken)
     {
         var user = await _context.Users.FindAsync(userId)
             ?? throw new KeyNotFoundException(RepositoryUtils.GetKeyNotFoundMessage<User>(entityId: userId));
 
         user.RefreshTokenHash = _authService.GetRefreshTokenHash(newRefreshToken);
+        user.RefreshTokenExpiresAt = DateTime.UtcNow.AddDays(30);
+        user.IsLoggedOut = false;
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task LogOutUserAsync(int userId)
+    {
+        var user = await _context.Users.FindAsync(userId)
+            ?? throw new KeyNotFoundException(RepositoryUtils.GetKeyNotFoundMessage<User>(entityId: userId));
+
+        user.RefreshTokenHash = null;
+        user.RefreshTokenExpiresAt = null;
+        user.IsLoggedOut = true;
         await _context.SaveChangesAsync();
     }
 
     public async Task<bool> CheckIfEmailExistsAsync(string email)
     {
         return await _context.Users.AnyAsync(e => e.Email == email);
+    }
+
+    public async Task<bool> CheckIfIdExistsAsync(int userId)
+    {
+        return await _context.Users.AnyAsync(e => e.Id == userId);
+    }
+
+    public async Task<int?> CheckRefreshTokenGetUserIdAsync(string refreshToken)
+    {
+        var refreshTokenHash = _authService.GetRefreshTokenHash(refreshToken);
+        var user = await _context.Users.FirstOrDefaultAsync(e => e.RefreshTokenHash == refreshTokenHash);
+        if (user is null || user.RefreshTokenExpiresAt < DateTime.UtcNow)
+        {
+            return null;
+        }
+        return user.Id;
     }
 }

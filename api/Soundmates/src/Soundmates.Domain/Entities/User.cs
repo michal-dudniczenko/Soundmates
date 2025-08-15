@@ -10,28 +10,35 @@ public class User
     [EmailAddress]
     public required string Email { get; set; }
 
+    public required string PasswordHash { get; set; }
+
     [MaxLength(50)]
     [RegularExpression(@"\S+", ErrorMessage = "Name cannot be empty or whitespace.")]
-    public required string Name { get; set; }
+    public string? Name { get; set; } = null;
 
     [MaxLength(500)]
-    public required string Description { get; set; }
+    public string? Description { get; set; } = null;
 
     [BirthYear]
-    public int BirthYear { get; set; }
+    public int? BirthYear { get; set; } = null;
 
     [MaxLength(100)]
     [RegularExpression(@"\S+", ErrorMessage = "City cannot be empty or whitespace.")]
-    public required string City { get; set; }
+    public string? City { get; set; } = null;
 
     [MaxLength(100)]
     [RegularExpression(@"\S+", ErrorMessage = "Country cannot be empty or whitespace.")]
-    public required string Country { get; set; }
+    public string? Country { get; set; } = null;
+
+    public string? RefreshTokenHash { get; set; } = null;
+
+    public DateTime? RefreshTokenExpiresAt { get; set; } = null;
 
     public bool IsActive { get; set; } = true;
 
-    public required string PasswordHash { get; set; }
+    public bool IsFirstLogin { get; set; } = true;
 
-    public string? RefreshTokenHash { get; set; } = null;
-    public DateTime RefreshTokenExpiresAt { get; set; }
+    public bool IsEmailConfirmed { get; set; } = true;
+
+    public bool IsLoggedOut { get; set; } = false;
 }

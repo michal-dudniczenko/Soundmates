@@ -44,14 +44,14 @@ public class AuthService : IAuthService
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
-    public string GenerateRefreshToken()
+    public string GenerateRefreshToken(int userId)
     {
         var randomNumber = new byte[64];
         using (var rng = RandomNumberGenerator.Create())
         {
             rng.GetBytes(randomNumber);
         }
-        return Convert.ToBase64String(randomNumber);
+        return Convert.ToBase64String(randomNumber);    
     }
 
     public string GetPasswordHash(string password)
@@ -83,13 +83,13 @@ public class AuthService : IAuthService
         return hasUpper && hasLower && hasDigit && hasSpecial;
     }
 
-    public bool VerifyPassword(string password, string passwordHash)
+    public bool VerifyPasswordHash(string password, string passwordHash)
     {
         var result = _passwordHasher.VerifyHashedPassword(user: null!, hashedPassword: passwordHash, providedPassword: password);
         return  result != PasswordVerificationResult.Failed;
     }
 
-    public bool VerifyRefreshToken(string refreshToken, string refreshTokenHash)
+    public bool VerifyRefreshTokenHash(string refreshToken, string refreshTokenHash)
     {
         string computedHash = GetRefreshTokenHash(refreshToken);
         return computedHash == refreshTokenHash;
