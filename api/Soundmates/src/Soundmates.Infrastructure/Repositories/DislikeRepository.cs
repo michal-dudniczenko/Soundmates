@@ -102,4 +102,9 @@ public class DislikeRepository : IDislikeRepository
             .Take(limit)
             .ToListAsync();
     }
+
+    public async Task<bool> CheckIfExistsAsync(int giverId, int receiverId)
+    {
+        return await _context.Dislikes.AnyAsync(e => e.GiverId == giverId && e.ReceiverId == receiverId);
+    }
 }

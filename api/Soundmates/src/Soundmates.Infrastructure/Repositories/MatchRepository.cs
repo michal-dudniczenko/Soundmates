@@ -35,6 +35,12 @@ public class MatchRepository : IMatchRepository
     {
         ArgumentNullException.ThrowIfNull(entity);
 
+        if (await _context.Matches.AnyAsync(e => (e.User1Id == entity.User1Id && e.User2Id == entity.User2Id) 
+        || (e.User1Id == entity.User2Id && e.User2Id == entity.User1Id)))
+        {
+            return;
+        }
+
         await _context.Matches.AddAsync(entity);
         await _context.SaveChangesAsync();
     }
