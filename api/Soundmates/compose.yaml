@@ -1,0 +1,42 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5000:80"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: "http://+:80"
+      ConnectionStrings__DefaultConnection: "Host=db;Port=5432;Database=Soundmates;Username=soundmates;Password=soundmates"
+      SecretKey: "dev_super_secret_key_that_is_at_least_32_chars_long"
+    depends_on:
+      db:
+        condition: service_healthy
+        restart: true
+
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: Soundmates
+      POSTGRES_USER: soundmates
+      POSTGRES_PASSWORD: soundmates
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U soundmates -d Soundmates"]
+      interval: 3s
+      retries: 5
+      start_period: 1s
+      timeout: 3s
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+        - "8080:8080"
+
+volumes:
+  pgdata:

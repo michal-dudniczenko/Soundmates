@@ -22,8 +22,4 @@
     <ProjectReference Include="..\Soundmates.Infrastructure\Soundmates.Infrastructure.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="DTOs\Messages\" />
-  </ItemGroup>
-
 </Project>
