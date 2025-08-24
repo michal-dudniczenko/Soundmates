@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Soundmates.Domain.Entities;
 using Soundmates.Domain.Interfaces.Repositories;
-using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace Soundmates.Api.Extensions;
 
@@ -12,7 +12,7 @@ public static class ControllerExtensions
         IUserRepository userRepository,
         bool checkForFirstLogin = true)
     {
-        var subClaim = controller.User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
+        var subClaim = controller.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (subClaim is null || !int.TryParse(subClaim, out var authorizedUserId))
         {
             return null;
