@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Soundmates.Domain.Entities;
+using Soundmates.Domain.Interfaces.Auth;
 using Soundmates.Domain.Interfaces.Repositories;
-using Soundmates.Infrastructure.Auth;
 using Soundmates.Infrastructure.Database;
 
 namespace Soundmates.Infrastructure.Repositories;
@@ -9,9 +9,9 @@ namespace Soundmates.Infrastructure.Repositories;
 public class UserRepository : IUserRepository
 {
     private readonly ApplicationDbContext _context;
-    private readonly AuthService _authService;
+    private readonly IAuthService _authService;
 
-    public UserRepository(ApplicationDbContext context, AuthService authService)
+    public UserRepository(ApplicationDbContext context, IAuthService authService)
     {
         _context = context;
         _authService = authService;
@@ -147,11 +147,6 @@ public class UserRepository : IUserRepository
     public async Task<bool> CheckIfEmailExistsAsync(string email)
     {
         return await _context.Users.AnyAsync(e => e.Email == email);
-    }
-
-    public async Task<bool> CheckIfIdExistsAsync(int userId)
-    {
-        return await _context.Users.AnyAsync(e => e.Id == userId);
     }
 
     public async Task<int?> CheckRefreshTokenGetUserIdAsync(string refreshToken)

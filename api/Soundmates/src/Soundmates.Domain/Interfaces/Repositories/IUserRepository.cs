@@ -12,6 +12,5 @@ public interface IUserRepository : IBaseRepository<User>
     Task LogInUserAsync(int userId, string newRefreshToken);
     Task LogOutUserAsync(int userId);
     Task<bool> CheckIfEmailExistsAsync(string email);
-    Task<bool> CheckIfIdExistsAsync(int userId);
     Task<int?> CheckRefreshTokenGetUserIdAsync(string refreshToken);
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Soundmates.Api.DTOs.Matching;
 using Soundmates.Api.DTOs.Users;
 using Soundmates.Domain.Entities;
@@ -26,12 +27,12 @@ public class MatchingController : ControllerBase
 
     // POST /matching/like
     [HttpPost("like")]
+    [Authorize]
     public async Task<IActionResult> CreateLike(
         [FromBody] SwipeDto swipeDto)
     {
         var subClaim = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
-        if (subClaim is null || !int.TryParse(subClaim, out var authorizedUserId)
-            || !(await _userRepository.CheckIfIdExistsAsync(authorizedUserId)))
+        if (subClaim is null || !int.TryParse(subClaim, out var authorizedUserId))
         {
             return Unauthorized(new { message = "Invalid access token." });
         }
@@ -61,12 +62,12 @@ public class MatchingController : ControllerBase
 
     // POST /matching/dislike
     [HttpPost("dislike")]
+    [Authorize]
     public async Task<IActionResult> CreateDislike(
         [FromBody] SwipeDto swipeDto)
     {
         var subClaim = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
-        if (subClaim is null || !int.TryParse(subClaim, out var authorizedUserId)
-            || !(await _userRepository.CheckIfIdExistsAsync(authorizedUserId)))
+        if (subClaim is null || !int.TryParse(subClaim, out var authorizedUserId))
         {
             return Unauthorized(new { message = "Invalid access token." });
         }
@@ -90,13 +91,13 @@ public class MatchingController : ControllerBase
 
     // GET /matching/matches? limit = 20 & offset = 0
     [HttpGet("matches")]
+    [Authorize]
     public async Task<IActionResult> GetMatches(
         [FromQuery] int limit = 20,
         [FromQuery] int offset = 0)
     {
         var subClaim = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
-        if (subClaim is null || !int.TryParse(subClaim, out var authorizedUserId)
-            || !(await _userRepository.CheckIfIdExistsAsync(authorizedUserId)))
+        if (subClaim is null || !int.TryParse(subClaim, out var authorizedUserId))
         {
             return Unauthorized(new { message = "Invalid access token." });
         }

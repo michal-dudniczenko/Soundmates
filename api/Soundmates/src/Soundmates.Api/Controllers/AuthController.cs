@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Soundmates.Api.DTOs.Auth;
 using Soundmates.Domain.Entities;
 using Soundmates.Domain.Interfaces.Auth;
@@ -96,6 +97,7 @@ public class AuthController : ControllerBase
 
     // POST /users/logout
     [HttpPost("logout")]
+    [Authorize]
     public async Task<IActionResult> Logout()
     {
         var subClaim = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;

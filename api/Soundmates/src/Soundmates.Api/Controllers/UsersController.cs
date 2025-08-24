@@ -92,8 +92,7 @@ public class UsersController : ControllerBase
         [FromQuery] int offset = 0)
     {
         var subClaim = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
-        if (subClaim is null || !int.TryParse(subClaim, out var authorizedUserId)
-            || !(await _userRepository.CheckIfIdExistsAsync(authorizedUserId)))
+        if (subClaim is null || !int.TryParse(subClaim, out var authorizedUserId))
         {
             return Unauthorized(new { message = "Invalid access token." });
         }
@@ -129,12 +128,12 @@ public class UsersController : ControllerBase
 
     // PUT /users
     [HttpPut]
+    [Authorize]
     public async Task<IActionResult> UpdateUser(
         [FromBody] UpdateUserProfileDto updateUserDto)
     {
         var subClaim = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
-        if (subClaim is null || !int.TryParse(subClaim, out var authorizedUserId)
-            || !(await _userRepository.CheckIfIdExistsAsync(authorizedUserId)))
+        if (subClaim is null || !int.TryParse(subClaim, out var authorizedUserId))
         {
             return Unauthorized(new { message = "Invalid access token." });
         }
@@ -182,12 +181,12 @@ public class UsersController : ControllerBase
 
     // DELETE /users
     [HttpDelete]
+    [Authorize]
     public async Task<IActionResult> DeactivateUserAccount(
         [FromBody] PasswordDto passwordDto)
     {
         var subClaim = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
-        if (subClaim is null || !int.TryParse(subClaim, out var authorizedUserId)
-            || !(await _userRepository.CheckIfIdExistsAsync(authorizedUserId)))
+        if (subClaim is null || !int.TryParse(subClaim, out var authorizedUserId))
         {
             return Unauthorized(new { message = "Invalid access token." });
         }
@@ -212,12 +211,12 @@ public class UsersController : ControllerBase
 
     // POST /users/change-password
     [HttpPost("change-password")]
+    [Authorize]
     public async Task<IActionResult> ChangePassword(
         [FromBody] ChangePasswordDto changePasswordDto)
     {
         var subClaim = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
-        if (subClaim is null || !int.TryParse(subClaim, out var authorizedUserId)
-            || !(await _userRepository.CheckIfIdExistsAsync(authorizedUserId)))
+        if (subClaim is null || !int.TryParse(subClaim, out var authorizedUserId))
         {
             return Unauthorized(new { message = "Invalid access token." });
         }
