@@ -88,4 +88,10 @@ public class MatchRepository : IMatchRepository
             .Take(limit)
             .ToListAsync();
     }
+
+    public async Task<bool> CheckIfMatchExistsAsync(int user1Id, int user2Id)
+    {
+        return await _context.Matches.AnyAsync(m => (m.User1Id == user1Id && m.User2Id == user2Id) ||
+            (m.User1Id == user2Id && m.User2Id == user1Id));
+    }
 }
