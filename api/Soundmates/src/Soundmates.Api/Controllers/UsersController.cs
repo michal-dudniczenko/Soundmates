@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Soundmates.Api.DTOs.Users;
+using Soundmates.Api.Extensions;
 using Soundmates.Domain.Entities;
 using Soundmates.Domain.Interfaces.Auth;
 using Soundmates.Domain.Interfaces.Repositories;
-using System.IdentityModel.Tokens.Jwt;
 
 namespace Soundmates.Api.Controllers;
 
@@ -26,14 +26,9 @@ public class UsersController : ControllerBase
     [Authorize]
     public async Task<ActionResult> GetUserProfile()
     {
-        var subClaim = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
-        if (subClaim is null || !int.TryParse(subClaim, out var authorizedUserId))
-        {
-            return Unauthorized(new { message = "Invalid access token." });
-        }
+        var authorizedUser = await this.GetAuthorizedUserAsync(userRepository: _userRepository, checkForFirstLogin: false);
 
-        var authorizedUser = await _userRepository.GetByIdAsync(authorizedUserId);
-        if (authorizedUser == null || authorizedUser.IsLoggedOut)
+        if (authorizedUser is null)
         {
             return Unauthorized(new { message = "Invalid access token." });
         }
@@ -55,14 +50,9 @@ public class UsersController : ControllerBase
     [Authorize]
     public async Task<ActionResult> GetUser(int id)
     {
-        var subClaim = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
-        if (subClaim is null || !int.TryParse(subClaim, out var authorizedUserId))
-        {
-            return Unauthorized(new { message = "Invalid access token." });
-        }
+        var authorizedUser = await this.GetAuthorizedUserAsync(userRepository: _userRepository, checkForFirstLogin: true);
 
-        var authorizedUser = await _userRepository.GetByIdAsync(authorizedUserId);
-        if (authorizedUser == null || authorizedUser.IsLoggedOut || authorizedUser.IsFirstLogin)
+        if (authorizedUser is null)
         {
             return Unauthorized(new { message = "Invalid access token." });
         }
@@ -91,21 +81,16 @@ public class UsersController : ControllerBase
         [FromQuery] int limit = 20,
         [FromQuery] int offset = 0)
     {
-        var subClaim = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
-        if (subClaim is null || !int.TryParse(subClaim, out var authorizedUserId))
-        {
-            return Unauthorized(new { message = "Invalid access token." });
-        }
+        var authorizedUser = await this.GetAuthorizedUserAsync(userRepository: _userRepository, checkForFirstLogin: true);
 
-        var authorizedUser = await _userRepository.GetByIdAsync(authorizedUserId);
-        if (authorizedUser == null || authorizedUser.IsLoggedOut || authorizedUser.IsFirstLogin)
+        if (authorizedUser is null)
         {
             return Unauthorized(new { message = "Invalid access token." });
         }
 
         try
         {
-            var users = await _userRepository.GetPotentialMatchesAsync(authorizedUserId, limit, offset);
+            var users = await _userRepository.GetPotentialMatchesAsync(authorizedUser.Id, limit, offset);
 
             return Ok(users.Select(user =>
                 new OtherUserProfileDto
@@ -132,26 +117,16 @@ public class UsersController : ControllerBase
     public async Task<IActionResult> UpdateUser(
         [FromBody] UpdateUserProfileDto updateUserDto)
     {
-        var subClaim = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
-        if (subClaim is null || !int.TryParse(subClaim, out var authorizedUserId))
+        var authorizedUser = await this.GetAuthorizedUserAsync(userRepository: _userRepository, checkForFirstLogin: false);
+
+        if (authorizedUser is null)
         {
             return Unauthorized(new { message = "Invalid access token." });
-        }
-
-        var authorizedUser = await _userRepository.GetByIdAsync(authorizedUserId);
-        if (authorizedUser == null || authorizedUser.IsLoggedOut)
-        {
-            return Unauthorized(new { message = "Invalid access token." });
-        }
-
-        if (updateUserDto.Id != authorizedUserId)
-        {
-            return BadRequest(new { message = "You can only update your own profile." });
         }
 
         var updatedUser = new User
         {
-            Id = updateUserDto.Id,
+            Id = authorizedUser.Id,
             Email = authorizedUser.Email,
             PasswordHash = authorizedUser.PasswordHash,
             Name = updateUserDto.Name,
@@ -185,26 +160,19 @@ public class UsersController : ControllerBase
     public async Task<IActionResult> DeactivateUserAccount(
         [FromBody] PasswordDto passwordDto)
     {
-        var subClaim = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
-        if (subClaim is null || !int.TryParse(subClaim, out var authorizedUserId))
+        var authorizedUser = await this.GetAuthorizedUserAsync(userRepository: _userRepository, checkForFirstLogin: false);
+
+        if (authorizedUser is null)
         {
             return Unauthorized(new { message = "Invalid access token." });
         }
 
-        var authorizedUser = await _userRepository.GetByIdAsync(authorizedUserId);
-        if (authorizedUser == null || authorizedUser.IsLoggedOut)
-        {
-            return Unauthorized(new { message = "Invalid access token." });
-        }
-
-        var result = _authService.VerifyPasswordHash(password: passwordDto.Password, passwordHash: authorizedUser.PasswordHash);
-
-        if (!result)
+        if (!_authService.VerifyPasswordHash(password: passwordDto.Password, passwordHash: authorizedUser.PasswordHash))
         {
             return Unauthorized(new { message = "Invalid password." });
         }
 
-        await _userRepository.DeactivateUserAccountAsync(authorizedUserId);
+        await _userRepository.DeactivateUserAccountAsync(authorizedUser.Id);
 
         return Ok(new { message = "Your account has been deactivated." });
     }
@@ -215,21 +183,14 @@ public class UsersController : ControllerBase
     public async Task<IActionResult> ChangePassword(
         [FromBody] ChangePasswordDto changePasswordDto)
     {
-        var subClaim = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
-        if (subClaim is null || !int.TryParse(subClaim, out var authorizedUserId))
+        var authorizedUser = await this.GetAuthorizedUserAsync(userRepository: _userRepository, checkForFirstLogin: false);
+
+        if (authorizedUser is null)
         {
             return Unauthorized(new { message = "Invalid access token." });
         }
 
-        var authorizedUser = await _userRepository.GetByIdAsync(authorizedUserId);
-        if (authorizedUser == null || authorizedUser.IsLoggedOut)
-        {
-            return Unauthorized(new { message = "Invalid access token." });
-        }
-
-        var result = _authService.VerifyPasswordHash(password: changePasswordDto.OldPassword, passwordHash: authorizedUser.PasswordHash);
-
-        if (!result)
+        if (!_authService.VerifyPasswordHash(password: changePasswordDto.OldPassword, passwordHash: authorizedUser.PasswordHash))
         {
             return Unauthorized(new { message = "Old password is incorrect." });
         }
@@ -239,7 +200,7 @@ public class UsersController : ControllerBase
             return BadRequest(new { message = "New password is invalid." });
         }
 
-        await _userRepository.UpdateUserPasswordAsync(userId: authorizedUserId, newPassword: changePasswordDto.NewPassword);
+        await _userRepository.UpdateUserPasswordAsync(userId: authorizedUser.Id, newPassword: changePasswordDto.NewPassword);
 
         return Ok(new { message = "Password changed successfully." });
     }

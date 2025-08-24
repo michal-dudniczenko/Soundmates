@@ -1,10 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Soundmates.Api.DTOs.Messages;
+using Soundmates.Api.Extensions;
 using Soundmates.Domain.Entities;
 using Soundmates.Domain.Interfaces.Repositories;
-using System.IdentityModel.Tokens.Jwt;
 
 namespace Soundmates.Api.Controllers;
 
@@ -30,14 +29,9 @@ public class MessagesController : ControllerBase
         [FromQuery] int limit = 20,
         [FromQuery] int offset = 0)
     {
-        var subClaim = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
-        if (subClaim is null || !int.TryParse(subClaim, out var authorizedUserId))
-        {
-            return Unauthorized(new { message = "Invalid access token." });
-        }
+        var authorizedUser = await this.GetAuthorizedUserAsync(userRepository: _userRepository, checkForFirstLogin: true);
 
-        var authorizedUser = await _userRepository.GetByIdAsync(authorizedUserId);
-        if (authorizedUser == null || authorizedUser.IsLoggedOut || authorizedUser.IsFirstLogin)
+        if (authorizedUser is null)
         {
             return Unauthorized(new { message = "Invalid access token." });
         }
@@ -45,7 +39,7 @@ public class MessagesController : ControllerBase
         try
         {
             var lastMessages = await _messageRepository.GetConversationsLastMessagesAsync(
-                userId: authorizedUserId,
+                userId: authorizedUser.Id,
                 limit: limit,
                 offset: offset);
 
@@ -73,14 +67,9 @@ public class MessagesController : ControllerBase
         [FromQuery] int limit = 20,
         [FromQuery] int offset = 0)
     {
-        var subClaim = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
-        if (subClaim is null || !int.TryParse(subClaim, out var authorizedUserId))
-        {
-            return Unauthorized(new { message = "Invalid access token." });
-        }
+        var authorizedUser = await this.GetAuthorizedUserAsync(userRepository: _userRepository, checkForFirstLogin: true);
 
-        var authorizedUser = await _userRepository.GetByIdAsync(authorizedUserId);
-        if (authorizedUser == null || authorizedUser.IsLoggedOut || authorizedUser.IsFirstLogin)
+        if (authorizedUser is null)
         {
             return Unauthorized(new { message = "Invalid access token." });
         }
@@ -94,7 +83,7 @@ public class MessagesController : ControllerBase
         try
         {
             var conversation = await _messageRepository.GetConversationAsync(
-                user1Id: authorizedUserId,
+                user1Id: authorizedUser.Id,
                 user2Id: userId,
                 limit: limit,
                 offset: offset);
@@ -121,25 +110,20 @@ public class MessagesController : ControllerBase
     public async Task<IActionResult> SendMessage(
         [FromBody] SendMessageDto sendMessageDto)
     {
-        var subClaim = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
-        if (subClaim is null || !int.TryParse(subClaim, out var authorizedUserId))
+        var authorizedUser = await this.GetAuthorizedUserAsync(userRepository: _userRepository, checkForFirstLogin: true);
+
+        if (authorizedUser is null)
         {
             return Unauthorized(new { message = "Invalid access token." });
         }
 
-        var authorizedUser = await _userRepository.GetByIdAsync(authorizedUserId);
-        if (authorizedUser == null || authorizedUser.IsLoggedOut || authorizedUser.IsFirstLogin)
-        {
-            return Unauthorized(new { message = "Invalid access token." });
-        }
-
-        var user = await _userRepository.GetByIdAsync(sendMessageDto.ReceiverId);
-        if (user == null || !user.IsActive || user.IsFirstLogin)
+        var otherUser = await _userRepository.GetByIdAsync(sendMessageDto.ReceiverId);
+        if (otherUser == null || !otherUser.IsActive || otherUser.IsFirstLogin)
         {
             return NotFound(new { message = "No user with specified id." });
         }
 
-        var doesMatchExists = await _matchRepository.CheckIfMatchExistsAsync(authorizedUserId, sendMessageDto.ReceiverId);
+        var doesMatchExists = await _matchRepository.CheckIfMatchExistsAsync(authorizedUser.Id, sendMessageDto.ReceiverId);
 
         if (!doesMatchExists)
         {
@@ -149,7 +133,7 @@ public class MessagesController : ControllerBase
         var message = new Message
         {
             Content = sendMessageDto.Content,
-            SenderId = authorizedUserId,
+            SenderId = authorizedUser.Id,
             ReceiverId = sendMessageDto.ReceiverId
         };
 

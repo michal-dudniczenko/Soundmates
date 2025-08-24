@@ -2,9 +2,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Soundmates.Api.DTOs.Matching;
 using Soundmates.Api.DTOs.Users;
+using Soundmates.Api.Extensions;
 using Soundmates.Domain.Entities;
 using Soundmates.Domain.Interfaces.Repositories;
-using System.IdentityModel.Tokens.Jwt;
 
 namespace Soundmates.Api.Controllers;
 
@@ -31,14 +31,9 @@ public class MatchingController : ControllerBase
     public async Task<IActionResult> CreateLike(
         [FromBody] SwipeDto swipeDto)
     {
-        var subClaim = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
-        if (subClaim is null || !int.TryParse(subClaim, out var authorizedUserId))
-        {
-            return Unauthorized(new { message = "Invalid access token." });
-        }
+        var authorizedUser = await this.GetAuthorizedUserAsync(userRepository: _userRepository, checkForFirstLogin: true);
 
-        var authorizedUser = await _userRepository.GetByIdAsync(authorizedUserId);
-        if (authorizedUser == null || authorizedUser.IsLoggedOut || authorizedUser.IsFirstLogin || authorizedUserId != swipeDto.GiverId)
+        if (authorizedUser is null)
         {
             return Unauthorized(new { message = "Invalid access token." });
         }
@@ -47,13 +42,13 @@ public class MatchingController : ControllerBase
         if (receiver == null || receiver.IsFirstLogin || !receiver.IsActive)
             return NotFound(new { message = $"No user with ID: {swipeDto.ReceiverId} was found." });
 
-        var like = new Like { GiverId = swipeDto.GiverId, ReceiverId = swipeDto.ReceiverId };
+        var like = new Like { GiverId = authorizedUser.Id, ReceiverId = swipeDto.ReceiverId };
 
         await _likeRepository.AddAsync(like);
 
-        if (await _likeRepository.CheckIfExistsAsync(giverId: swipeDto.ReceiverId, receiverId: swipeDto.GiverId))
+        if (await _likeRepository.CheckIfExistsAsync(giverId: swipeDto.ReceiverId, receiverId: authorizedUser.Id))
         {
-            var match = new Match { User1Id = swipeDto.GiverId, User2Id = swipeDto.ReceiverId };
+            var match = new Match { User1Id = authorizedUser.Id, User2Id = swipeDto.ReceiverId };
             await _matchRepository.AddAsync(match);
         }
 
@@ -66,14 +61,9 @@ public class MatchingController : ControllerBase
     public async Task<IActionResult> CreateDislike(
         [FromBody] SwipeDto swipeDto)
     {
-        var subClaim = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
-        if (subClaim is null || !int.TryParse(subClaim, out var authorizedUserId))
-        {
-            return Unauthorized(new { message = "Invalid access token." });
-        }
+        var authorizedUser = await this.GetAuthorizedUserAsync(userRepository: _userRepository, checkForFirstLogin: true);
 
-        var authorizedUser = await _userRepository.GetByIdAsync(authorizedUserId);
-        if (authorizedUser == null || authorizedUser.IsLoggedOut || authorizedUser.IsFirstLogin || authorizedUserId != swipeDto.GiverId)
+        if (authorizedUser is null)
         {
             return Unauthorized(new { message = "Invalid access token." });
         }
@@ -82,7 +72,7 @@ public class MatchingController : ControllerBase
         if (receiver == null || receiver.IsFirstLogin || !receiver.IsActive)
             return NotFound(new { message = $"No user with ID: {swipeDto.ReceiverId} was found." });
 
-        var dislike = new Dislike { GiverId = swipeDto.GiverId, ReceiverId = swipeDto.ReceiverId };
+        var dislike = new Dislike { GiverId = authorizedUser.Id, ReceiverId = swipeDto.ReceiverId };
 
         await _dislikeRepository.AddAsync(dislike);
 
@@ -96,28 +86,23 @@ public class MatchingController : ControllerBase
         [FromQuery] int limit = 20,
         [FromQuery] int offset = 0)
     {
-        var subClaim = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
-        if (subClaim is null || !int.TryParse(subClaim, out var authorizedUserId))
-        {
-            return Unauthorized(new { message = "Invalid access token." });
-        }
+        var authorizedUser = await this.GetAuthorizedUserAsync(userRepository: _userRepository, checkForFirstLogin: true);
 
-        var authorizedUser = await _userRepository.GetByIdAsync(authorizedUserId);
-        if (authorizedUser == null || authorizedUser.IsLoggedOut || authorizedUser.IsFirstLogin)
+        if (authorizedUser is null)
         {
             return Unauthorized(new { message = "Invalid access token." });
         }
 
         try
         {
-            var matches = await _matchRepository.GetUserMatchesAsync(authorizedUserId, limit, offset);
+            var matches = await _matchRepository.GetUserMatchesAsync(authorizedUser.Id, limit, offset);
 
             var userProfiles = new List<OtherUserProfileDto>();
 
             foreach (var match in matches)
             {
                 var user = await _userRepository.GetByIdAsync(
-                    match.User1Id == authorizedUserId ? match.User2Id : match.User1Id
+                    match.User1Id == authorizedUser.Id ? match.User2Id : match.User1Id
                 );
                 if (user is null || !user.IsActive || user.IsFirstLogin) continue;
 

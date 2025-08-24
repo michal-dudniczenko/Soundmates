@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Soundmates.Api.DTOs.Auth;
+using Soundmates.Api.Extensions;
 using Soundmates.Domain.Entities;
 using Soundmates.Domain.Interfaces.Auth;
 using Soundmates.Domain.Interfaces.Repositories;
-using System.IdentityModel.Tokens.Jwt;
 
 namespace Soundmates.Api.Controllers;
 
@@ -54,7 +54,7 @@ public class AuthController : ControllerBase
     {
         var user = await _userRepository.GetByEmailAsync(email: loginDto.Email);
 
-        if (user == null)
+        if (user is null)
         {
             return Unauthorized(new { message = "Invalid email or password." });
         }
@@ -100,19 +100,14 @@ public class AuthController : ControllerBase
     [Authorize]
     public async Task<IActionResult> Logout()
     {
-        var subClaim = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
-        if (subClaim is null || !int.TryParse(subClaim, out var authorizedUserId))
+        var authorizedUser = await this.GetAuthorizedUserAsync(userRepository: _userRepository, checkForFirstLogin: false);
+
+        if (authorizedUser is null)
         {
             return Unauthorized(new { message = "Invalid access token." });
         }
 
-        var user = await _userRepository.GetByIdAsync(authorizedUserId);
-        if (user == null || user.IsLoggedOut)
-        {
-            return Unauthorized(new { message = "Invalid access token." });
-        }
-
-        await _userRepository.LogOutUserAsync(userId: user.Id);
+        await _userRepository.LogOutUserAsync(userId: authorizedUser.Id);
 
         return Ok(new { message = "Logged out successfully." });
     }
