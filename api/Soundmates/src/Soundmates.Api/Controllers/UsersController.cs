@@ -30,7 +30,7 @@ public class UsersController : ControllerBase
 
         if (authorizedUser is null)
         {
-            return Unauthorized();
+            return Unauthorized("");
         }
 
         return Ok(new SelfUserProfileDto
@@ -54,7 +54,7 @@ public class UsersController : ControllerBase
 
         if (authorizedUser is null)
         {
-            return Unauthorized();
+            return Unauthorized("");
         }
 
         var user = await _userRepository.GetByIdAsync(id);
@@ -85,7 +85,7 @@ public class UsersController : ControllerBase
 
         if (authorizedUser is null)
         {
-            return Unauthorized();
+            return Unauthorized("");
         }
 
         try
@@ -121,7 +121,7 @@ public class UsersController : ControllerBase
 
         if (authorizedUser is null)
         {
-            return Unauthorized();
+            return Unauthorized("");
         }
 
         var updatedUser = new User
@@ -164,7 +164,7 @@ public class UsersController : ControllerBase
 
         if (authorizedUser is null)
         {
-            return Unauthorized();
+            return Unauthorized("");
         }
 
         if (!_authService.VerifyPasswordHash(password: passwordDto.Password, passwordHash: authorizedUser.PasswordHash))
@@ -187,7 +187,7 @@ public class UsersController : ControllerBase
 
         if (authorizedUser is null)
         {
-            return Unauthorized();
+            return Unauthorized("");
         }
 
         if (!_authService.VerifyPasswordHash(password: changePasswordDto.OldPassword, passwordHash: authorizedUser.PasswordHash))
