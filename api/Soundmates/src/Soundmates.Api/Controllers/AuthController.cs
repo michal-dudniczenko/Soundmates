@@ -104,7 +104,7 @@ public class AuthController : ControllerBase
 
         if (authorizedUser is null)
         {
-            return Unauthorized(new { message = "Invalid access token." });
+            return Unauthorized();
         }
 
         await _userRepository.LogOutUserAsync(userId: authorizedUser.Id);

@@ -33,7 +33,7 @@ public class MessagesController : ControllerBase
 
         if (authorizedUser is null)
         {
-            return Unauthorized(new { message = "Invalid access token." });
+            return Unauthorized();
         }
 
         try
@@ -71,7 +71,7 @@ public class MessagesController : ControllerBase
 
         if (authorizedUser is null)
         {
-            return Unauthorized(new { message = "Invalid access token." });
+            return Unauthorized();
         }
 
         var user = await _userRepository.GetByIdAsync(userId);
@@ -114,7 +114,7 @@ public class MessagesController : ControllerBase
 
         if (authorizedUser is null)
         {
-            return Unauthorized(new { message = "Invalid access token." });
+            return Unauthorized();
         }
 
         var otherUser = await _userRepository.GetByIdAsync(sendMessageDto.ReceiverId);

@@ -35,7 +35,7 @@ public class MatchingController : ControllerBase
 
         if (authorizedUser is null)
         {
-            return Unauthorized(new { message = "Invalid access token." });
+            return Unauthorized();
         }
 
         var receiver = await _userRepository.GetByIdAsync(swipeDto.ReceiverId);
@@ -65,7 +65,7 @@ public class MatchingController : ControllerBase
 
         if (authorizedUser is null)
         {
-            return Unauthorized(new { message = "Invalid access token." });
+            return Unauthorized();
         }
 
         var receiver = await _userRepository.GetByIdAsync(swipeDto.ReceiverId);
@@ -90,7 +90,7 @@ public class MatchingController : ControllerBase
 
         if (authorizedUser is null)
         {
-            return Unauthorized(new { message = "Invalid access token." });
+            return Unauthorized();
         }
 
         try
