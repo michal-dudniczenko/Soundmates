@@ -31,11 +31,6 @@ public class AuthController : ControllerBase
             return BadRequest(new { message = "User with that email address already exists." });
         }
 
-        if (!_authService.ValidatePasswordStrength(registerUserDto.Password))
-        {
-            return BadRequest(new { message = "Incorrect password." });
-        }
-
         var user = new User
         {
             Email = registerUserDto.Email,

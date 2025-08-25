@@ -195,11 +195,6 @@ public class UsersController : ControllerBase
             return Unauthorized(new { message = "Old password is incorrect." });
         }
 
-        if (!_authService.ValidatePasswordStrength(changePasswordDto.NewPassword))
-        {
-            return BadRequest(new { message = "New password is invalid." });
-        }
-
         await _userRepository.UpdateUserPasswordAsync(userId: authorizedUser.Id, newPassword: changePasswordDto.NewPassword);
 
         return Ok(new { message = "Password changed successfully." });

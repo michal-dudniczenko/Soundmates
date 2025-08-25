@@ -7,27 +7,22 @@ public class User
     public int Id { get; set; }
 
     [MaxLength(100)] 
-    [EmailAddress]
     public required string Email { get; set; }
 
     public required string PasswordHash { get; set; }
 
     [MaxLength(50)]
-    [RegularExpression(@"\S+", ErrorMessage = "Name cannot be empty or whitespace.")]
     public string? Name { get; set; } = null;
 
     [MaxLength(500)]
     public string? Description { get; set; } = null;
 
-    [BirthYear]
     public int? BirthYear { get; set; } = null;
 
     [MaxLength(100)]
-    [RegularExpression(@"\S+", ErrorMessage = "City cannot be empty or whitespace.")]
     public string? City { get; set; } = null;
 
     [MaxLength(100)]
-    [RegularExpression(@"\S+", ErrorMessage = "Country cannot be empty or whitespace.")]
     public string? Country { get; set; } = null;
 
     public string? RefreshTokenHash { get; set; } = null;

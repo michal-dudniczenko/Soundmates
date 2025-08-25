@@ -1,5 +1,15 @@
-﻿namespace Soundmates.Api.DTOs.Auth;
+﻿using System.ComponentModel.DataAnnotations;
 
-public class RegisterDto : CredentialsDto
-{ 
+namespace Soundmates.Api.DTOs.Auth;
+
+public class RegisterDto
+{
+    [Required]
+    [MaxLength(100)]
+    [EmailAddress]
+    public required string Email { get; set; }
+
+    [Required]
+    [Password]
+    public required string Password { get; set; }
 }

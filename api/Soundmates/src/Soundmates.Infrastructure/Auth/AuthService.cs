@@ -66,23 +66,6 @@ public class AuthService : IAuthService
         return Convert.ToBase64String(hash);
     }
 
-    public bool ValidatePasswordStrength(string password)
-    {
-        if (string.IsNullOrWhiteSpace(password) || password.Length < 8)
-            return false;
-
-        // Reject if contains anything outside standard printable ASCII range (33–126)
-        if (password.Any(ch => ch < 33 || ch > 126))
-            return false;
-
-        bool hasUpper = password.Any(char.IsUpper);
-        bool hasLower = password.Any(char.IsLower);
-        bool hasDigit = password.Any(char.IsDigit);
-        bool hasSpecial = password.Any(ch => !char.IsLetterOrDigit(ch));
-
-        return hasUpper && hasLower && hasDigit && hasSpecial;
-    }
-
     public bool VerifyPasswordHash(string password, string passwordHash)
     {
         var result = _passwordHasher.VerifyHashedPassword(user: null!, hashedPassword: passwordHash, providedPassword: password);
