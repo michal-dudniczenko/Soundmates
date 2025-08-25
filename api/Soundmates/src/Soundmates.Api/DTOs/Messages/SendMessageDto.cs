@@ -8,6 +8,5 @@ public class SendMessageDto
 
     [Required]
     [MaxLength(4000)]
-    [RegularExpression(@"\S+", ErrorMessage = "Message content cannot be empty or whitespace.")]
     public required string Content { get; set; }
 }

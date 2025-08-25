@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Soundmates.Api.DTOs.CustomValidations;
+using System.ComponentModel.DataAnnotations;
 
 namespace Soundmates.Api.DTOs.Users;
 
