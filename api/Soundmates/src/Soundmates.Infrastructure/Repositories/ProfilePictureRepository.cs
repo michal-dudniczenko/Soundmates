@@ -16,7 +16,9 @@ public class ProfilePictureRepository : IProfilePictureRepository
 
     public async Task<ProfilePicture?> GetByIdAsync(int entityId)
     {
-        return await _context.ProfilePictures.FindAsync(entityId);
+        return await _context.ProfilePictures
+            .AsNoTracking()
+            .FirstOrDefaultAsync(e => e.Id == entityId);
     }
 
     public async Task<IEnumerable<ProfilePicture>> GetAllAsync(int limit = 50, int offset = 0)

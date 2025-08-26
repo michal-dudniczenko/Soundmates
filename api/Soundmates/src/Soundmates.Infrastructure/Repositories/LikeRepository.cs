@@ -16,7 +16,9 @@ public class LikeRepository : ILikeRepository
 
     public async Task<Like?> GetByIdAsync(int entityId)
     {
-        return await _context.Likes.FindAsync(entityId);
+        return await _context.Likes
+            .AsNoTracking()
+            .FirstOrDefaultAsync(e => e.Id == entityId);
     }
 
     public async Task<IEnumerable<Like>> GetAllAsync(int limit = 50, int offset = 0)

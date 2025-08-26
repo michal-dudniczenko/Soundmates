@@ -16,7 +16,9 @@ public class DislikeRepository : IDislikeRepository
 
     public async Task<Dislike?> GetByIdAsync(int entityId)
     {
-        return await _context.Dislikes.FindAsync(entityId);
+        return await _context.Dislikes
+            .AsNoTracking()
+            .FirstOrDefaultAsync(e => e.Id == entityId);
     }
 
     public async Task<IEnumerable<Dislike>> GetAllAsync(int limit = 50, int offset = 0)

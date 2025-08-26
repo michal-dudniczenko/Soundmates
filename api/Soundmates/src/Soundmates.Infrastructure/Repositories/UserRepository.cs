@@ -19,7 +19,9 @@ public class UserRepository : IUserRepository
 
     public async Task<User?> GetByIdAsync(int entityId)
     {
-        return await _context.Users.FindAsync(entityId);
+        return await _context.Users
+            .AsNoTracking()
+            .FirstOrDefaultAsync(e => e.Id == entityId);
     }
 
     public async Task<IEnumerable<User>> GetAllAsync(int limit = 50, int offset = 0)
@@ -68,7 +70,9 @@ public class UserRepository : IUserRepository
 
     public async Task<User?> GetByEmailAsync(string email)
     {
-        return await _context.Users.FirstOrDefaultAsync(e => e.Email == email);
+        return await _context.Users
+            .AsNoTracking()
+            .FirstOrDefaultAsync(e => e.Email == email);
     }
 
     public async Task<IEnumerable<User>> GetAllActiveAsync(int limit = 50, int offset = 0)
@@ -152,11 +156,16 @@ public class UserRepository : IUserRepository
     public async Task<int?> CheckRefreshTokenGetUserIdAsync(string refreshToken)
     {
         var refreshTokenHash = _authService.GetRefreshTokenHash(refreshToken);
-        var user = await _context.Users.FirstOrDefaultAsync(e => e.RefreshTokenHash == refreshTokenHash);
+
+        var user = await _context.Users
+            .AsNoTracking()
+            .FirstOrDefaultAsync(e => e.RefreshTokenHash == refreshTokenHash);
+
         if (user is null || user.RefreshTokenExpiresAt < DateTime.UtcNow)
         {
             return null;
         }
+
         return user.Id;
     }
 }

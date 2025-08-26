@@ -16,7 +16,9 @@ public class MessageRepository : IMessageRepository
 
     public async Task<Message?> GetByIdAsync(int entityId)
     {
-        return await _context.Messages.FindAsync(entityId);
+        return await _context.Messages
+            .AsNoTracking()
+            .FirstOrDefaultAsync(e => e.Id == entityId);
     }
 
     public async Task<IEnumerable<Message>> GetAllAsync(int limit = 50, int offset = 0)

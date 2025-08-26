@@ -16,7 +16,9 @@ public class MusicSampleRepository : IMusicSampleRepository
 
     public async Task<MusicSample?> GetByIdAsync(int entityId)
     {
-        return await _context.MusicSamples.FindAsync(entityId);
+        return await _context.MusicSamples
+            .AsNoTracking()
+            .FirstOrDefaultAsync(e => e.Id == entityId);
     }
 
     public async Task<IEnumerable<MusicSample>> GetAllAsync(int limit = 50, int offset = 0)

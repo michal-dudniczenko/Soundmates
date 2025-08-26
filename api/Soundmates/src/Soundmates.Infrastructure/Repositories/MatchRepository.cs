@@ -16,7 +16,9 @@ public class MatchRepository : IMatchRepository
 
     public async Task<Match?> GetByIdAsync(int entityId)
     {
-        return await _context.Matches.FindAsync(entityId);
+        return await _context.Matches
+            .AsNoTracking()
+            .FirstOrDefaultAsync(e => e.Id == entityId);
     }
 
     public async Task<IEnumerable<Match>> GetAllAsync(int limit = 50, int offset = 0)
