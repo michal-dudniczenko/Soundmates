@@ -137,7 +137,7 @@ public class UsersController : ControllerBase
             RefreshTokenHash = authorizedUser.RefreshTokenHash,
             RefreshTokenExpiresAt = authorizedUser.RefreshTokenExpiresAt,
             IsActive = authorizedUser.IsActive,
-            IsFirstLogin = authorizedUser.IsFirstLogin,
+            IsFirstLogin = false,
             IsEmailConfirmed = authorizedUser.IsEmailConfirmed,
             IsLoggedOut = authorizedUser.IsLoggedOut
         };
