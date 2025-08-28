@@ -9,4 +9,5 @@ public abstract class UserMedia
     [MaxLength(100)]
     public required string FileName { get; set; }
     public required int UserId { get; set; }
+    public int DisplayOrder { get; set; } = 0;
 }

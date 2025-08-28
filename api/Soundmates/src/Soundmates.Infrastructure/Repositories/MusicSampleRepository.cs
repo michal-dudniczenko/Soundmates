@@ -37,6 +37,10 @@ public class MusicSampleRepository : IMusicSampleRepository
     {
         ArgumentNullException.ThrowIfNull(entity);
 
+        var currentCount = await GetUserMusicSamplesCountAsync(entity.UserId);
+
+        entity.DisplayOrder = currentCount;
+
         await _context.MusicSamples.AddAsync(entity);
         await _context.SaveChangesAsync();
     }
@@ -45,6 +49,10 @@ public class MusicSampleRepository : IMusicSampleRepository
     {
         var entity = await _context.MusicSamples.FindAsync(entityId)
             ?? throw new KeyNotFoundException(RepositoryUtils.GetKeyNotFoundMessage<MusicSample>(entityId: entityId));
+
+        await _context.MusicSamples
+            .Where(e => e.UserId == entity.UserId && e.DisplayOrder > entity.DisplayOrder)
+            .ForEachAsync(e => e.DisplayOrder--);
 
         _context.MusicSamples.Remove(entity);
         await _context.SaveChangesAsync();
@@ -79,9 +87,45 @@ public class MusicSampleRepository : IMusicSampleRepository
         return await _context.MusicSamples
             .AsNoTracking()
             .Where(e => e.UserId == userId)
-            .OrderBy(e => e.Id)
+            .OrderBy(e => e.DisplayOrder)
             .Skip(offset)
             .Take(limit)
             .ToListAsync();
+    }
+
+    public async Task<int> GetUserMusicSamplesCountAsync(int userId)
+    {
+        return await _context.MusicSamples.CountAsync(e => e.UserId == userId);
+    }
+
+    public async Task MoveDisplayOrderUpAsync(int musicSampleId)
+    {
+        var entity = await _context.MusicSamples.FindAsync(musicSampleId)
+            ?? throw new KeyNotFoundException(RepositoryUtils.GetKeyNotFoundMessage<MusicSample>(entityId: musicSampleId));
+
+        var nextOrderEntity = await _context.MusicSamples.FirstOrDefaultAsync(e => e.UserId == entity.UserId && e.DisplayOrder == entity.DisplayOrder + 1)
+            ?? throw new InvalidOperationException("Music sample has already last display order.");
+
+        entity.DisplayOrder++;
+        nextOrderEntity.DisplayOrder--;
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task MoveDisplayOrderDownAsync(int musicSampleId)
+    {
+        var entity = await _context.MusicSamples.FindAsync(musicSampleId)
+            ?? throw new KeyNotFoundException(RepositoryUtils.GetKeyNotFoundMessage<MusicSample>(entityId: musicSampleId));
+
+        if (entity.DisplayOrder == 0)
+        {
+            throw new InvalidOperationException("Music sample is already first in display order.");
+        }
+
+        var previousOrderEntity = await _context.MusicSamples.FirstOrDefaultAsync(e => e.UserId == entity.UserId && e.DisplayOrder == entity.DisplayOrder - 1)
+            ?? throw new InvalidOperationException("Music sample is already first in display order.");
+
+        entity.DisplayOrder--;
+        previousOrderEntity.DisplayOrder++;
+        await _context.SaveChangesAsync();
     }
 }

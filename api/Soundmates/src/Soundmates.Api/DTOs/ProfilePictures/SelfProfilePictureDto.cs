@@ -4,4 +4,5 @@ public class SelfProfilePictureDto
 {
     public required int Id { get; set; }
     public required string FileUrl { get; set; }
+    public required int DisplayOrder { get; set; }
 }

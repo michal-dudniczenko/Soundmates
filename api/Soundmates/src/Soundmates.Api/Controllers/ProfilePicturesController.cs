@@ -16,6 +16,7 @@ public class ProfilePicturesController : ControllerBase
     private const int maxImageSizeMb = 5;
     private const int maxImageSize = 5 * 1024 * 1024;
     private readonly string[] allowedFileExtensions = ["image/jpeg", "image/jpg"];
+    private const int maxProfilePicturesCount = 5;
 
     private readonly IUserRepository _userRepository;
     private readonly IProfilePictureRepository _profilePictureRepository;
@@ -43,7 +44,8 @@ public class ProfilePicturesController : ControllerBase
         var profilePicturesDtos = profilePictures.Select(pp => new SelfProfilePictureDto
         {
             Id = pp.Id,
-            FileUrl = imagesPath + pp.FileName
+            FileUrl = imagesPath + pp.FileName,
+            DisplayOrder = pp.DisplayOrder
         });
 
         return Ok(profilePicturesDtos);
@@ -71,7 +73,8 @@ public class ProfilePicturesController : ControllerBase
 
         var profilePicturesDtos = profilePictures.Select(pp => new OtherUserProfilePictureDto
         {
-            FileUrl = imagesPath + pp.FileName
+            FileUrl = imagesPath + pp.FileName,
+            DisplayOrder = pp.DisplayOrder
         });
 
         return Ok(profilePicturesDtos);
@@ -103,6 +106,13 @@ public class ProfilePicturesController : ControllerBase
         if (file.Length > maxImageSize)
         {
             return BadRequest(new { message = $"File size cannot exceed {maxImageSizeMb} MB." });
+        }
+
+        var currentUserProfilePicturesCount = await _profilePictureRepository.GetUserProfilePicturesCountAsync(authorizedUser.Id);
+
+        if (currentUserProfilePicturesCount >= maxProfilePicturesCount)
+        {
+            return BadRequest(new { message = $"User can upload maximum of {maxProfilePicturesCount} profile pictures." });
         }
 
         var extension = Path.GetExtension(file.FileName).ToLower();
@@ -161,6 +171,79 @@ public class ProfilePicturesController : ControllerBase
             {
                 return StatusCode(500, new { message = "Failed to delete profile picture file." });
             }
+        }
+
+        return Ok();
+    }
+
+    // POST /profile-pictures/move-display-order-up/{pictureId}
+    [HttpPost("move-display-order-up/{pictureId}")]
+    [Authorize]
+    public async Task<IActionResult> MoveDisplayOrderUp(int pictureId)
+    {
+        var authorizedUser = await this.GetAuthorizedUserAsync(userRepository: _userRepository, checkForFirstLogin: true);
+
+        if (authorizedUser is null)
+        {
+            return Unauthorized("");
+        }
+
+        var profilePicture = await _profilePictureRepository.GetByIdAsync(pictureId);
+
+        if (profilePicture is null)
+        {
+            return NotFound(new { message = "No profile picture with specified id." });
+        }
+
+        if (profilePicture.UserId != authorizedUser.Id)
+        {
+            return Unauthorized("");
+        }
+
+        try
+        {
+            await _profilePictureRepository.MoveDisplayOrderUpAsync(pictureId);
+
+        } catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+
+        return Ok();
+    }
+
+    // POST /profile-pictures/move-display-order-down/{pictureId}
+    [HttpPost("move-display-order-down/{pictureId}")]
+    [Authorize]
+    public async Task<IActionResult> MoveDisplayOrderDown(int pictureId)
+    {
+        var authorizedUser = await this.GetAuthorizedUserAsync(userRepository: _userRepository, checkForFirstLogin: true);
+
+        if (authorizedUser is null)
+        {
+            return Unauthorized("");
+        }
+
+        var profilePicture = await _profilePictureRepository.GetByIdAsync(pictureId);
+
+        if (profilePicture is null)
+        {
+            return NotFound(new { message = "No profile picture with specified id." });
+        }
+
+        if (profilePicture.UserId != authorizedUser.Id)
+        {
+            return Unauthorized("");
+        }
+
+        try
+        {
+            await _profilePictureRepository.MoveDisplayOrderDownAsync(pictureId);
+
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
         }
 
         return Ok();
