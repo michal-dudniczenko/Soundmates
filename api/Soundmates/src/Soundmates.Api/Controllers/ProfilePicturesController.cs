@@ -12,9 +12,9 @@ namespace Soundmates.Api.Controllers;
 [ApiController]
 public class ProfilePicturesController : ControllerBase
 {
-    private const string imagesPath = "images/";
+    private const string imagesDirectoryPath = "images";
     private const int maxImageSizeMb = 5;
-    private const int maxImageSize = 5 * 1024 * 1024;
+    private const int maxImageSize = maxImageSizeMb * 1024 * 1024;
     private readonly string[] allowedFileExtensions = ["image/jpeg", "image/jpg"];
     private const int maxProfilePicturesCount = 5;
 
@@ -44,7 +44,7 @@ public class ProfilePicturesController : ControllerBase
         var profilePicturesDtos = profilePictures.Select(pp => new SelfProfilePictureDto
         {
             Id = pp.Id,
-            FileUrl = imagesPath + pp.FileName,
+            FileUrl = imagesDirectoryPath + "/" + pp.FileName,
             DisplayOrder = pp.DisplayOrder
         });
 
@@ -73,7 +73,7 @@ public class ProfilePicturesController : ControllerBase
 
         var profilePicturesDtos = profilePictures.Select(pp => new OtherUserProfilePictureDto
         {
-            FileUrl = imagesPath + pp.FileName,
+            FileUrl = imagesDirectoryPath + "/" + pp.FileName,
             DisplayOrder = pp.DisplayOrder
         });
 
@@ -117,7 +117,7 @@ public class ProfilePicturesController : ControllerBase
 
         var extension = Path.GetExtension(file.FileName).ToLower();
         var fileName = $"{Guid.NewGuid()}{extension}";
-        var filePath = Path.Combine("wwwroot", "images", fileName);
+        var filePath = Path.Combine("wwwroot", imagesDirectoryPath, fileName);
 
         using (var stream = new FileStream(filePath, FileMode.Create))
         {
@@ -159,7 +159,7 @@ public class ProfilePicturesController : ControllerBase
             return Unauthorized("");
         }
 
-        var filePath = Path.Combine("wwwroot", "images", profilePicture.FileName);
+        var filePath = Path.Combine("wwwroot", imagesDirectoryPath, profilePicture.FileName);
         if (System.IO.File.Exists(filePath))
         {
             try
