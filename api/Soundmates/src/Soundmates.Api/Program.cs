@@ -6,7 +6,6 @@ using Soundmates.Domain.Interfaces.Repositories;
 using Soundmates.Infrastructure.Auth;
 using Soundmates.Infrastructure.Database;
 using Soundmates.Infrastructure.Repositories;
-using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
