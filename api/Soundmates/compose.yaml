@@ -14,6 +14,9 @@ services:
       db:
         condition: service_healthy
         restart: true
+    volumes:
+      - ./src/Soundmates.Api/wwwroot/images:/app/wwwroot/images
+      - ./src/Soundmates.Api/wwwroot/mp3:/app/wwwroot/mp3
 
   db:
     image: postgres:17
