@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using NAudio.Wave;
 using Soundmates.Api.DTOs.MusicSamples;
 using Soundmates.Api.Extensions;
 using Soundmates.Domain.Entities;
+using Soundmates.Domain.Interfaces.Mp3;
 using Soundmates.Domain.Interfaces.Repositories;
 
 namespace Soundmates.Api.Controllers;
@@ -19,11 +19,14 @@ public class MusicSamplesController : ControllerBase
     private const int maxMusicSamplesCount = 5;
     private readonly TimeSpan maxSampleDuration = TimeSpan.FromMinutes(5);
 
+    private readonly IMp3Service _mp3Service;
+
     private readonly IUserRepository _userRepository;
     private readonly IMusicSampleRepository _musicSampleRepository;
 
-    public MusicSamplesController(IUserRepository userRepository, IMusicSampleRepository musicSampleRepository)
+    public MusicSamplesController(IMp3Service mp3Service, IUserRepository userRepository, IMusicSampleRepository musicSampleRepository)
     {
+        _mp3Service = mp3Service;
         _userRepository = userRepository;
         _musicSampleRepository = musicSampleRepository;
     }
@@ -111,8 +114,8 @@ public class MusicSamplesController : ControllerBase
 
         try
         {
-            using var mp3Reader = new Mp3FileReader(file.OpenReadStream());
-            var duration = mp3Reader.TotalTime;
+            using var stream = file.OpenReadStream();
+            var duration = _mp3Service.GetMp3FileDuration(stream);
 
             if (duration > maxSampleDuration)
                 return BadRequest(new { message = $"Sample is too long. Maximum duration is {maxSampleDuration.TotalSeconds} seconds." });

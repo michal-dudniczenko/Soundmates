@@ -2,9 +2,11 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Soundmates.Domain.Interfaces.Auth;
+using Soundmates.Domain.Interfaces.Mp3;
 using Soundmates.Domain.Interfaces.Repositories;
 using Soundmates.Infrastructure.Auth;
 using Soundmates.Infrastructure.Database;
+using Soundmates.Infrastructure.Mp3;
 using Soundmates.Infrastructure.Repositories;
 using System.Text;
 
@@ -30,6 +32,7 @@ if (string.IsNullOrEmpty(secretKey))
 }
 
 builder.Services.AddSingleton<IAuthService>(new AuthService(secretKey));
+builder.Services.AddSingleton<IMp3Service>(new Mp3Service());
 
 builder.Services.AddScoped<IDislikeRepository, DislikeRepository>();
 builder.Services.AddScoped<ILikeRepository, LikeRepository>();
