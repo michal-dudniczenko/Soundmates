@@ -1,46 +1,28 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Soundmates.Domain.Interfaces.Auth;
-using Soundmates.Domain.Interfaces.Mp3;
-using Soundmates.Domain.Interfaces.Repositories;
-using Soundmates.Infrastructure.Auth;
+using Soundmates.Api.Handlers;
+using Soundmates.Api.Middleware;
 using Soundmates.Infrastructure.Database;
-using Soundmates.Infrastructure.Mp3;
-using Soundmates.Infrastructure.Repositories;
+using Soundmates.Infrastructure.Extensions;
+using System.Reflection;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+builder.Services.AddInfrastructure(builder.Configuration);
 
-if (string.IsNullOrWhiteSpace(connectionString))
+builder.Services.AddMediatR(cfg => 
 {
-    throw new InvalidOperationException("Database connection string is not configured.");
-}
-
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-{
-    options.UseNpgsql(connectionString);
+    var applicationAssembly = Assembly.Load("Soundmates.Application");
+    cfg.RegisterServicesFromAssemblies(applicationAssembly);
 });
 
 var secretKey = builder.Configuration["SecretKey"];
-
 if (string.IsNullOrEmpty(secretKey))
 {
     throw new InvalidOperationException("Secret key is not configured.");
 }
-
-builder.Services.AddSingleton<IAuthService>(new AuthService(secretKey));
-builder.Services.AddSingleton<IMp3Service>(new Mp3Service());
-
-builder.Services.AddScoped<IDislikeRepository, DislikeRepository>();
-builder.Services.AddScoped<ILikeRepository, LikeRepository>();
-builder.Services.AddScoped<IMatchRepository, MatchRepository>();
-builder.Services.AddScoped<IMessageRepository, MessageRepository>();
-builder.Services.AddScoped<IMusicSampleRepository, MusicSampleRepository>();
-builder.Services.AddScoped<IProfilePictureRepository, ProfilePictureRepository>();
-builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -54,13 +36,17 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
         };
     });
-
 builder.Services.AddAuthorization();
 
 builder.Services.AddControllers();
 builder.Services.AddOpenApi(documentName: "soundmates");
 
+builder.Services.AddProblemDetails();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+
 var app = builder.Build();
+
+app.UseMiddleware<LogRequestInfoMiddleware>();
 
 if (app.Environment.IsDevelopment())
 {
@@ -70,6 +56,8 @@ if (app.Environment.IsDevelopment())
     var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     await dbContext.Database.MigrateAsync();
 }
+
+app.UseExceptionHandler();
 
 app.UseStaticFiles();
 
