@@ -2,6 +2,7 @@
 using Soundmates.Domain.Entities;
 using Soundmates.Domain.Interfaces.Repositories;
 using Soundmates.Infrastructure.Database;
+using Soundmates.Infrastructure.Repositories.Utils;
 
 namespace Soundmates.Infrastructure.Repositories;
 
@@ -21,7 +22,7 @@ public class LikeRepository : ILikeRepository
             .FirstOrDefaultAsync(e => e.Id == entityId);
     }
 
-    public async Task<IEnumerable<Like>> GetAllAsync(int limit = 50, int offset = 0)
+    public async Task<IEnumerable<Like>> GetAllAsync(int limit, int offset)
     {
         RepositoryUtils.ValidateLimitOffset(limit: limit, offset: offset);
 
@@ -33,48 +34,46 @@ public class LikeRepository : ILikeRepository
             .ToListAsync();
     }
 
-    public async Task AddAsync(Like entity)
+    public async Task<bool> CheckIfExistsAsync(int entityId)
+    {
+        return await _context.Likes.AnyAsync(e => e.Id == entityId);
+    }
+
+    public async Task<int> AddAsync(Like entity)
     {
         ArgumentNullException.ThrowIfNull(entity);
 
-        await _context.Likes.AddAsync(entity);
+        _context.Likes.Add(entity);
         await _context.SaveChangesAsync();
+
+        return entity.Id;
     }
 
-    public async Task RemoveAsync(int entityId)
+    public async Task<bool> UpdateAsync(Like entity)
     {
-        var entity = await _context.Likes.FindAsync(entityId)
-            ?? throw new KeyNotFoundException(RepositoryUtils.GetKeyNotFoundMessage<Like>(entityId: entityId));
+        ArgumentNullException.ThrowIfNull(entity);
+
+        _context.Likes.Update(entity);
+        var affected = await _context.SaveChangesAsync();
+
+        return affected > 0;
+    }
+
+    public async Task<bool> RemoveAsync(int entityId)
+    {
+        var entity = await _context.Likes.FindAsync(entityId);
+
+        if (entity is null) return false;
 
         _context.Likes.Remove(entity);
         await _context.SaveChangesAsync();
+
+        return true;
     }
 
-    public async Task UpdateAsync(Like entity)
-    {
-        ArgumentNullException.ThrowIfNull(entity);
-
-        var exists = await _context.Likes.AnyAsync(e => e.Id == entity.Id);
-
-        if (!exists)
-        {
-            throw new KeyNotFoundException(RepositoryUtils.GetKeyNotFoundMessage<Like>(entityId: entity.Id));
-        }
-
-        _context.Likes.Update(entity);
-        await _context.SaveChangesAsync();
-    }
-
-    public async Task<IEnumerable<Like>> GetUserGivenLikesAsync(int userId, int limit = 50, int offset = 0)
+    public async Task<IEnumerable<Like>> GetUserGivenLikesAsync(int userId, int limit, int offset)
     {
         RepositoryUtils.ValidateLimitOffset(limit: limit, offset: offset);
-
-        var exists = await _context.Users.AnyAsync(e => e.Id == userId);
-
-        if (!exists)
-        {
-            throw new KeyNotFoundException(RepositoryUtils.GetKeyNotFoundMessage<User>(entityId: userId));
-        }
 
         return await _context.Likes
             .AsNoTracking()
@@ -85,16 +84,9 @@ public class LikeRepository : ILikeRepository
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<Like>> GetUserReceivedLikesAsync(int userId, int limit = 50, int offset = 0)
+    public async Task<IEnumerable<Like>> GetUserReceivedLikesAsync(int userId, int limit, int offset)
     {
         RepositoryUtils.ValidateLimitOffset(limit: limit, offset: offset);
-
-        var exists = await _context.Users.AnyAsync(e => e.Id == userId);
-
-        if (!exists)
-        {
-            throw new KeyNotFoundException(RepositoryUtils.GetKeyNotFoundMessage<User>(entityId: userId));
-        }
 
         return await _context.Likes
             .AsNoTracking()

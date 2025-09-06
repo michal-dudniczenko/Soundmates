@@ -3,8 +3,9 @@
 public interface IBaseRepository<T> where T : class
 {
     Task<T?> GetByIdAsync(int entityId);
-    Task<IEnumerable<T>> GetAllAsync(int limit = 50, int offset = 0);
-    Task AddAsync(T entity);
-    Task UpdateAsync(T entity);
-    Task RemoveAsync(int entityId);
+    Task<IEnumerable<T>> GetAllAsync(int limit, int offset);
+    Task<bool> CheckIfExistsAsync(int entityId);
+    Task<int> AddAsync(T entity);
+    Task<bool> UpdateAsync(T entity);
+    Task<bool> RemoveAsync(int entityId);
 }

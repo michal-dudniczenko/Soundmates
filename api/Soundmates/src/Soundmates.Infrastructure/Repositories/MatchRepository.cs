@@ -2,6 +2,7 @@
 using Soundmates.Domain.Entities;
 using Soundmates.Domain.Interfaces.Repositories;
 using Soundmates.Infrastructure.Database;
+using Soundmates.Infrastructure.Repositories.Utils;
 
 namespace Soundmates.Infrastructure.Repositories;
 
@@ -21,7 +22,7 @@ public class MatchRepository : IMatchRepository
             .FirstOrDefaultAsync(e => e.Id == entityId);
     }
 
-    public async Task<IEnumerable<Match>> GetAllAsync(int limit = 50, int offset = 0)
+    public async Task<IEnumerable<Match>> GetAllAsync(int limit, int offset)
     {
         RepositoryUtils.ValidateLimitOffset(limit: limit, offset: offset);
 
@@ -33,54 +34,55 @@ public class MatchRepository : IMatchRepository
             .ToListAsync();
     }
 
-    public async Task AddAsync(Match entity)
+    public async Task<bool> CheckIfExistsAsync(int entityId)
+    {
+        return await _context.Matches.AnyAsync(e => e.Id == entityId);
+    }
+
+    public async Task<int> AddAsync(Match entity)
     {
         ArgumentNullException.ThrowIfNull(entity);
 
-        if (await _context.Matches.AnyAsync(e => (e.User1Id == entity.User1Id && e.User2Id == entity.User2Id) 
-        || (e.User1Id == entity.User2Id && e.User2Id == entity.User1Id)))
+        var existing = await _context.Matches.FirstOrDefaultAsync(e => 
+            (e.User1Id == entity.User1Id && e.User2Id == entity.User2Id) || 
+            (e.User1Id == entity.User2Id && e.User2Id == entity.User1Id));
+
+        if (existing is not null)
         {
-            return;
+            return existing.Id;
         }
 
-        await _context.Matches.AddAsync(entity);
+        _context.Matches.Add(entity);
         await _context.SaveChangesAsync();
+
+        return entity.Id;
     }
 
-    public async Task RemoveAsync(int entityId)
+    public async Task<bool> UpdateAsync(Match entity)
     {
-        var entity = await _context.Matches.FindAsync(entityId)
-            ?? throw new KeyNotFoundException(RepositoryUtils.GetKeyNotFoundMessage<Match>(entityId: entityId));
+        ArgumentNullException.ThrowIfNull(entity);
+
+        _context.Matches.Update(entity);
+        var affected = await _context.SaveChangesAsync();
+
+        return affected > 0;
+    }
+
+    public async Task<bool> RemoveAsync(int entityId)
+    {
+        var entity = await _context.Matches.FindAsync(entityId);
+
+        if (entity is null) return false;
 
         _context.Matches.Remove(entity);
         await _context.SaveChangesAsync();
+
+        return true;
     }
 
-    public async Task UpdateAsync(Match entity)
-    {
-        ArgumentNullException.ThrowIfNull(entity);
-
-        var exists = await _context.Matches.AnyAsync(e => e.Id == entity.Id);
-
-        if (!exists)
-        {
-            throw new KeyNotFoundException(RepositoryUtils.GetKeyNotFoundMessage<Match>(entityId: entity.Id));
-        }
-
-        _context.Matches.Update(entity);
-        await _context.SaveChangesAsync();
-    }
-
-    public async Task<IEnumerable<Match>> GetUserMatchesAsync(int userId, int limit = 50, int offset = 0)
+    public async Task<IEnumerable<Match>> GetUserMatchesAsync(int userId, int limit, int offset)
     {
         RepositoryUtils.ValidateLimitOffset(limit: limit, offset: offset);
-
-        var exists = await _context.Users.AnyAsync(e => e.Id == userId);
-
-        if (!exists)
-        {
-            throw new KeyNotFoundException(RepositoryUtils.GetKeyNotFoundMessage<User>(entityId: userId));
-        }
 
         return await _context.Matches
             .AsNoTracking()

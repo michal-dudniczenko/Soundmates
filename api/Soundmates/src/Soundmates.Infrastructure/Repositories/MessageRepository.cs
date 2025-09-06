@@ -2,6 +2,7 @@
 using Soundmates.Domain.Entities;
 using Soundmates.Domain.Interfaces.Repositories;
 using Soundmates.Infrastructure.Database;
+using Soundmates.Infrastructure.Repositories.Utils;
 
 namespace Soundmates.Infrastructure.Repositories;
 
@@ -21,7 +22,7 @@ public class MessageRepository : IMessageRepository
             .FirstOrDefaultAsync(e => e.Id == entityId);
     }
 
-    public async Task<IEnumerable<Message>> GetAllAsync(int limit = 50, int offset = 0)
+    public async Task<IEnumerable<Message>> GetAllAsync(int limit, int offset)
     {
         RepositoryUtils.ValidateLimitOffset(limit: limit, offset: offset);
 
@@ -33,55 +34,46 @@ public class MessageRepository : IMessageRepository
             .ToListAsync();
     }
 
-    public async Task AddAsync(Message entity)
+    public async Task<bool> CheckIfExistsAsync(int entityId)
+    {
+        return await _context.Messages.AnyAsync(e => e.Id == entityId);
+    }
+
+    public async Task<int> AddAsync(Message entity)
     {
         ArgumentNullException.ThrowIfNull(entity);
 
-        await _context.Messages.AddAsync(entity);
+        _context.Messages.Add(entity);
         await _context.SaveChangesAsync();
+
+        return entity.Id;
     }
 
-    public async Task RemoveAsync(int entityId)
+    public async Task<bool> UpdateAsync(Message entity)
     {
-        var entity = await _context.Messages.FindAsync(entityId)
-            ?? throw new KeyNotFoundException(RepositoryUtils.GetKeyNotFoundMessage<Message>(entityId: entityId));
+        ArgumentNullException.ThrowIfNull(entity);
+
+        _context.Messages.Update(entity);
+        var affected = await _context.SaveChangesAsync();
+
+        return affected > 0;
+    }
+
+    public async Task<bool> RemoveAsync(int entityId)
+    {
+        var entity = await _context.Messages.FindAsync(entityId);
+
+        if (entity is null) return false;
 
         _context.Messages.Remove(entity);
         await _context.SaveChangesAsync();
+
+        return true;
     }
 
-    public async Task UpdateAsync(Message entity)
-    {
-        ArgumentNullException.ThrowIfNull(entity);
-
-        var exists = await _context.Messages.AnyAsync(e => e.Id == entity.Id);
-
-        if (!exists)
-        {
-            throw new KeyNotFoundException(RepositoryUtils.GetKeyNotFoundMessage<Message>(entityId: entity.Id));
-        }
-
-        _context.Messages.Update(entity);
-        await _context.SaveChangesAsync();
-    }
-
-    public async Task<IEnumerable<Message>> GetConversationAsync(int user1Id, int user2Id, int limit = 50, int offset = 0)
+    public async Task<IEnumerable<Message>> GetConversationAsync(int user1Id, int user2Id, int limit, int offset)
     {
         RepositoryUtils.ValidateLimitOffset(limit: limit, offset: offset);
-
-        var user1Exists = await _context.Messages.AnyAsync(e => e.Id == user1Id);
-
-        if (!user1Exists)
-        {
-            throw new KeyNotFoundException(RepositoryUtils.GetKeyNotFoundMessage<User>(entityId: user1Id));
-        }
-
-        var user2Exists = await _context.Messages.AnyAsync(e => e.Id == user2Id);
-
-        if (!user2Exists)
-        {
-            throw new KeyNotFoundException(RepositoryUtils.GetKeyNotFoundMessage<User>(entityId: user2Id));
-        }
 
         return await _context.Messages
             .AsNoTracking()
@@ -92,16 +84,9 @@ public class MessageRepository : IMessageRepository
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<Message>> GetConversationsLastMessagesAsync(int userId, int limit = 50, int offset = 0)
+    public async Task<IEnumerable<Message>> GetConversationsLastMessagesAsync(int userId, int limit, int offset)
     {
         RepositoryUtils.ValidateLimitOffset(limit: limit, offset: offset);
-
-        var exists = await _context.Users.AnyAsync(e => e.Id == userId);
-
-        if (!exists)
-        {
-            throw new KeyNotFoundException(RepositoryUtils.GetKeyNotFoundMessage<User>(entityId: userId));
-        }
 
         return await _context.Messages
             .AsNoTracking()

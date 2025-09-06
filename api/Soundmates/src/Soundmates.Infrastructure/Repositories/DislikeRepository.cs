@@ -2,6 +2,7 @@
 using Soundmates.Domain.Entities;
 using Soundmates.Domain.Interfaces.Repositories;
 using Soundmates.Infrastructure.Database;
+using Soundmates.Infrastructure.Repositories.Utils;
 
 namespace Soundmates.Infrastructure.Repositories;
 
@@ -21,7 +22,7 @@ public class DislikeRepository : IDislikeRepository
             .FirstOrDefaultAsync(e => e.Id == entityId);
     }
 
-    public async Task<IEnumerable<Dislike>> GetAllAsync(int limit = 50, int offset = 0)
+    public async Task<IEnumerable<Dislike>> GetAllAsync(int limit, int offset)
     {
         RepositoryUtils.ValidateLimitOffset(limit: limit, offset: offset);
 
@@ -33,48 +34,46 @@ public class DislikeRepository : IDislikeRepository
             .ToListAsync();
     }
 
-    public async Task AddAsync(Dislike entity)
+    public async Task<bool> CheckIfExistsAsync(int entityId)
     {
-        ArgumentNullException.ThrowIfNull(entity);
-
-        await _context.Dislikes.AddAsync(entity);
-        await _context.SaveChangesAsync();
+        return await _context.Dislikes.AnyAsync(e => e.Id == entityId);
     }
 
-    public async Task UpdateAsync(Dislike entity)
+    public async Task<int> AddAsync(Dislike entity)
     {
         ArgumentNullException.ThrowIfNull(entity);
 
-        var exists = await _context.Dislikes.AnyAsync(e => e.Id == entity.Id);
+        _context.Dislikes.Add(entity);
+        await _context.SaveChangesAsync();
 
-        if (!exists)
-        {
-            throw new KeyNotFoundException(RepositoryUtils.GetKeyNotFoundMessage<Dislike>(entityId: entity.Id));
-        }
+        return entity.Id;
+    }
+
+    public async Task<bool> UpdateAsync(Dislike entity)
+    {
+        ArgumentNullException.ThrowIfNull(entity);
 
         _context.Dislikes.Update(entity);
-        await _context.SaveChangesAsync();
+        var affected = await _context.SaveChangesAsync();
+
+        return affected > 0;
     }
 
-    public async Task RemoveAsync(int entityId)
+    public async Task<bool> RemoveAsync(int entityId)
     {
-        var entity = await _context.Dislikes.FindAsync(entityId)
-            ?? throw new KeyNotFoundException(RepositoryUtils.GetKeyNotFoundMessage<Dislike>(entityId: entityId));
+        var entity = await _context.Dislikes.FindAsync(entityId);
+
+        if (entity is null) return false;
 
         _context.Dislikes.Remove(entity);
         await _context.SaveChangesAsync();
+
+        return true;
     }
 
-    public async Task<IEnumerable<Dislike>> GetUserGivenDislikesAsync(int userId, int limit = 50, int offset = 0)
+    public async Task<IEnumerable<Dislike>> GetUserGivenDislikesAsync(int userId, int limit, int offset)
     {
         RepositoryUtils.ValidateLimitOffset(limit: limit, offset: offset);
-
-        var exists = await _context.Users.AnyAsync(e => e.Id == userId);
-
-        if (!exists)
-        {
-            throw new KeyNotFoundException(RepositoryUtils.GetKeyNotFoundMessage<User>(entityId: userId));
-        }
 
         return await _context.Dislikes
             .AsNoTracking()
@@ -85,16 +84,9 @@ public class DislikeRepository : IDislikeRepository
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<Dislike>> GetUserReceivedDislikesAsync(int userId, int limit = 50, int offset = 0)
+    public async Task<IEnumerable<Dislike>> GetUserReceivedDislikesAsync(int userId, int limit, int offset)
     {
         RepositoryUtils.ValidateLimitOffset(limit: limit, offset: offset);
-
-        var exists = await _context.Users.AnyAsync(e => e.Id == userId);
-
-        if (!exists)
-        {
-            throw new KeyNotFoundException(RepositoryUtils.GetKeyNotFoundMessage<User>(entityId: userId));
-        }
 
         return await _context.Dislikes
             .AsNoTracking()
