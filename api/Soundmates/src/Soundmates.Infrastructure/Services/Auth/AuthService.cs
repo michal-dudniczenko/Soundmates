@@ -1,27 +1,32 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using Soundmates.Domain.Interfaces.Auth;
+using Microsoft.IdentityModel.Tokens;
+using Soundmates.Domain.Entities;
+using Soundmates.Domain.Interfaces.Repositories;
+using Soundmates.Domain.Interfaces.Services.Auth;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
 
-namespace Soundmates.Infrastructure.Auth;
+namespace Soundmates.Infrastructure.Services.Auth;
 
 public class AuthService : IAuthService
 {
     private readonly string _secretKey;
     private readonly PasswordHasher<object> _passwordHasher;
 
-    public AuthService(string secretKey)
+    private readonly IUserRepository _userRepository;
+
+    public AuthService(string secretKey, IUserRepository userRepository)
     {
-        if (String.IsNullOrWhiteSpace(secretKey))
+        if (string.IsNullOrWhiteSpace(secretKey))
         {
             throw new ArgumentException("Secret key cannot be empty.", nameof(secretKey));
         }
 
         _secretKey = secretKey;
         _passwordHasher = new PasswordHasher<object>();
+        _userRepository = userRepository;
     }
 
     public string GenerateAccessToken(int userId)
@@ -76,5 +81,21 @@ public class AuthService : IAuthService
     {
         string computedHash = GetRefreshTokenHash(refreshToken);
         return computedHash == refreshTokenHash;
+    }
+
+    public async Task<User?> GetAuthorizedUserAsync(string? subClaim, bool checkForFirstLogin)
+    {
+        if (!int.TryParse(subClaim, out var authorizedUserId))
+        {
+            return null;
+        }
+
+        var user = await _userRepository.GetByIdAsync(authorizedUserId);
+        if (user is null || user.IsLoggedOut || (checkForFirstLogin && user.IsFirstLogin))
+        {
+            return null;
+        }
+
+        return user;
     }
 }

@@ -1,6 +1,6 @@
-﻿using Soundmates.Domain.Interfaces.Mp3;
+﻿using Soundmates.Domain.Interfaces.Services.Mp3;
 
-namespace Soundmates.Infrastructure.Mp3;
+namespace Soundmates.Infrastructure.Services.Mp3;
 
 public class Mp3Service : IMp3Service
 {
