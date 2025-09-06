@@ -1,10 +1,8 @@
 ﻿using MediatR;
 using Soundmates.Application.Common;
 using Soundmates.Application.Messages.Common;
-using Soundmates.Domain.Entities;
 using Soundmates.Domain.Interfaces.Repositories;
 using Soundmates.Domain.Interfaces.Services.Auth;
-using System.Collections.Generic;
 
 namespace Soundmates.Application.Messages.Queries.GetConversation;
 

@@ -1,8 +1,6 @@
 ﻿using MediatR;
 using Soundmates.Application.Common;
-using Soundmates.Application.Messages.Common;
 using Soundmates.Application.MusicSamples.Common;
-using Soundmates.Application.MusicSamples.Queries.GetSelfMusicSamples;
 using Soundmates.Domain.Interfaces.Repositories;
 using Soundmates.Domain.Interfaces.Services.Auth;
 
