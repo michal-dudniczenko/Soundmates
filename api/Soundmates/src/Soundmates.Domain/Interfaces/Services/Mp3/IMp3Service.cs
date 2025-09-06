@@ -1,4 +1,4 @@
-﻿namespace Soundmates.Domain.Interfaces.Mp3;
+﻿namespace Soundmates.Domain.Interfaces.Services.Mp3;
 
 public interface IMp3Service
 {
