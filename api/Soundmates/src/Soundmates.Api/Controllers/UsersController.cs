@@ -1,77 +1,53 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Soundmates.Api.DTOs.Users;
 using Soundmates.Api.Extensions;
-using Soundmates.Domain.Entities;
-using Soundmates.Domain.Interfaces.Auth;
-using Soundmates.Domain.Interfaces.Repositories;
+using Soundmates.Application.Users.Commands.ChangePassword;
+using Soundmates.Application.Users.Commands.DeactivateAccount;
+using Soundmates.Application.Users.Commands.UpdateUserProfile;
+using Soundmates.Application.Users.Queries.GetOtherUserProfile;
+using Soundmates.Application.Users.Queries.GetPotentialMatches;
+using Soundmates.Application.Users.Queries.GetSelfUserProfile;
+using System.Security.Claims;
 
 namespace Soundmates.Api.Controllers;
 
 [Route("users")]
 [ApiController]
-public class UsersController : ControllerBase
+public class UsersController(
+    IMediator _mediator
+) : ControllerBase
 {
-    private readonly IUserRepository _userRepository;
-    private readonly IAuthService _authService;
-
-    public UsersController(IUserRepository userRepository, IAuthService authService)
-    {
-        _userRepository = userRepository;
-        _authService = authService;
-    }
-
     // GET /users/profile
     [HttpGet("profile")]
     [Authorize]
-    public async Task<ActionResult> GetUserProfile()
+    public async Task<IActionResult> GetSelfUserProfile()
     {
-        var authorizedUser = await this.GetAuthorizedUserAsync(userRepository: _userRepository, checkForFirstLogin: false);
+        var subClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        if (authorizedUser is null)
-        {
-            return Unauthorized("");
-        }
+        var query = new GetSelfUserProfileQuery(
+            SubClaim: subClaim);
 
-        return Ok(new SelfUserProfileDto
-        {
-            Id = authorizedUser.Id,
-            Email = authorizedUser.Email,
-            Name = authorizedUser.Name,
-            Description = authorizedUser.Description,
-            BirthYear = authorizedUser.BirthYear,
-            City = authorizedUser.City,
-            Country = authorizedUser.Country
-        });
+        var result = await _mediator.Send(query);
+
+        return this.ResultToHttpResponse(result);
     }
 
     // GET /users/{id}
     [HttpGet("{id}")]
     [Authorize]
-    public async Task<ActionResult> GetUser(int id)
+    public async Task<IActionResult> GetOtherUserProfile(int id)
     {
-        var authorizedUser = await this.GetAuthorizedUserAsync(userRepository: _userRepository, checkForFirstLogin: true);
+        var subClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        if (authorizedUser is null)
-        {
-            return Unauthorized("");
-        }
+        var query = new GetOtherUserProfileQuery(
+            OtherUserId: id,
+            SubClaim: subClaim);
 
-        var user = await _userRepository.GetByIdAsync(id);
-        if (user == null || !user.IsActive || user.IsFirstLogin)
-        {
-            return NotFound(new { message = "No user with specified id." });
-        }
+        var result = await _mediator.Send(query);
 
-        return Ok(new OtherUserProfileDto
-        {
-            Id = user.Id,
-            Name = user.Name!,
-            Description = user.Description!,
-            BirthYear = (int)user.BirthYear!,
-            City = user.City!,
-            Country = user.Country!
-        });
+        return this.ResultToHttpResponse(result);
     }
 
     // GET /users?limit=20&offset=0
@@ -81,100 +57,55 @@ public class UsersController : ControllerBase
         [FromQuery] int limit = 20,
         [FromQuery] int offset = 0)
     {
-        var authorizedUser = await this.GetAuthorizedUserAsync(userRepository: _userRepository, checkForFirstLogin: true);
+        var subClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        if (authorizedUser is null)
-        {
-            return Unauthorized("");
-        }
+        var query = new GetPotentialMatchesQuery(
+            Limit: limit,
+            Offset: offset,
+            SubClaim: subClaim);
 
-        try
-        {
-            var users = await _userRepository.GetPotentialMatchesAsync(authorizedUser.Id, limit, offset);
+        var result = await _mediator.Send(query);
 
-            return Ok(users.Select(user =>
-                new OtherUserProfileDto
-                {
-                    Id = user.Id,
-                    Name = user.Name!,
-                    Description = user.Description!,
-                    BirthYear = (int)user.BirthYear!,
-                    City = user.City!,
-                    Country = user.Country!
-                }));
-                
-        } 
-        catch (ArgumentOutOfRangeException ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
+        return this.ResultToHttpResponse(result);
     }
 
 
     // PUT /users
     [HttpPut]
     [Authorize]
-    public async Task<IActionResult> UpdateUser(
+    public async Task<IActionResult> UpdateUserProfile(
         [FromBody] UpdateUserProfileDto updateUserDto)
     {
-        var authorizedUser = await this.GetAuthorizedUserAsync(userRepository: _userRepository, checkForFirstLogin: false);
+        var subClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        if (authorizedUser is null)
-        {
-            return Unauthorized("");
-        }
+        var command = new UpdateUserProfileCommand(
+            Name: updateUserDto.Name,
+            Description: updateUserDto.Description,
+            BirthYear: updateUserDto.BirthYear,
+            City: updateUserDto.City,
+            Country: updateUserDto.Country,
+            SubClaim: subClaim);
 
-        var updatedUser = new User
-        {
-            Id = authorizedUser.Id,
-            Email = authorizedUser.Email,
-            PasswordHash = authorizedUser.PasswordHash,
-            Name = updateUserDto.Name,
-            Description = updateUserDto.Description,
-            BirthYear = updateUserDto.BirthYear,
-            City = updateUserDto.City,
-            Country = updateUserDto.Country,
-            RefreshTokenHash = authorizedUser.RefreshTokenHash,
-            RefreshTokenExpiresAt = authorizedUser.RefreshTokenExpiresAt,
-            IsActive = authorizedUser.IsActive,
-            IsFirstLogin = false,
-            IsEmailConfirmed = authorizedUser.IsEmailConfirmed,
-            IsLoggedOut = authorizedUser.IsLoggedOut
-        };
+        var result = await _mediator.Send(command);
 
-        try
-        {
-            await _userRepository.UpdateAsync(updatedUser);
-        }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(new { message = ex.Message });
-        }
-
-        return Ok();
+        return this.ResultToHttpResponse(result);
     }
 
     // DELETE /users
     [HttpDelete]
     [Authorize]
-    public async Task<IActionResult> DeactivateUserAccount(
+    public async Task<IActionResult> DeactivateAccount(
         [FromBody] PasswordDto passwordDto)
     {
-        var authorizedUser = await this.GetAuthorizedUserAsync(userRepository: _userRepository, checkForFirstLogin: false);
+        var subClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        if (authorizedUser is null)
-        {
-            return Unauthorized("");
-        }
+        var command = new DeactivateAccountCommand(
+            Password: passwordDto.Password,
+            SubClaim: subClaim);
 
-        if (!_authService.VerifyPasswordHash(password: passwordDto.Password, passwordHash: authorizedUser.PasswordHash))
-        {
-            return Unauthorized(new { message = "Invalid password." });
-        }
+        var result = await _mediator.Send(command);
 
-        await _userRepository.DeactivateUserAccountAsync(authorizedUser.Id);
-
-        return Ok(new { message = "Your account has been deactivated." });
+        return this.ResultToHttpResponse(result);
     }
 
     // POST /users/change-password
@@ -183,20 +114,15 @@ public class UsersController : ControllerBase
     public async Task<IActionResult> ChangePassword(
         [FromBody] ChangePasswordDto changePasswordDto)
     {
-        var authorizedUser = await this.GetAuthorizedUserAsync(userRepository: _userRepository, checkForFirstLogin: false);
+        var subClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        if (authorizedUser is null)
-        {
-            return Unauthorized("");
-        }
+        var command = new ChangePasswordCommand(
+            OldPassword: changePasswordDto.OldPassword,
+            NewPassword: changePasswordDto.NewPassword,
+            SubClaim: subClaim);
 
-        if (!_authService.VerifyPasswordHash(password: changePasswordDto.OldPassword, passwordHash: authorizedUser.PasswordHash))
-        {
-            return Unauthorized(new { message = "Old password is incorrect." });
-        }
+        var result = await _mediator.Send(command);
 
-        await _userRepository.UpdateUserPasswordAsync(userId: authorizedUser.Id, newPassword: changePasswordDto.NewPassword);
-
-        return Ok(new { message = "Password changed successfully." });
+        return this.ResultToHttpResponse(result);
     }
 }

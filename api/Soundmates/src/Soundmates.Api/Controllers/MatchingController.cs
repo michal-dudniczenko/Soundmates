@@ -1,58 +1,36 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Soundmates.Api.DTOs.Matching;
-using Soundmates.Api.DTOs.Users;
 using Soundmates.Api.Extensions;
-using Soundmates.Domain.Entities;
-using Soundmates.Domain.Interfaces.Repositories;
+using Soundmates.Application.Matching.Commands.CreateDislike;
+using Soundmates.Application.Matching.Commands.CreateLike;
+using Soundmates.Application.Matching.Queries.GetMatches;
+using System.Security.Claims;
 
 namespace Soundmates.Api.Controllers;
 
 [Route("matching")]
 [ApiController]
-public class MatchingController : ControllerBase
+public class MatchingController(
+    IMediator _mediator
+) : ControllerBase
 {
-    private readonly IUserRepository _userRepository;
-    private readonly ILikeRepository _likeRepository;
-    private readonly IDislikeRepository _dislikeRepository;
-    private readonly IMatchRepository _matchRepository;
-
-    public MatchingController(IUserRepository userRepository, ILikeRepository likeRepository, IDislikeRepository dislikeRepository, IMatchRepository matchRepository)
-    {
-        _userRepository = userRepository;
-        _likeRepository = likeRepository;
-        _dislikeRepository = dislikeRepository;
-        _matchRepository = matchRepository;
-    }
-
     // POST /matching/like
     [HttpPost("like")]
     [Authorize]
     public async Task<IActionResult> CreateLike(
         [FromBody] SwipeDto swipeDto)
     {
-        var authorizedUser = await this.GetAuthorizedUserAsync(userRepository: _userRepository, checkForFirstLogin: true);
+        var subClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        if (authorizedUser is null)
-        {
-            return Unauthorized("");
-        }
+        var command = new CreateLikeCommand(
+            ReceiverId: swipeDto.ReceiverId,
+            SubClaim: subClaim);
 
-        var receiver = await _userRepository.GetByIdAsync(swipeDto.ReceiverId);
-        if (receiver == null || receiver.IsFirstLogin || !receiver.IsActive)
-            return NotFound(new { message = $"No user with ID: {swipeDto.ReceiverId} was found." });
+        var result = await _mediator.Send(command);
 
-        var like = new Like { GiverId = authorizedUser.Id, ReceiverId = swipeDto.ReceiverId };
-
-        await _likeRepository.AddAsync(like);
-
-        if (await _likeRepository.CheckIfExistsAsync(giverId: swipeDto.ReceiverId, receiverId: authorizedUser.Id))
-        {
-            var match = new Match { User1Id = authorizedUser.Id, User2Id = swipeDto.ReceiverId };
-            await _matchRepository.AddAsync(match);
-        }
-
-        return Ok();
+        return this.ResultToHttpResponse(result);
     }
 
     // POST /matching/dislike
@@ -61,67 +39,33 @@ public class MatchingController : ControllerBase
     public async Task<IActionResult> CreateDislike(
         [FromBody] SwipeDto swipeDto)
     {
-        var authorizedUser = await this.GetAuthorizedUserAsync(userRepository: _userRepository, checkForFirstLogin: true);
+        var subClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        if (authorizedUser is null)
-        {
-            return Unauthorized("");
-        }
+        var command = new CreateDislikeCommand(
+            ReceiverId: swipeDto.ReceiverId,
+            SubClaim: subClaim);
 
-        var receiver = await _userRepository.GetByIdAsync(swipeDto.ReceiverId);
-        if (receiver == null || receiver.IsFirstLogin || !receiver.IsActive)
-            return NotFound(new { message = $"No user with ID: {swipeDto.ReceiverId} was found." });
+        var result = await _mediator.Send(command);
 
-        var dislike = new Dislike { GiverId = authorizedUser.Id, ReceiverId = swipeDto.ReceiverId };
-
-        await _dislikeRepository.AddAsync(dislike);
-
-        return Ok();
+        return this.ResultToHttpResponse(result);
     }
 
-    // GET /matching/matches? limit = 20 & offset = 0
+    // GET /matching/matches?limit=20&offset=0
     [HttpGet("matches")]
     [Authorize]
     public async Task<IActionResult> GetMatches(
         [FromQuery] int limit = 20,
         [FromQuery] int offset = 0)
     {
-        var authorizedUser = await this.GetAuthorizedUserAsync(userRepository: _userRepository, checkForFirstLogin: true);
+        var subClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        if (authorizedUser is null)
-        {
-            return Unauthorized("");
-        }
+        var query = new GetMatchesQuery(
+            Limit: limit,
+            Offset: offset,
+            SubClaim: subClaim);
 
-        try
-        {
-            var matches = await _matchRepository.GetUserMatchesAsync(authorizedUser.Id, limit, offset);
+        var result = await _mediator.Send(query);
 
-            var userProfiles = new List<OtherUserProfileDto>();
-
-            foreach (var match in matches)
-            {
-                var user = await _userRepository.GetByIdAsync(
-                    match.User1Id == authorizedUser.Id ? match.User2Id : match.User1Id
-                );
-                if (user is null || !user.IsActive || user.IsFirstLogin) continue;
-
-                userProfiles.Add(new OtherUserProfileDto
-                {
-                    Id = user.Id,
-                    Name = user.Name!,
-                    Description = user.Description!,
-                    BirthYear = (int)user.BirthYear!,
-                    City = user.City!,
-                    Country = user.Country!
-                });
-            }
-
-            return Ok(userProfiles);
-        }
-        catch (ArgumentOutOfRangeException ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
+        return this.ResultToHttpResponse(result);
     }
 }

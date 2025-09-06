@@ -1,107 +1,59 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Soundmates.Api.DTOs.Messages;
 using Soundmates.Api.Extensions;
-using Soundmates.Domain.Entities;
-using Soundmates.Domain.Interfaces.Repositories;
+using Soundmates.Application.Messages.Commands.SendMessage;
+using Soundmates.Application.Messages.Queries.GetConversation;
+using Soundmates.Application.Messages.Queries.GetConversationsPreview;
+using System.Security.Claims;
 
 namespace Soundmates.Api.Controllers;
 
 [Route("messages")]
 [ApiController]
-public class MessagesController : ControllerBase
+public class MessagesController(
+    IMediator _mediator
+) : ControllerBase
 {
-    private readonly IUserRepository _userRepository;
-    private readonly IMatchRepository _matchRepository;
-    private readonly IMessageRepository _messageRepository;
-
-    public MessagesController(IUserRepository userRepository, IMatchRepository matchRepository, IMessageRepository messageRepository)
-    {
-        _userRepository = userRepository;
-        _matchRepository = matchRepository;
-        _messageRepository = messageRepository;
-    }
-
     // GET /messages/preview?limit=20&offset=0
     [HttpGet("preview")]
     [Authorize]
-    public async Task<IActionResult> GetMessagesPreview(
+    public async Task<IActionResult> GetConversationsPreview(
         [FromQuery] int limit = 20,
         [FromQuery] int offset = 0)
     {
-        var authorizedUser = await this.GetAuthorizedUserAsync(userRepository: _userRepository, checkForFirstLogin: true);
+        var subClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        if (authorizedUser is null)
-        {
-            return Unauthorized("");
-        }
+        var query = new GetConversationsPreviewQuery(
+            Limit: limit,
+            Offset: offset,
+            SubClaim: subClaim);
 
-        try
-        {
-            var lastMessages = await _messageRepository.GetConversationsLastMessagesAsync(
-                userId: authorizedUser.Id,
-                limit: limit,
-                offset: offset);
+        var result = await _mediator.Send(query);
 
-            var lastMessagesDtos = lastMessages.Select(m => new MessageDto
-            {
-                Content = m.Content,
-                Timestamp = m.Timestamp,
-                SenderId = m.SenderId,
-                ReceiverId = m.ReceiverId
-            });
-
-            return Ok(lastMessagesDtos);
-        }
-        catch (ArgumentOutOfRangeException ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
+        return this.ResultToHttpResponse(result);
     }
 
     // GET /messages/{userId}?limit=20&offset=0
     [HttpGet("{userId}")]
     [Authorize]
-    public async Task<IActionResult> GetMessages(
+    public async Task<IActionResult> GetConversation(
         int userId,
         [FromQuery] int limit = 20,
         [FromQuery] int offset = 0)
     {
-        var authorizedUser = await this.GetAuthorizedUserAsync(userRepository: _userRepository, checkForFirstLogin: true);
+        var subClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        if (authorizedUser is null)
-        {
-            return Unauthorized("");
-        }
+        var query = new GetConversationQuery(
+            OtherUserId: userId,
+            Limit: limit,
+            Offset: offset,
+            SubClaim: subClaim);
 
-        var user = await _userRepository.GetByIdAsync(userId);
-        if (user == null || !user.IsActive || user.IsFirstLogin)
-        {
-            return NotFound(new { message = "No user with specified id." });
-        }
+        var result = await _mediator.Send(query);
 
-        try
-        {
-            var conversation = await _messageRepository.GetConversationAsync(
-                user1Id: authorizedUser.Id,
-                user2Id: userId,
-                limit: limit,
-                offset: offset);
-
-            var conversationDtos = conversation.Select(m => new MessageDto
-            {
-                Content = m.Content,
-                Timestamp = m.Timestamp,
-                SenderId = m.SenderId,
-                ReceiverId = m.ReceiverId
-            });
-
-            return Ok(conversationDtos);
-        }
-        catch (ArgumentOutOfRangeException ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
+        return this.ResultToHttpResponse(result);
     }
 
     // POST /messages
@@ -110,35 +62,15 @@ public class MessagesController : ControllerBase
     public async Task<IActionResult> SendMessage(
         [FromBody] SendMessageDto sendMessageDto)
     {
-        var authorizedUser = await this.GetAuthorizedUserAsync(userRepository: _userRepository, checkForFirstLogin: true);
+        var subClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        if (authorizedUser is null)
-        {
-            return Unauthorized("");
-        }
+        var command = new SendMessageCommand(
+            ReceiverId: sendMessageDto.ReceiverId,
+            Content: sendMessageDto.Content,
+            SubClaim: subClaim);
 
-        var otherUser = await _userRepository.GetByIdAsync(sendMessageDto.ReceiverId);
-        if (otherUser == null || !otherUser.IsActive || otherUser.IsFirstLogin)
-        {
-            return NotFound(new { message = "No user with specified id." });
-        }
+        var result = await _mediator.Send(command);
 
-        var doesMatchExists = await _matchRepository.CheckIfMatchExistsAsync(authorizedUser.Id, sendMessageDto.ReceiverId);
-
-        if (!doesMatchExists)
-        {
-            return Unauthorized(new { message = "You can send message only to users you have matched with." });
-        }
-
-        var message = new Message
-        {
-            Content = sendMessageDto.Content,
-            SenderId = authorizedUser.Id,
-            ReceiverId = sendMessageDto.ReceiverId
-        };
-
-        await _messageRepository.AddAsync(message);
-
-        return Ok();
+        return this.ResultToHttpResponse(result);
     }
 }

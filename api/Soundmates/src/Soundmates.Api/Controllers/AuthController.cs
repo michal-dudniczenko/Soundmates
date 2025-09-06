@@ -1,77 +1,48 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Soundmates.Api.DTOs.Auth;
 using Soundmates.Api.Extensions;
-using Soundmates.Domain.Entities;
-using Soundmates.Domain.Interfaces.Auth;
-using Soundmates.Domain.Interfaces.Repositories;
+using Soundmates.Application.Auth.Commands.LogIn;
+using Soundmates.Application.Auth.Commands.LogOut;
+using Soundmates.Application.Auth.Commands.Refresh;
+using Soundmates.Application.Auth.Commands.Register;
+using System.Security.Claims;
 
 namespace Soundmates.Api.Controllers;
 
 [Route("auth")]
 [ApiController]
-public class AuthController : ControllerBase
+public class AuthController(
+    IMediator _mediator
+) : ControllerBase
 {
-    private readonly IUserRepository _userRepository;
-    private readonly IAuthService _authService;
-
-    public AuthController(IUserRepository userRepository, IAuthService authService)
-    {
-        _userRepository = userRepository;
-        _authService = authService;
-    }
-
     // POST /users/register
     [HttpPost("register")]
     public async Task<IActionResult> Register(
         [FromBody] RegisterDto registerUserDto)
     {
-        if (await _userRepository.CheckIfEmailExistsAsync(registerUserDto.Email))
-        {
-            return BadRequest(new { message = "User with that email address already exists." });
-        }
+        var command = new RegisterCommand(
+            Email: registerUserDto.Email, 
+            Password: registerUserDto.Password);
 
-        var user = new User
-        {
-            Email = registerUserDto.Email,
-            PasswordHash = _authService.GetPasswordHash(registerUserDto.Password)
-        };
+        var result = await _mediator.Send(command);
 
-        await _userRepository.AddAsync(user);
-
-        return Ok(new { message = "User registered successfully." });
+        return this.ResultToHttpResponse(result);
     }
 
     // POST /users/login
     [HttpPost("login")]
-    public async Task<IActionResult> Login(
+    public async Task<IActionResult> LogIn(
         [FromBody] LoginDto loginDto)
     {
-        var user = await _userRepository.GetByEmailAsync(email: loginDto.Email);
+        var command = new LogInCommand(
+            Email: loginDto.Email,
+            Password: loginDto.Password);
 
-        if (user is null)
-        {
-            return Unauthorized(new { message = "Invalid email or password." });
-        }
+        var result = await _mediator.Send(command);
 
-        var result = _authService.VerifyPasswordHash(password: loginDto.Password, passwordHash: user.PasswordHash);
-
-        if (!result)
-        {
-            return Unauthorized(new { message = "Invalid email or password." });
-        }
-
-        if (!user.IsActive)
-        {
-            return Unauthorized(new { message = "Your account has been deactivated. Contact administrator" });
-        }
-
-        var accessToken = _authService.GenerateAccessToken(userId: user.Id);
-        var refreshToken = _authService.GenerateRefreshToken(userId: user.Id);
-
-        await _userRepository.LogInUserAsync(userId: user.Id, newRefreshToken: refreshToken);
-
-        return Ok(new AccessRefreshTokensDto { AccessToken = accessToken, RefreshToken = refreshToken });
+        return this.ResultToHttpResponse(result);
     }
 
     // POST /users/refresh
@@ -79,31 +50,26 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> Refresh(
         [FromBody] RefreshTokenDto refreshTokenDto)
     {
-        var userId = await _userRepository.CheckRefreshTokenGetUserIdAsync(refreshToken: refreshTokenDto.RefreshToken);
-        if (userId is null)
-        {
-            return Unauthorized(new { message = "Invalid refresh token. Log in to get a new one." });
-        }
+        var command = new RefreshCommand(
+            RefreshToken: refreshTokenDto.RefreshToken);
 
-        var accessToken = _authService.GenerateAccessToken(userId: (int)userId);
+        var result = await _mediator.Send(command);
 
-        return Ok(new AccessTokenDto { AccessToken = accessToken });
+        return this.ResultToHttpResponse(result);
     }
 
     // POST /users/logout
     [HttpPost("logout")]
     [Authorize]
-    public async Task<IActionResult> Logout()
+    public async Task<IActionResult> LogOut()
     {
-        var authorizedUser = await this.GetAuthorizedUserAsync(userRepository: _userRepository, checkForFirstLogin: false);
+        var subClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        if (authorizedUser is null)
-        {
-            return Unauthorized("");
-        }
+        var command = new LogOutCommand(
+            SubClaim: subClaim);
 
-        await _userRepository.LogOutUserAsync(userId: authorizedUser.Id);
+        var result = await _mediator.Send(command);
 
-        return Ok(new { message = "Logged out successfully." });
+        return this.ResultToHttpResponse(result);
     }
 }
