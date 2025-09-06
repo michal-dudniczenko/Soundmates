@@ -41,7 +41,7 @@ public class ProfilePicturesController(
     [HttpGet("{userId}")]
     [Authorize]
     public async Task<IActionResult> GetOtherUserProfilePictures(
-        int userId,
+        Guid userId,
         [FromQuery] int limit = 20,
         [FromQuery] int offset = 0)
     {
@@ -88,7 +88,7 @@ public class ProfilePicturesController(
     // DELETE /profile-pictures/{pictureId}
     [HttpDelete("{pictureId}")]
     [Authorize]
-    public async Task<IActionResult> DeleteProfilePicture(int pictureId)
+    public async Task<IActionResult> DeleteProfilePicture(Guid pictureId)
     {
         var subClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
@@ -105,7 +105,7 @@ public class ProfilePicturesController(
     // POST /profile-pictures/move-display-order-up/{pictureId}
     [HttpPost("move-display-order-up/{pictureId}")]
     [Authorize]
-    public async Task<IActionResult> MovePictureDisplayOrderUp(int pictureId)
+    public async Task<IActionResult> MovePictureDisplayOrderUp(Guid pictureId)
     {
         var subClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
@@ -122,7 +122,7 @@ public class ProfilePicturesController(
     // POST /profile-pictures/move-display-order-down/{pictureId}
     [HttpPost("move-display-order-down/{pictureId}")]
     [Authorize]
-    public async Task<IActionResult> MovePictureDisplayOrderDown(int pictureId)
+    public async Task<IActionResult> MovePictureDisplayOrderDown(Guid pictureId)
     {
         var subClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 

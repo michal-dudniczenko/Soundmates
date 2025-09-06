@@ -4,7 +4,7 @@ namespace Soundmates.Domain.Entities;
 
 public class User
 {
-    public int Id { get; set; }
+    public Guid Id { get; set; } = Guid.CreateVersion7();
 
     [MaxLength(100)] 
     public required string Email { get; set; }

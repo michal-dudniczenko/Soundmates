@@ -15,7 +15,7 @@ public class MessageRepository : IMessageRepository
         _context = context;
     }
 
-    public async Task<Message?> GetByIdAsync(int entityId)
+    public async Task<Message?> GetByIdAsync(Guid entityId)
     {
         return await _context.Messages
             .AsNoTracking()
@@ -34,12 +34,12 @@ public class MessageRepository : IMessageRepository
             .ToListAsync();
     }
 
-    public async Task<bool> CheckIfExistsAsync(int entityId)
+    public async Task<bool> CheckIfExistsAsync(Guid entityId)
     {
         return await _context.Messages.AnyAsync(e => e.Id == entityId);
     }
 
-    public async Task<int> AddAsync(Message entity)
+    public async Task<Guid> AddAsync(Message entity)
     {
         ArgumentNullException.ThrowIfNull(entity);
 
@@ -59,7 +59,7 @@ public class MessageRepository : IMessageRepository
         return affected > 0;
     }
 
-    public async Task<bool> RemoveAsync(int entityId)
+    public async Task<bool> RemoveAsync(Guid entityId)
     {
         var entity = await _context.Messages.FindAsync(entityId);
 
@@ -71,7 +71,7 @@ public class MessageRepository : IMessageRepository
         return true;
     }
 
-    public async Task<IEnumerable<Message>> GetConversationAsync(int user1Id, int user2Id, int limit, int offset)
+    public async Task<IEnumerable<Message>> GetConversationAsync(Guid user1Id, Guid user2Id, int limit, int offset)
     {
         RepositoryUtils.ValidateLimitOffset(limit: limit, offset: offset);
 
@@ -84,7 +84,7 @@ public class MessageRepository : IMessageRepository
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<Message>> GetConversationsLastMessagesAsync(int userId, int limit, int offset)
+    public async Task<IEnumerable<Message>> GetConversationsLastMessagesAsync(Guid userId, int limit, int offset)
     {
         RepositoryUtils.ValidateLimitOffset(limit: limit, offset: offset);
 

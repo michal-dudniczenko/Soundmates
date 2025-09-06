@@ -4,4 +4,4 @@ using Soundmates.Application.MusicSamples.Common;
 
 namespace Soundmates.Application.MusicSamples.Queries.GetOtherUserMusicSamples;
 
-public record GetOtherUserMusicSamplesQuery(int OtherUserId, int Limit, int Offset, string? SubClaim) : IRequest<Result<List<OtherUserMusicSampleDto>>>;
+public record GetOtherUserMusicSamplesQuery(Guid OtherUserId, int Limit, int Offset, string? SubClaim) : IRequest<Result<List<OtherUserMusicSampleDto>>>;

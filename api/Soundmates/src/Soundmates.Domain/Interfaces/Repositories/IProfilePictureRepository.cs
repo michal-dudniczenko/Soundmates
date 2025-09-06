@@ -4,8 +4,8 @@ namespace Soundmates.Domain.Interfaces.Repositories;
 
 public interface IProfilePictureRepository : IBaseRepository<ProfilePicture>
 {
-    Task<IEnumerable<ProfilePicture>> GetUserProfilePicturesAsync(int userId, int limit, int offset);
-    Task<int> GetUserProfilePicturesCountAsync(int userId);
-    Task<bool> MoveDisplayOrderUpAsync(int pictureId);
-    Task<bool> MoveDisplayOrderDownAsync(int pictureId);
+    Task<IEnumerable<ProfilePicture>> GetUserProfilePicturesAsync(Guid userId, int limit, int offset);
+    Task<int> GetUserProfilePicturesCountAsync(Guid userId);
+    Task<bool> MoveDisplayOrderUpAsync(Guid pictureId);
+    Task<bool> MoveDisplayOrderDownAsync(Guid pictureId);
 }

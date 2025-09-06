@@ -4,11 +4,11 @@ namespace Soundmates.Domain.Entities;
 
 public class Message
 {
-    public int Id { get; set; }
+    public Guid Id { get; set; } = Guid.CreateVersion7();
 
     [MaxLength(4000)]
     public required string Content { get; set; }
     public DateTime Timestamp { get; private set; } = DateTime.UtcNow;
-    public required int SenderId { get; set; }
-    public required int ReceiverId { get; set; }
+    public required Guid SenderId { get; set; }
+    public required Guid ReceiverId { get; set; }
 }

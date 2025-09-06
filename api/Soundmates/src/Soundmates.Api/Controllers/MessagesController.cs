@@ -39,7 +39,7 @@ public class MessagesController(
     [HttpGet("{userId}")]
     [Authorize]
     public async Task<IActionResult> GetConversation(
-        int userId,
+        Guid userId,
         [FromQuery] int limit = 20,
         [FromQuery] int offset = 0)
     {

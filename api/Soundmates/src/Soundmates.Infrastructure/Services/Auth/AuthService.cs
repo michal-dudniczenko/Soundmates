@@ -29,7 +29,7 @@ public class AuthService : IAuthService
         _userRepository = userRepository;
     }
 
-    public string GenerateAccessToken(int userId)
+    public string GenerateAccessToken(Guid userId)
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secretKey));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -49,7 +49,7 @@ public class AuthService : IAuthService
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
-    public string GenerateRefreshToken(int userId)
+    public string GenerateRefreshToken(Guid userId)
     {
         var randomNumber = new byte[64];
         using (var rng = RandomNumberGenerator.Create())
@@ -85,7 +85,7 @@ public class AuthService : IAuthService
 
     public async Task<User?> GetAuthorizedUserAsync(string? subClaim, bool checkForFirstLogin)
     {
-        if (!int.TryParse(subClaim, out var authorizedUserId))
+        if (!Guid.TryParse(subClaim, out var authorizedUserId))
         {
             return null;
         }

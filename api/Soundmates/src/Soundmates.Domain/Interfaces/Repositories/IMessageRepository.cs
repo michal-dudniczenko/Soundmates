@@ -4,6 +4,6 @@ namespace Soundmates.Domain.Interfaces.Repositories;
 
 public interface IMessageRepository : IBaseRepository<Message>
 {
-    Task<IEnumerable<Message>> GetConversationAsync(int user1Id, int user2Id, int limit, int offset);
-    Task<IEnumerable<Message>> GetConversationsLastMessagesAsync(int userId, int limit, int offset);
+    Task<IEnumerable<Message>> GetConversationAsync(Guid user1Id, Guid user2Id, int limit, int offset);
+    Task<IEnumerable<Message>> GetConversationsLastMessagesAsync(Guid userId, int limit, int offset);
 }

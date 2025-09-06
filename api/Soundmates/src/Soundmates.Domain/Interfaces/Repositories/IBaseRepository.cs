@@ -2,10 +2,10 @@
 
 public interface IBaseRepository<T> where T : class
 {
-    Task<T?> GetByIdAsync(int entityId);
+    Task<T?> GetByIdAsync(Guid entityId);
     Task<IEnumerable<T>> GetAllAsync(int limit, int offset);
-    Task<bool> CheckIfExistsAsync(int entityId);
-    Task<int> AddAsync(T entity);
+    Task<bool> CheckIfExistsAsync(Guid entityId);
+    Task<Guid> AddAsync(T entity);
     Task<bool> UpdateAsync(T entity);
-    Task<bool> RemoveAsync(int entityId);
+    Task<bool> RemoveAsync(Guid entityId);
 }

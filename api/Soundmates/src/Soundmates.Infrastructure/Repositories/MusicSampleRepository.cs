@@ -16,7 +16,7 @@ public class MusicSampleRepository : IMusicSampleRepository
         _context = context;
     }
 
-    public async Task<MusicSample?> GetByIdAsync(int entityId)
+    public async Task<MusicSample?> GetByIdAsync(Guid entityId)
     {
         return await _context.MusicSamples
             .AsNoTracking()
@@ -35,12 +35,12 @@ public class MusicSampleRepository : IMusicSampleRepository
             .ToListAsync();
     }
 
-    public async Task<bool> CheckIfExistsAsync(int entityId)
+    public async Task<bool> CheckIfExistsAsync(Guid entityId)
     {
         return await _context.MusicSamples.AnyAsync(e => e.Id == entityId);
     }
 
-    public async Task<int> AddAsync(MusicSample entity)
+    public async Task<Guid> AddAsync(MusicSample entity)
     {
         ArgumentNullException.ThrowIfNull(entity);
 
@@ -64,7 +64,7 @@ public class MusicSampleRepository : IMusicSampleRepository
         return affected > 0;
     }
 
-    public async Task<bool> RemoveAsync(int entityId)
+    public async Task<bool> RemoveAsync(Guid entityId)
     {
         var entity = await _context.MusicSamples.FindAsync(entityId);
 
@@ -80,7 +80,7 @@ public class MusicSampleRepository : IMusicSampleRepository
         return true;
     }
 
-    public async Task<IEnumerable<MusicSample>> GetUserMusicSamplesAsync(int userId, int limit, int offset)
+    public async Task<IEnumerable<MusicSample>> GetUserMusicSamplesAsync(Guid userId, int limit, int offset)
     {
         RepositoryUtils.ValidateLimitOffset(limit: limit, offset: offset);
 
@@ -93,12 +93,12 @@ public class MusicSampleRepository : IMusicSampleRepository
             .ToListAsync();
     }
 
-    public async Task<int> GetUserMusicSamplesCountAsync(int userId)
+    public async Task<int> GetUserMusicSamplesCountAsync(Guid userId)
     {
         return await _context.MusicSamples.CountAsync(e => e.UserId == userId);
     }
 
-    public async Task<bool> MoveDisplayOrderUpAsync(int musicSampleId)
+    public async Task<bool> MoveDisplayOrderUpAsync(Guid musicSampleId)
     {
         var entity = await _context.MusicSamples.FindAsync(musicSampleId);
 
@@ -114,7 +114,7 @@ public class MusicSampleRepository : IMusicSampleRepository
         return true;
     }
 
-    public async Task<bool> MoveDisplayOrderDownAsync(int musicSampleId)
+    public async Task<bool> MoveDisplayOrderDownAsync(Guid musicSampleId)
     {
         var entity = await _context.MusicSamples.FindAsync(musicSampleId);
 

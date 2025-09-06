@@ -15,7 +15,7 @@ public class DislikeRepository : IDislikeRepository
         _context = context;
     }
 
-    public async Task<Dislike?> GetByIdAsync(int entityId)
+    public async Task<Dislike?> GetByIdAsync(Guid entityId)
     {
         return await _context.Dislikes
             .AsNoTracking()
@@ -34,12 +34,12 @@ public class DislikeRepository : IDislikeRepository
             .ToListAsync();
     }
 
-    public async Task<bool> CheckIfExistsAsync(int entityId)
+    public async Task<bool> CheckIfExistsAsync(Guid entityId)
     {
         return await _context.Dislikes.AnyAsync(e => e.Id == entityId);
     }
 
-    public async Task<int> AddAsync(Dislike entity)
+    public async Task<Guid> AddAsync(Dislike entity)
     {
         ArgumentNullException.ThrowIfNull(entity);
 
@@ -59,7 +59,7 @@ public class DislikeRepository : IDislikeRepository
         return affected > 0;
     }
 
-    public async Task<bool> RemoveAsync(int entityId)
+    public async Task<bool> RemoveAsync(Guid entityId)
     {
         var entity = await _context.Dislikes.FindAsync(entityId);
 
@@ -71,7 +71,7 @@ public class DislikeRepository : IDislikeRepository
         return true;
     }
 
-    public async Task<IEnumerable<Dislike>> GetUserGivenDislikesAsync(int userId, int limit, int offset)
+    public async Task<IEnumerable<Dislike>> GetUserGivenDislikesAsync(Guid userId, int limit, int offset)
     {
         RepositoryUtils.ValidateLimitOffset(limit: limit, offset: offset);
 
@@ -84,7 +84,7 @@ public class DislikeRepository : IDislikeRepository
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<Dislike>> GetUserReceivedDislikesAsync(int userId, int limit, int offset)
+    public async Task<IEnumerable<Dislike>> GetUserReceivedDislikesAsync(Guid userId, int limit, int offset)
     {
         RepositoryUtils.ValidateLimitOffset(limit: limit, offset: offset);
 
@@ -97,7 +97,7 @@ public class DislikeRepository : IDislikeRepository
             .ToListAsync();
     }
 
-    public async Task<bool> CheckIfExistsAsync(int giverId, int receiverId)
+    public async Task<bool> CheckIfExistsAsync(Guid giverId, Guid receiverId)
     {
         return await _context.Dislikes.AnyAsync(e => e.GiverId == giverId && e.ReceiverId == receiverId);
     }

@@ -15,7 +15,7 @@ public class LikeRepository : ILikeRepository
         _context = context;
     }
 
-    public async Task<Like?> GetByIdAsync(int entityId)
+    public async Task<Like?> GetByIdAsync(Guid entityId)
     {
         return await _context.Likes
             .AsNoTracking()
@@ -34,12 +34,17 @@ public class LikeRepository : ILikeRepository
             .ToListAsync();
     }
 
-    public async Task<bool> CheckIfExistsAsync(int entityId)
+    public async Task<bool> CheckIfExistsAsync(Guid entityId)
     {
         return await _context.Likes.AnyAsync(e => e.Id == entityId);
     }
 
-    public async Task<int> AddAsync(Like entity)
+    public async Task<bool> CheckIfExistsAsync(Guid giverId, Guid receiverId)
+    {
+        return await _context.Likes.AnyAsync(e => e.GiverId == giverId && e.ReceiverId == receiverId);
+    }
+
+    public async Task<Guid> AddAsync(Like entity)
     {
         ArgumentNullException.ThrowIfNull(entity);
 
@@ -59,7 +64,7 @@ public class LikeRepository : ILikeRepository
         return affected > 0;
     }
 
-    public async Task<bool> RemoveAsync(int entityId)
+    public async Task<bool> RemoveAsync(Guid entityId)
     {
         var entity = await _context.Likes.FindAsync(entityId);
 
@@ -71,7 +76,7 @@ public class LikeRepository : ILikeRepository
         return true;
     }
 
-    public async Task<IEnumerable<Like>> GetUserGivenLikesAsync(int userId, int limit, int offset)
+    public async Task<IEnumerable<Like>> GetUserGivenLikesAsync(Guid userId, int limit, int offset)
     {
         RepositoryUtils.ValidateLimitOffset(limit: limit, offset: offset);
 
@@ -84,7 +89,7 @@ public class LikeRepository : ILikeRepository
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<Like>> GetUserReceivedLikesAsync(int userId, int limit, int offset)
+    public async Task<IEnumerable<Like>> GetUserReceivedLikesAsync(Guid userId, int limit, int offset)
     {
         RepositoryUtils.ValidateLimitOffset(limit: limit, offset: offset);
 
@@ -95,10 +100,5 @@ public class LikeRepository : ILikeRepository
             .Skip(offset)
             .Take(limit)
             .ToListAsync();
-    }
-
-    public async Task<bool> CheckIfExistsAsync(int giverId, int receiverId)
-    {
-        return await _context.Likes.AnyAsync(e => e.GiverId == giverId && e.ReceiverId == receiverId);
     }
 }

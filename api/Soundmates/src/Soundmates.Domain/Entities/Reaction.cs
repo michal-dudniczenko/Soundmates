@@ -2,8 +2,8 @@
 
 public abstract class Reaction
 {
-    public int Id { get; set; }
+    public Guid Id { get; set; } = Guid.CreateVersion7();
     public DateTime Timestamp { get; private set; } = DateTime.UtcNow;
-    public required int GiverId { get; set; }
-    public required int ReceiverId { get; set; }
+    public required Guid GiverId { get; set; }
+    public required Guid ReceiverId { get; set; }
 }

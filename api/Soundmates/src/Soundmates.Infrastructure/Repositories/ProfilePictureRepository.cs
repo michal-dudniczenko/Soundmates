@@ -16,7 +16,7 @@ public class ProfilePictureRepository : IProfilePictureRepository
         _context = context;
     }
 
-    public async Task<ProfilePicture?> GetByIdAsync(int entityId)
+    public async Task<ProfilePicture?> GetByIdAsync(Guid entityId)
     {
         return await _context.ProfilePictures
             .AsNoTracking()
@@ -35,12 +35,12 @@ public class ProfilePictureRepository : IProfilePictureRepository
             .ToListAsync();
     }
 
-    public async Task<bool> CheckIfExistsAsync(int entityId)
+    public async Task<bool> CheckIfExistsAsync(Guid entityId)
     {
         return await _context.ProfilePictures.AnyAsync(e => e.Id == entityId);
     }
 
-    public async Task<int> AddAsync(ProfilePicture entity)
+    public async Task<Guid> AddAsync(ProfilePicture entity)
     {
         ArgumentNullException.ThrowIfNull(entity);
 
@@ -64,7 +64,7 @@ public class ProfilePictureRepository : IProfilePictureRepository
         return affected > 0;
     }
 
-    public async Task<bool> RemoveAsync(int entityId)
+    public async Task<bool> RemoveAsync(Guid entityId)
     {
         var entity = await _context.ProfilePictures.FindAsync(entityId);
 
@@ -80,7 +80,7 @@ public class ProfilePictureRepository : IProfilePictureRepository
         return true;
     }
 
-    public async Task<IEnumerable<ProfilePicture>> GetUserProfilePicturesAsync(int userId, int limit, int offset)
+    public async Task<IEnumerable<ProfilePicture>> GetUserProfilePicturesAsync(Guid userId, int limit, int offset)
     {
         RepositoryUtils.ValidateLimitOffset(limit: limit, offset: offset);
 
@@ -93,12 +93,12 @@ public class ProfilePictureRepository : IProfilePictureRepository
             .ToListAsync();
     }
 
-    public async Task<int> GetUserProfilePicturesCountAsync(int userId)
+    public async Task<int> GetUserProfilePicturesCountAsync(Guid userId)
     {
         return await _context.ProfilePictures.CountAsync(e => e.UserId == userId);
     }
 
-    public async Task<bool> MoveDisplayOrderUpAsync(int pictureId)
+    public async Task<bool> MoveDisplayOrderUpAsync(Guid pictureId)
     {
         var entity = await _context.ProfilePictures.FindAsync(pictureId);
 
@@ -114,7 +114,7 @@ public class ProfilePictureRepository : IProfilePictureRepository
         return true;
     }
 
-    public async Task<bool> MoveDisplayOrderDownAsync(int pictureId)
+    public async Task<bool> MoveDisplayOrderDownAsync(Guid pictureId)
     {
         var entity = await _context.ProfilePictures.FindAsync(pictureId);
 

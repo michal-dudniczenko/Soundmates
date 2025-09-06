@@ -2,5 +2,5 @@
 
 public class SwipeDto
 {
-    public required int ReceiverId { get; set; }
+    public required Guid ReceiverId { get; set; }
 }

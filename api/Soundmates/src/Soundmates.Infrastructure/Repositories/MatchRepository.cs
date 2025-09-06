@@ -15,7 +15,7 @@ public class MatchRepository : IMatchRepository
         _context = context;
     }
 
-    public async Task<Match?> GetByIdAsync(int entityId)
+    public async Task<Match?> GetByIdAsync(Guid entityId)
     {
         return await _context.Matches
             .AsNoTracking()
@@ -34,12 +34,12 @@ public class MatchRepository : IMatchRepository
             .ToListAsync();
     }
 
-    public async Task<bool> CheckIfExistsAsync(int entityId)
+    public async Task<bool> CheckIfExistsAsync(Guid entityId)
     {
         return await _context.Matches.AnyAsync(e => e.Id == entityId);
     }
 
-    public async Task<int> AddAsync(Match entity)
+    public async Task<Guid> AddAsync(Match entity)
     {
         ArgumentNullException.ThrowIfNull(entity);
 
@@ -68,7 +68,7 @@ public class MatchRepository : IMatchRepository
         return affected > 0;
     }
 
-    public async Task<bool> RemoveAsync(int entityId)
+    public async Task<bool> RemoveAsync(Guid entityId)
     {
         var entity = await _context.Matches.FindAsync(entityId);
 
@@ -80,7 +80,7 @@ public class MatchRepository : IMatchRepository
         return true;
     }
 
-    public async Task<IEnumerable<Match>> GetUserMatchesAsync(int userId, int limit, int offset)
+    public async Task<IEnumerable<Match>> GetUserMatchesAsync(Guid userId, int limit, int offset)
     {
         RepositoryUtils.ValidateLimitOffset(limit: limit, offset: offset);
 
@@ -93,7 +93,7 @@ public class MatchRepository : IMatchRepository
             .ToListAsync();
     }
 
-    public async Task<bool> CheckIfMatchExistsAsync(int user1Id, int user2Id)
+    public async Task<bool> CheckIfMatchExistsAsync(Guid user1Id, Guid user2Id)
     {
         return await _context.Matches.AnyAsync(m => (m.User1Id == user1Id && m.User2Id == user2Id) ||
             (m.User1Id == user2Id && m.User2Id == user1Id));

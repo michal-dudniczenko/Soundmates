@@ -41,7 +41,7 @@ public class MusicSamplesController(
     [HttpGet("{userId}")]
     [Authorize]
     public async Task<IActionResult> GetOtherUserMusicSamples(
-        int userId,
+        Guid userId,
         [FromQuery] int limit = 20,
         [FromQuery] int offset = 0)
     {
@@ -88,7 +88,7 @@ public class MusicSamplesController(
     // DELETE /music-samples/{sampleId}
     [HttpDelete("{sampleId}")]
     [Authorize]
-    public async Task<IActionResult> DeleteMusicSample(int sampleId)
+    public async Task<IActionResult> DeleteMusicSample(Guid sampleId)
     {
         var subClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
@@ -105,7 +105,7 @@ public class MusicSamplesController(
     // POST /music-samples/move-display-order-up/{sampleId}
     [HttpPost("move-display-order-up/{sampleId}")]
     [Authorize]
-    public async Task<IActionResult> MoveSampleDisplayOrderUp(int sampleId)
+    public async Task<IActionResult> MoveSampleDisplayOrderUp(Guid sampleId)
     {
         var subClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
@@ -122,7 +122,7 @@ public class MusicSamplesController(
     // POST /music-samples/move-display-order-down/{sampleId}
     [HttpPost("move-display-order-down/{sampleId}")]
     [Authorize]
-    public async Task<IActionResult> MoveSampleDisplayOrderDown(int sampleId)
+    public async Task<IActionResult> MoveSampleDisplayOrderDown(Guid sampleId)
     {
         var subClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 

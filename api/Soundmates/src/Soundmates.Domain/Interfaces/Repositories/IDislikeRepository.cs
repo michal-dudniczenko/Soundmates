@@ -4,7 +4,7 @@ namespace Soundmates.Domain.Interfaces.Repositories;
 
 public interface IDislikeRepository : IBaseRepository<Dislike>
 {
-    Task<IEnumerable<Dislike>> GetUserGivenDislikesAsync(int userId, int limit, int offset);
-    Task<IEnumerable<Dislike>> GetUserReceivedDislikesAsync(int userId, int limit, int offset);
-    Task<bool> CheckIfExistsAsync(int giverId, int receiverId);
+    Task<IEnumerable<Dislike>> GetUserGivenDislikesAsync(Guid userId, int limit, int offset);
+    Task<IEnumerable<Dislike>> GetUserReceivedDislikesAsync(Guid userId, int limit, int offset);
+    Task<bool> CheckIfExistsAsync(Guid giverId, Guid receiverId);
 }

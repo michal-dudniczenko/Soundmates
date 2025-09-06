@@ -22,7 +22,7 @@ public class RefreshCommandHandler(
                 errorMessage: "Invalid refresh token. Log in to get a new one.");
         }
 
-        var accessToken = _authService.GenerateAccessToken(userId: (int)userId);
+        var accessToken = _authService.GenerateAccessToken(userId: (Guid)userId);
 
         var authAccessToken = new AuthAccessToken
         {

@@ -15,7 +15,7 @@ public class UserRepository : IUserRepository
         _context = context;
     }
 
-    public async Task<User?> GetByIdAsync(int entityId)
+    public async Task<User?> GetByIdAsync(Guid entityId)
     {
         return await _context.Users
             .AsNoTracking()
@@ -34,12 +34,12 @@ public class UserRepository : IUserRepository
             .ToListAsync();
     }
 
-    public async Task<bool> CheckIfExistsAsync(int entityId)
+    public async Task<bool> CheckIfExistsAsync(Guid entityId)
     {
         return await _context.Users.AnyAsync(e => e.Id == entityId);
     }
 
-    public async Task<int> AddAsync(User entity)
+    public async Task<Guid> AddAsync(User entity)
     {
         ArgumentNullException.ThrowIfNull(entity);
 
@@ -59,7 +59,7 @@ public class UserRepository : IUserRepository
         return affected > 0;
     }
 
-    public async Task<bool> RemoveAsync(int entityId)
+    public async Task<bool> RemoveAsync(Guid entityId)
     {
         var entity = await _context.Users.FindAsync(entityId);
 
@@ -95,7 +95,7 @@ public class UserRepository : IUserRepository
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<User>> GetPotentialMatchesAsync(int userId, int limit, int offset)
+    public async Task<IEnumerable<User>> GetPotentialMatchesAsync(Guid userId, int limit, int offset)
     {
         RepositoryUtils.ValidateLimitOffset(limit: limit, offset: offset);
 
@@ -115,7 +115,7 @@ public class UserRepository : IUserRepository
             .ToListAsync();
     }
 
-    public async Task<bool> DeactivateUserAccountAsync(int userId)
+    public async Task<bool> DeactivateUserAccountAsync(Guid userId)
     {
         var user = await _context.Users.FindAsync(userId);
 
@@ -130,7 +130,7 @@ public class UserRepository : IUserRepository
         return true;
     }
 
-    public async Task<bool> UpdateUserPasswordAsync(int userId, string newPasswordHash)
+    public async Task<bool> UpdateUserPasswordAsync(Guid userId, string newPasswordHash)
     {
         var user = await _context.Users.FindAsync(userId);
 
@@ -142,7 +142,7 @@ public class UserRepository : IUserRepository
         return true;
     }
 
-    public async Task<bool> LogInUserAsync(int userId, string newRefreshTokenHash, DateTime newRefreshTokenExpiresAt)
+    public async Task<bool> LogInUserAsync(Guid userId, string newRefreshTokenHash, DateTime newRefreshTokenExpiresAt)
     {
         var user = await _context.Users.FindAsync(userId);
 
@@ -156,7 +156,7 @@ public class UserRepository : IUserRepository
         return true;
     }
 
-    public async Task<bool> LogOutUserAsync(int userId)
+    public async Task<bool> LogOutUserAsync(Guid userId)
     {
         var user = await _context.Users.FindAsync(userId);
 
@@ -175,7 +175,7 @@ public class UserRepository : IUserRepository
         return await _context.Users.AnyAsync(e => e.Email == email);
     }
 
-    public async Task<int?> CheckRefreshTokenGetUserIdAsync(string refreshTokenHash)
+    public async Task<Guid?> CheckRefreshTokenGetUserIdAsync(string refreshTokenHash)
     {
         var user = await _context.Users
             .AsNoTracking()
@@ -189,7 +189,7 @@ public class UserRepository : IUserRepository
         return user.Id;
     }
 
-    public async Task<bool> CheckIfExistsActiveAsync(int userId)
+    public async Task<bool> CheckIfExistsActiveAsync(Guid userId)
     {
         return await _context.Users.AnyAsync(e => e.Id == userId && e.IsActive && e.IsEmailConfirmed && !e.IsFirstLogin);
     }

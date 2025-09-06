@@ -2,7 +2,7 @@
 
 public class SelfMusicSampleDto
 {
-    public required int Id { get; set; }
+    public required Guid Id { get; set; }
     public required string FileUrl { get; set; }
     public required int DisplayOrder { get; set; }
 }

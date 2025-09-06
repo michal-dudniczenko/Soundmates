@@ -37,7 +37,7 @@ public class UsersController(
     // GET /users/{id}
     [HttpGet("{id}")]
     [Authorize]
-    public async Task<IActionResult> GetOtherUserProfile(int id)
+    public async Task<IActionResult> GetOtherUserProfile(Guid id)
     {
         var subClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 

@@ -24,17 +24,15 @@ namespace Soundmates.Infrastructure.Migrations
 
             modelBuilder.Entity("Soundmates.Domain.Entities.Dislike", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("uuid");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    b.Property<Guid>("GiverId")
+                        .HasColumnType("uuid");
 
-                    b.Property<int>("GiverId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("ReceiverId")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("ReceiverId")
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("Timestamp")
                         .HasColumnType("timestamp with time zone");
@@ -51,17 +49,15 @@ namespace Soundmates.Infrastructure.Migrations
 
             modelBuilder.Entity("Soundmates.Domain.Entities.Like", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("uuid");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    b.Property<Guid>("GiverId")
+                        .HasColumnType("uuid");
 
-                    b.Property<int>("GiverId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("ReceiverId")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("ReceiverId")
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("Timestamp")
                         .HasColumnType("timestamp with time zone");
@@ -78,20 +74,18 @@ namespace Soundmates.Infrastructure.Migrations
 
             modelBuilder.Entity("Soundmates.Domain.Entities.Match", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("Timestamp")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("User1Id")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("User1Id")
+                        .HasColumnType("uuid");
 
-                    b.Property<int>("User2Id")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("User2Id")
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
@@ -105,22 +99,20 @@ namespace Soundmates.Infrastructure.Migrations
 
             modelBuilder.Entity("Soundmates.Domain.Entities.Message", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Content")
                         .IsRequired()
                         .HasMaxLength(4000)
                         .HasColumnType("character varying(4000)");
 
-                    b.Property<int>("ReceiverId")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("ReceiverId")
+                        .HasColumnType("uuid");
 
-                    b.Property<int>("SenderId")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("SenderId")
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("Timestamp")
                         .HasColumnType("timestamp with time zone");
@@ -136,11 +128,9 @@ namespace Soundmates.Infrastructure.Migrations
 
             modelBuilder.Entity("Soundmates.Domain.Entities.MusicSample", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                        .HasColumnType("uuid");
 
                     b.Property<int>("DisplayOrder")
                         .HasColumnType("integer");
@@ -150,8 +140,8 @@ namespace Soundmates.Infrastructure.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
@@ -162,11 +152,9 @@ namespace Soundmates.Infrastructure.Migrations
 
             modelBuilder.Entity("Soundmates.Domain.Entities.ProfilePicture", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                        .HasColumnType("uuid");
 
                     b.Property<int>("DisplayOrder")
                         .HasColumnType("integer");
@@ -176,8 +164,8 @@ namespace Soundmates.Infrastructure.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
@@ -188,11 +176,9 @@ namespace Soundmates.Infrastructure.Migrations
 
             modelBuilder.Entity("Soundmates.Domain.Entities.User", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                        .HasColumnType("uuid");
 
                     b.Property<int?>("BirthYear")
                         .HasColumnType("integer");
