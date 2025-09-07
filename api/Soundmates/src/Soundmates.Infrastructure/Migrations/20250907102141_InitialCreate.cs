@@ -23,8 +23,6 @@ namespace Soundmates.Infrastructure.Migrations
                     BirthYear = table.Column<int>(type: "integer", nullable: true),
                     City = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
                     Country = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
-                    RefreshTokenHash = table.Column<string>(type: "text", nullable: true),
-                    RefreshTokenExpiresAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     IsActive = table.Column<bool>(type: "boolean", nullable: false),
                     IsFirstLogin = table.Column<bool>(type: "boolean", nullable: false),
                     IsEmailConfirmed = table.Column<bool>(type: "boolean", nullable: false),
@@ -157,7 +155,7 @@ namespace Soundmates.Infrastructure.Migrations
                         column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -177,7 +175,26 @@ namespace Soundmates.Infrastructure.Migrations
                         column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "RefreshTokens",
+                columns: table => new
+                {
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    RefreshTokenHash = table.Column<string>(type: "text", nullable: false),
+                    RefreshTokenExpiresAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RefreshTokens", x => x.UserId);
+                    table.ForeignKey(
+                        name: "FK_RefreshTokens_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
@@ -254,6 +271,9 @@ namespace Soundmates.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "ProfilePictures");
+
+            migrationBuilder.DropTable(
+                name: "RefreshTokens");
 
             migrationBuilder.DropTable(
                 name: "Users");

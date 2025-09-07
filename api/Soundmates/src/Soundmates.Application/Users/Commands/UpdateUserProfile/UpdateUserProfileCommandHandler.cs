@@ -32,8 +32,6 @@ public class UpdateUserProfileCommandHandler(
             BirthYear = request.BirthYear,
             City = request.City,
             Country = request.Country,
-            RefreshTokenHash = authorizedUser.RefreshTokenHash,
-            RefreshTokenExpiresAt = authorizedUser.RefreshTokenExpiresAt,
             IsActive = authorizedUser.IsActive,
             IsFirstLogin = false,
             IsEmailConfirmed = authorizedUser.IsEmailConfirmed,

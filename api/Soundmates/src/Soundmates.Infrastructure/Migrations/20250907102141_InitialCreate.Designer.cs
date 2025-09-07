@@ -12,7 +12,7 @@ using Soundmates.Infrastructure.Database;
 namespace Soundmates.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250906220623_InitialCreate")]
+    [Migration("20250907102141_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -177,6 +177,23 @@ namespace Soundmates.Infrastructure.Migrations
                     b.ToTable("ProfilePictures");
                 });
 
+            modelBuilder.Entity("Soundmates.Domain.Entities.RefreshToken", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("RefreshTokenExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("RefreshTokenHash")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("UserId");
+
+                    b.ToTable("RefreshTokens");
+                });
+
             modelBuilder.Entity("Soundmates.Domain.Entities.User", b =>
                 {
                     b.Property<Guid>("Id")
@@ -221,12 +238,6 @@ namespace Soundmates.Infrastructure.Migrations
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime?>("RefreshTokenExpiresAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("RefreshTokenHash")
                         .HasColumnType("text");
 
                     b.HasKey("Id");
@@ -299,7 +310,7 @@ namespace Soundmates.Infrastructure.Migrations
                     b.HasOne("Soundmates.Domain.Entities.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
@@ -308,7 +319,16 @@ namespace Soundmates.Infrastructure.Migrations
                     b.HasOne("Soundmates.Domain.Entities.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Soundmates.Domain.Entities.RefreshToken", b =>
+                {
+                    b.HasOne("Soundmates.Domain.Entities.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 #pragma warning restore 612, 618

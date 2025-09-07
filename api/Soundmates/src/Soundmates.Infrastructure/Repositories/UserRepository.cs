@@ -122,9 +122,15 @@ public class UserRepository : IUserRepository
         if (user is null) return false;
 
         user.IsActive = false;
-        user.RefreshTokenHash = null;
-        user.RefreshTokenExpiresAt = null;
         user.IsLoggedOut = true;
+
+        var refreshToken = await _context.RefreshTokens.FindAsync(user.Id);
+
+        if (refreshToken is not null)
+        {
+            _context.RefreshTokens.Remove(refreshToken);
+        }
+        
         await _context.SaveChangesAsync();
 
         return true;
@@ -148,8 +154,25 @@ public class UserRepository : IUserRepository
 
         if (user is null) return false;
 
-        user.RefreshTokenHash = newRefreshTokenHash;
-        user.RefreshTokenExpiresAt = newRefreshTokenExpiresAt;
+        var existingRefreshToken = await _context.RefreshTokens.FindAsync(user.Id);
+
+        if (existingRefreshToken is null)
+        {
+            var newRefreshToken = new RefreshToken
+            {
+                UserId = user.Id,
+                RefreshTokenHash = newRefreshTokenHash,
+                RefreshTokenExpiresAt = newRefreshTokenExpiresAt
+            };
+
+            _context.RefreshTokens.Add(newRefreshToken);
+        }
+        else
+        {
+            existingRefreshToken.RefreshTokenHash = newRefreshTokenHash;
+            existingRefreshToken.RefreshTokenExpiresAt = newRefreshTokenExpiresAt;
+        }
+
         user.IsLoggedOut = false;
         await _context.SaveChangesAsync();
 
@@ -162,9 +185,15 @@ public class UserRepository : IUserRepository
 
         if (user is null) return false;
 
-        user.RefreshTokenHash = null;
-        user.RefreshTokenExpiresAt = null;
         user.IsLoggedOut = true;
+
+        var refreshToken = await _context.RefreshTokens.FindAsync(user.Id);
+
+        if (refreshToken is not null)
+        {
+            _context.RefreshTokens.Remove(refreshToken);
+        }
+
         await _context.SaveChangesAsync();
 
         return true;
@@ -177,16 +206,16 @@ public class UserRepository : IUserRepository
 
     public async Task<Guid?> CheckRefreshTokenGetUserIdAsync(string refreshTokenHash)
     {
-        var user = await _context.Users
+        var refreshToken = await _context.RefreshTokens
             .AsNoTracking()
             .FirstOrDefaultAsync(e => e.RefreshTokenHash == refreshTokenHash);
 
-        if (user is null || user.RefreshTokenExpiresAt < DateTime.UtcNow)
+        if (refreshToken is null || refreshToken.RefreshTokenExpiresAt < DateTime.UtcNow)
         {
             return null;
         }
 
-        return user.Id;
+        return refreshToken.UserId;
     }
 
     public async Task<bool> CheckIfExistsActiveAsync(Guid userId)

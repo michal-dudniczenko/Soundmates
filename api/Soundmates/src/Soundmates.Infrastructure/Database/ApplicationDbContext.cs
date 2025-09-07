@@ -12,6 +12,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<Like> Likes { get; set; }
     public DbSet<Dislike> Dislikes { get; set; }
     public DbSet<Match> Matches { get; set; }
+    public DbSet<RefreshToken> RefreshTokens { get; set; }
 
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
@@ -26,72 +27,83 @@ public class ApplicationDbContext : DbContext
             .HasOne<User>()
             .WithMany()
             .HasForeignKey(e => e.UserId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<ProfilePicture>()
             .HasOne<User>()
             .WithMany()
             .HasForeignKey(e => e.UserId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Cascade);
 
-        modelBuilder.Entity<Message>()
-            .HasOne<User>()
-            .WithMany()
-            .HasForeignKey(e => e.SenderId)
-            .OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<Message>(entity =>
+        {
+            entity.HasOne<User>()
+                .WithMany()
+                .HasForeignKey(e => e.SenderId)
+                .OnDelete(DeleteBehavior.Restrict);
 
-        modelBuilder.Entity<Message>()
-            .HasOne<User>()
-            .WithMany()
-            .HasForeignKey(e => e.ReceiverId)
-            .OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne<User>()
+                .WithMany()
+                .HasForeignKey(e => e.ReceiverId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
 
-        modelBuilder.Entity<Like>()
-            .HasOne<User>()
-            .WithMany()
-            .HasForeignKey(e => e.GiverId)
-            .OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<Like>(entity =>
+        {
+            entity.HasOne<User>()
+                .WithMany()
+                .HasForeignKey(e => e.GiverId)
+                .OnDelete(DeleteBehavior.Restrict);
 
-        modelBuilder.Entity<Like>()
-            .HasOne<User>()
-            .WithMany()
-            .HasForeignKey(e => e.ReceiverId)
-            .OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne<User>()
+                .WithMany()
+                .HasForeignKey(e => e.ReceiverId)
+                .OnDelete(DeleteBehavior.Restrict);
 
-        modelBuilder.Entity<Dislike>()
-            .HasOne<User>()
-            .WithMany()
-            .HasForeignKey(e => e.GiverId)
-            .OnDelete(DeleteBehavior.Restrict);
+            entity.HasIndex(e => new { e.GiverId, e.ReceiverId })
+                .IsUnique();
+        });
 
-        modelBuilder.Entity<Dislike>()
-            .HasOne<User>()
-            .WithMany()
-            .HasForeignKey(e => e.ReceiverId)
-            .OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<Dislike>(entity =>
+        {
+            entity.HasOne<User>()
+                .WithMany()
+                .HasForeignKey(e => e.GiverId)
+                .OnDelete(DeleteBehavior.Restrict);
 
-        modelBuilder.Entity<Match>()
-            .HasOne<User>()
-            .WithMany()
-            .HasForeignKey(e => e.User1Id)
-            .OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne<User>()
+                .WithMany()
+                .HasForeignKey(e => e.ReceiverId)
+                .OnDelete(DeleteBehavior.Restrict);
 
-        modelBuilder.Entity<Match>()
-            .HasOne<User>()
-            .WithMany()
-            .HasForeignKey(e => e.User2Id)
-            .OnDelete(DeleteBehavior.Restrict);
+            entity.HasIndex(e => new { e.GiverId, e.ReceiverId })
+                .IsUnique();
+        });
 
-        modelBuilder.Entity<Like>()
-            .HasIndex(e => new { e.GiverId, e.ReceiverId })
-            .IsUnique();
+        modelBuilder.Entity<Match>(entity =>
+        {
+            entity.HasOne<User>()
+                .WithMany()
+                .HasForeignKey(e => e.User1Id)
+                .OnDelete(DeleteBehavior.Restrict);
 
-        modelBuilder.Entity<Dislike>()
-            .HasIndex(e => new { e.GiverId, e.ReceiverId })
-            .IsUnique();
+            entity.HasOne<User>()
+                .WithMany()
+                .HasForeignKey(e => e.User2Id)
+                .OnDelete(DeleteBehavior.Restrict);
 
-        modelBuilder.Entity<Match>()
-            .HasIndex(e => new { e.User1Id, e.User2Id })
-            .IsUnique();
+            entity.HasIndex(e => new { e.User1Id, e.User2Id })
+                .IsUnique();
+        });
+
+        modelBuilder.Entity<RefreshToken>(entity =>
+        {
+            entity.HasKey(e => e.UserId);
+
+            entity.HasOne<User>()
+                .WithMany()
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
     }
 }

@@ -25,10 +25,6 @@ public class User
     [MaxLength(100)]
     public string? Country { get; set; } = null;
 
-    public string? RefreshTokenHash { get; set; } = null;
-
-    public DateTime? RefreshTokenExpiresAt { get; set; } = null;
-
     public bool IsActive { get; set; } = true;
 
     public bool IsFirstLogin { get; set; } = true;
