@@ -40,7 +40,7 @@ public class LogInCommandHandler(
         var accessToken = _authService.GenerateAccessToken(userId: user.Id);
         var refreshToken = _authService.GenerateRefreshToken(userId: user.Id);
         var refreshTokenHash = _authService.GetRefreshTokenHash(refreshToken);
-        var refreshTokenExpiresAt = DateTime.UtcNow.AddMinutes(30);
+        var refreshTokenExpiresAt = DateTime.UtcNow.AddDays(30);
 
         var logInResult = await _userRepository.LogInUserAsync(userId: user.Id, newRefreshTokenHash: refreshTokenHash, newRefreshTokenExpiresAt: refreshTokenExpiresAt);
 
