@@ -9,9 +9,9 @@ using Soundmates.Infrastructure.Repositories;
 using Soundmates.Infrastructure.Services.Auth;
 using Soundmates.Infrastructure.Services.Mp3;
 
-namespace Soundmates.Infrastructure.Extensions;
+namespace Soundmates.Infrastructure;
 
-public static class DependencyInjection
+public static class DIRegistrations
 {
     public static IServiceCollection AddInfrastructure(
         this IServiceCollection services,

@@ -1,22 +1,16 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Soundmates.Api.Handlers;
 using Soundmates.Api.Middleware;
-using Soundmates.Infrastructure.Database;
+using Soundmates.Application;
+using Soundmates.Infrastructure;
 using Soundmates.Infrastructure.Extensions;
-using System.Reflection;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
-
-builder.Services.AddMediatR(cfg => 
-{
-    var applicationAssembly = Assembly.Load("Soundmates.Application");
-    cfg.RegisterServicesFromAssemblies(applicationAssembly);
-});
 
 var secretKey = builder.Configuration["SecretKey"];
 if (string.IsNullOrEmpty(secretKey))
@@ -39,10 +33,14 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddAuthorization();
 
 builder.Services.AddControllers();
-builder.Services.AddOpenApi(documentName: "soundmates");
 
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+
+if (builder.Environment.IsDevelopment())
+{
+    builder.Services.AddOpenApi(documentName: "soundmates");
+}
 
 var app = builder.Build();
 
@@ -52,9 +50,7 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 
-    using var scope = app.Services.CreateScope();
-    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    await dbContext.Database.MigrateAsync();
+    await app.InitializeMigrateDatabase();
 }
 
 app.UseExceptionHandler();
