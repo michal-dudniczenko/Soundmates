@@ -20,6 +20,7 @@ adminer database management at: **http://localhost:8080**
 
 #### TO DO:
 
+-   dodac jakies filtrowanie propozycji, typy uzytkownikow - solista, duet, zespol itp
 -   obecnie chat idzie przez http wiec mozna wysylac wiadomosci, ale odswiezanie skrzynki tylko przez jakis long polling, docelowo przez websockety
 -   obecnie nie trzeba potwierdzac emaila, email jest z automatu 'potwierdzony', dodam to jako krok niezbedny zeby sie zalogowac
 -   dodac jakis algorytm proponowania matchy, na podstawie odleglosci, wieku, czy online, idk jakis innych skladowych. obecnie zwracane sa w takiej kolejnosci w jakiej sa w bazie.
@@ -46,12 +47,14 @@ adminer database management at: **http://localhost:8080**
 6. zdjecie max 5 mb, tylko .jpeg/.jpg, kazdy user max 5 zdjec
 
 ### /auth
+
 1. POST /auth/register - rejestracja
 2. POST /auth/login - logowanie, zwraca access + refresh token na 30 dni
 3. POST /auth/refresh - przesylamy refresh token zeby dostac nowy access token (zeby odnowic sesje i nie trzeba bylo sie logowac ponownie, przechowujemy tylko tokeny na kliencie)
 4. POST /auth/logout - uniewaznia obecne tokeny, trzeba sie zalogowac zeby dostac nowe
 
 ### /users
+
 1. GET /users/profile - zwraca profil usera
 2. GET /users/{id} - zwraca profil innego uzytkownika, to samo co wyzej, ale bez emaila bo RODO
 3. GET /users - zwraca profile innych uzytkownikow, ktorzy sa potencjalnymi matchami dla usera
@@ -60,16 +63,19 @@ adminer database management at: **http://localhost:8080**
 6. DELETE /users - deaktywacja konta usera, nie da sie cofnac, chyba ze recznie w db
 
 ### /matching
+
 1. POST /matching/like - daje lajka uzytkownikowi
 2. POST /matching/dislike - daje dislajka uzytkownikowi
 3. GET /matching/matches - lista matchy usera
 
 ### /messages
+
 1. GET /messages/{userId} - zwraca konwersacje usera z uzytkownikiem o userId
 2. GET /messages/preview - zwraca 'preview' konwersacji usera, po jednej ostatniej wiadomosci w kazdej z konwersacji
 3. POST /messages - wyslanie wiadomosci, mozna wyslac tylko do uzytkownika, z ktorym mamy matcha
 
 ### /profile-pictures
+
 1. GET /profile-pictures - zwraca linki do zdjec usera
 2. GET /profile-pictures/{userId} - zwraca linki do zdjec uzytkownika o userId
 3. POST /profile-pictures - dodaje zdjecie
@@ -78,6 +84,7 @@ adminer database management at: **http://localhost:8080**
 6. POST /profile-pictures/move-display-order-down/{pictureId} - zmienia kolejnosc wyswietlania zdjecia o pictureId o jedno do tylu
 
 ### /music-samples
+
 1. GET /music-samples - zwraca linki do nutek usera
 2. GET /music-samples/{userId} - zwraca linki do nutek uzytkownika o userId
 3. POST /music-samples - dodaje nutke
