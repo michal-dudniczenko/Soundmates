@@ -9,6 +9,7 @@ public class Message
     [MaxLength(4000)]
     public required string Content { get; set; }
     public DateTime Timestamp { get; private set; } = DateTime.UtcNow;
+
     public required Guid SenderId { get; set; }
     public required Guid ReceiverId { get; set; }
 }
