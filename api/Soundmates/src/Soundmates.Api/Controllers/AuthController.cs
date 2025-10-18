@@ -1,12 +1,13 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Soundmates.Api.DTOs.Auth;
 using Soundmates.Api.Extensions;
+using Soundmates.Api.RequestDTOs.Auth;
 using Soundmates.Application.Auth.Commands.LogIn;
 using Soundmates.Application.Auth.Commands.LogOut;
 using Soundmates.Application.Auth.Commands.Refresh;
 using Soundmates.Application.Auth.Commands.Register;
+using Soundmates.Application.ResponseDTOs.Auth;
 using System.Security.Claims;
 
 namespace Soundmates.Api.Controllers;
@@ -19,7 +20,7 @@ public class AuthController(
 {
     // POST /users/register
     [HttpPost("register")]
-    public async Task<IActionResult> Register(
+    public async Task<ActionResult> Register(
         [FromBody] RegisterDto registerUserDto)
     {
         var command = new RegisterCommand(
@@ -33,7 +34,7 @@ public class AuthController(
 
     // POST /users/login
     [HttpPost("login")]
-    public async Task<IActionResult> LogIn(
+    public async Task<ActionResult<AccessRefreshTokensDto>> LogIn(
         [FromBody] LoginDto loginDto)
     {
         var command = new LogInCommand(
@@ -47,7 +48,7 @@ public class AuthController(
 
     // POST /users/refresh
     [HttpPost("refresh")]
-    public async Task<IActionResult> Refresh(
+    public async Task<ActionResult<AccessTokenDto>> Refresh(
         [FromBody] RefreshTokenDto refreshTokenDto)
     {
         var command = new RefreshCommand(
@@ -61,7 +62,7 @@ public class AuthController(
     // POST /users/logout
     [HttpPost("logout")]
     [Authorize]
-    public async Task<IActionResult> LogOut()
+    public async Task<ActionResult> LogOut()
     {
         var subClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 

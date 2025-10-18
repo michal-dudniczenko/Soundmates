@@ -1,13 +1,17 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Soundmates.Api.DTOs.Users;
 using Soundmates.Api.Extensions;
+using Soundmates.Api.RequestDTOs.Users;
+using Soundmates.Application.ResponseDTOs.Users;
 using Soundmates.Application.Users.Commands.ChangePassword;
 using Soundmates.Application.Users.Commands.DeactivateAccount;
 using Soundmates.Application.Users.Commands.UpdateUserProfile;
+using Soundmates.Application.Users.Commands.UpdateUserProfile.UpdateUserProfileArtist;
+using Soundmates.Application.Users.Commands.UpdateUserProfile.UpdateUserProfileBand;
 using Soundmates.Application.Users.Queries.GetOtherUserProfile;
-using Soundmates.Application.Users.Queries.GetPotentialMatches;
+using Soundmates.Application.Users.Queries.GetPotentialMatchesArtists;
+using Soundmates.Application.Users.Queries.GetPotentialMatchesBands;
 using Soundmates.Application.Users.Queries.GetSelfUserProfile;
 using System.Security.Claims;
 
@@ -22,7 +26,7 @@ public class UsersController(
     // GET /users/profile
     [HttpGet("profile")]
     [Authorize]
-    public async Task<IActionResult> GetSelfUserProfile()
+    public async Task<ActionResult<SelfUserProfileDto>> GetSelfUserProfile()
     {
         var subClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
@@ -34,10 +38,44 @@ public class UsersController(
         return this.ResultToHttpResponse(result);
     }
 
+    // PUT /users/profile
+    [HttpPut("profile")]
+    [Authorize]
+    public async Task<ActionResult> UpdateUserProfile(
+        [FromBody] UpdateUserProfileDto updateUserDto)
+    {
+        var subClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        UpdateUserProfileCommand command = updateUserDto switch
+        {
+            UpdateUserProfileArtistDto dto => new UpdateUserProfileArtistCommand(
+                Name: dto.Name,
+                Description: dto.Description,
+                CountryId: dto.CountryId,
+                CityId: dto.CityId,
+                Tags: dto.Tags,
+                BirthDate: dto.BirthDate,
+                SubClaim: subClaim),
+            UpdateUserProfileBandDto dto => new UpdateUserProfileBandCommand(
+                Name: dto.Name,
+                Description: dto.Description,
+                CountryId: dto.CountryId,
+                CityId: dto.CityId,
+                Tags: dto.Tags,
+                BandMembers: dto.BandMembers,
+                SubClaim: subClaim),
+            _ => throw new InvalidOperationException()
+        };
+
+        var result = await _mediator.Send(command);
+
+        return this.ResultToHttpResponse(result);
+    }
+
     // GET /users/{id}
     [HttpGet("{id}")]
     [Authorize]
-    public async Task<IActionResult> GetOtherUserProfile(Guid id)
+    public async Task<ActionResult<OtherUserProfileDto>> GetOtherUserProfile(Guid id)
     {
         var subClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
@@ -50,51 +88,10 @@ public class UsersController(
         return this.ResultToHttpResponse(result);
     }
 
-    // GET /users?limit=20&offset=0
-    [HttpGet]
-    [Authorize]
-    public async Task<IActionResult> GetPotentialMatches(
-        [FromQuery] int limit = 20,
-        [FromQuery] int offset = 0)
-    {
-        var subClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-        var query = new GetPotentialMatchesQuery(
-            Limit: limit,
-            Offset: offset,
-            SubClaim: subClaim);
-
-        var result = await _mediator.Send(query);
-
-        return this.ResultToHttpResponse(result);
-    }
-
-
-    // PUT /users
-    [HttpPut]
-    [Authorize]
-    public async Task<IActionResult> UpdateUserProfile(
-        [FromBody] UpdateUserProfileDto updateUserDto)
-    {
-        var subClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-        var command = new UpdateUserProfileCommand(
-            Name: updateUserDto.Name,
-            Description: updateUserDto.Description,
-            BirthYear: updateUserDto.BirthYear,
-            City: updateUserDto.City,
-            Country: updateUserDto.Country,
-            SubClaim: subClaim);
-
-        var result = await _mediator.Send(command);
-
-        return this.ResultToHttpResponse(result);
-    }
-
     // DELETE /users
     [HttpDelete]
     [Authorize]
-    public async Task<IActionResult> DeactivateAccount(
+    public async Task<ActionResult> DeactivateAccount(
         [FromBody] PasswordDto passwordDto)
     {
         var subClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -111,7 +108,7 @@ public class UsersController(
     // POST /users/change-password
     [HttpPost("change-password")]
     [Authorize]
-    public async Task<IActionResult> ChangePassword(
+    public async Task<ActionResult> ChangePassword(
         [FromBody] ChangePasswordDto changePasswordDto)
     {
         var subClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;

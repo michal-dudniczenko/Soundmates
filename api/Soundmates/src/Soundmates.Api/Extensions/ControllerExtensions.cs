@@ -5,7 +5,7 @@ namespace Soundmates.Api.Extensions;
 
 public static class ControllerExtensions
 {
-    public static IActionResult ResultToHttpResponse<T>(
+    public static ActionResult<T> ResultToHttpResponse<T>(
         this ControllerBase controller,
         Result<T> result)
     {
@@ -14,7 +14,7 @@ public static class ControllerExtensions
             .MakeGenericType(controller.GetType()))
             as ILogger;
 
-        IActionResult response;
+        ActionResult<T> response;
         int statusCode;
 
         if (result.IsSuccess)
@@ -51,7 +51,7 @@ public static class ControllerExtensions
         return response;
     }
 
-    public static IActionResult ResultToHttpResponse(
+    public static ActionResult ResultToHttpResponse(
         this ControllerBase controller,
         Result result)
     {
@@ -60,7 +60,7 @@ public static class ControllerExtensions
             .MakeGenericType(controller.GetType()))
             as ILogger;
 
-        IActionResult response;
+        ActionResult response;
         int statusCode;
 
         if (result.IsSuccess)
