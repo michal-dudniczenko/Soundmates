@@ -1,11 +1,12 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Soundmates.Api.DTOs.Messages;
 using Soundmates.Api.Extensions;
+using Soundmates.Api.RequestDTOs.Messages;
 using Soundmates.Application.Messages.Commands.SendMessage;
 using Soundmates.Application.Messages.Queries.GetConversation;
 using Soundmates.Application.Messages.Queries.GetConversationsPreview;
+using Soundmates.Application.ResponseDTOs.Messages;
 using System.Security.Claims;
 
 namespace Soundmates.Api.Controllers;
@@ -19,7 +20,7 @@ public class MessagesController(
     // GET /messages/preview?limit=20&offset=0
     [HttpGet("preview")]
     [Authorize]
-    public async Task<IActionResult> GetConversationsPreview(
+    public async Task<ActionResult<List<MessageDto>>> GetConversationsPreview(
         [FromQuery] int limit = 20,
         [FromQuery] int offset = 0)
     {
@@ -38,7 +39,7 @@ public class MessagesController(
     // GET /messages/{userId}?limit=20&offset=0
     [HttpGet("{userId}")]
     [Authorize]
-    public async Task<IActionResult> GetConversation(
+    public async Task<ActionResult<List<MessageDto>>> GetConversation(
         Guid userId,
         [FromQuery] int limit = 20,
         [FromQuery] int offset = 0)
@@ -59,7 +60,7 @@ public class MessagesController(
     // POST /messages
     [HttpPost]
     [Authorize]
-    public async Task<IActionResult> SendMessage(
+    public async Task<ActionResult> SendMessage(
         [FromBody] SendMessageDto sendMessageDto)
     {
         var subClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
