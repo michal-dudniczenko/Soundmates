@@ -3,9 +3,15 @@ using Soundmates.Domain.Entities;
 
 namespace Soundmates.Infrastructure.Database;
 
-public class ApplicationDbContext : DbContext
+public sealed class ApplicationDbContext : DbContext
 {
     public DbSet<User> Users { get; set; }
+    public DbSet<Artist> Artists { get; set; }
+    public DbSet<Band> Bands { get; set; }
+    public DbSet<BandMember> BandMembers { get; set; }
+    public DbSet<BandRole> BandRoles { get; set; }
+    public DbSet<Tag> Tags { get; set; }
+    public DbSet<TagCategory> TagCategories { get; set; }
     public DbSet<MusicSample> MusicSamples { get; set; }
     public DbSet<ProfilePicture> ProfilePictures { get; set; }
     public DbSet<Message> Messages { get; set; }
@@ -13,6 +19,11 @@ public class ApplicationDbContext : DbContext
     public DbSet<Dislike> Dislikes { get; set; }
     public DbSet<Match> Matches { get; set; }
     public DbSet<RefreshToken> RefreshTokens { get; set; }
+    public DbSet<Country> Countries { get; set; }
+    public DbSet<City> Cities { get; set; }
+    public DbSet<Gender> Genders { get; set; }
+    public DbSet<UserMatchPreference> UserMatchPreferences { get; set; }
+    public DbSet<UserMatchTagPreference> UserMatchTagPreferences { get; set; }
 
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
@@ -23,87 +34,165 @@ public class ApplicationDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.Entity<MusicSample>()
-            .HasOne<User>()
-            .WithMany()
-            .HasForeignKey(e => e.UserId)
-            .OnDelete(DeleteBehavior.Cascade);
+        #region relationships
+        modelBuilder.Entity<User>(entity =>
+        {
+            entity
+                .HasOne(u => u.Country)
+                .WithMany()
+                .HasForeignKey(u => u.CountryId);
 
-        modelBuilder.Entity<ProfilePicture>()
-            .HasOne<User>()
-            .WithMany()
-            .HasForeignKey(e => e.UserId)
-            .OnDelete(DeleteBehavior.Cascade);
+            entity
+                .HasOne(u => u.City)
+                .WithMany()
+                .HasForeignKey(u => u.CityId);
+
+            entity
+                .HasMany(u => u.Tags)
+                .WithMany();
+
+            entity
+                .HasMany(u => u.ProfilePictures)
+                .WithOne(pp => pp.User)
+                .HasForeignKey(pp => pp.UserId);
+
+            entity
+                .HasMany(u => u.MusicSamples)
+                .WithOne(ms => ms.User)
+                .HasForeignKey(ms => ms.UserId);
+
+            entity
+                .HasMany(u => u.Artists)
+                .WithOne(a => a.User)
+                .HasForeignKey(a => a.UserId);
+
+            entity
+                .HasMany(u => u.Bands)
+                .WithOne(b => b.User)
+                .HasForeignKey(b => b.UserId);
+        });
+
+        modelBuilder.Entity<Artist>(entity =>
+        {
+            entity
+                .HasOne(a => a.Gender)
+                .WithMany()
+                .HasForeignKey(a => a.GenderId);
+        });
+
+        modelBuilder.Entity<Band>(entity =>
+        {
+            entity
+                .HasMany(b => b.Members)
+                .WithOne(bm => bm.Band)
+                .HasForeignKey(bm => bm.BandId);
+        });
+
+        modelBuilder.Entity<BandMember>(entity =>
+        {
+            entity
+                .HasOne(bm => bm.BandRole)
+                .WithMany()
+                .HasForeignKey(bm => bm.BandRoleId);
+        });
+
+        modelBuilder.Entity<Tag>(entity =>
+        {
+            entity
+                .HasOne(t => t.TagCategory)
+                .WithMany(tc => tc.Tags)
+                .HasForeignKey(t => t.TagCategoryId);
+        });
 
         modelBuilder.Entity<Message>(entity =>
         {
-            entity.HasOne<User>()
+            entity
+                .HasOne(m => m.Sender)
                 .WithMany()
-                .HasForeignKey(e => e.SenderId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .HasForeignKey(m => m.SenderId);
 
-            entity.HasOne<User>()
+            entity
+                .HasOne(m => m.Receiver)
                 .WithMany()
-                .HasForeignKey(e => e.ReceiverId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .HasForeignKey(m => m.ReceiverId);
         });
 
         modelBuilder.Entity<Like>(entity =>
         {
-            entity.HasOne<User>()
+            entity
+                .HasOne(l => l.Giver)
                 .WithMany()
-                .HasForeignKey(e => e.GiverId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .HasForeignKey(l => l.GiverId);
 
-            entity.HasOne<User>()
+            entity
+                .HasOne(l => l.Receiver)
                 .WithMany()
-                .HasForeignKey(e => e.ReceiverId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            entity.HasIndex(e => new { e.GiverId, e.ReceiverId })
-                .IsUnique();
+                .HasForeignKey(l => l.ReceiverId);
         });
 
         modelBuilder.Entity<Dislike>(entity =>
         {
-            entity.HasOne<User>()
+            entity
+                .HasOne(dl => dl.Giver)
                 .WithMany()
-                .HasForeignKey(e => e.GiverId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .HasForeignKey(dl => dl.GiverId);
 
-            entity.HasOne<User>()
+            entity
+                .HasOne(dl => dl.Receiver)
                 .WithMany()
-                .HasForeignKey(e => e.ReceiverId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            entity.HasIndex(e => new { e.GiverId, e.ReceiverId })
-                .IsUnique();
+                .HasForeignKey(dl => dl.ReceiverId);
         });
 
         modelBuilder.Entity<Match>(entity =>
         {
-            entity.HasOne<User>()
+            entity
+                .HasOne(m => m.User1)
                 .WithMany()
-                .HasForeignKey(e => e.User1Id)
-                .OnDelete(DeleteBehavior.Restrict);
+                .HasForeignKey(m => m.User1Id);
 
-            entity.HasOne<User>()
+            entity
+                .HasOne(m => m.User2)
                 .WithMany()
-                .HasForeignKey(e => e.User2Id)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            entity.HasIndex(e => new { e.User1Id, e.User2Id })
-                .IsUnique();
+                .HasForeignKey(m => m.User2Id);
         });
 
         modelBuilder.Entity<RefreshToken>(entity =>
         {
-            entity.HasKey(e => e.UserId);
-
-            entity.HasOne<User>()
-                .WithMany()
-                .HasForeignKey(e => e.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
+            entity
+                .HasOne(rt => rt.User)
+                .WithOne()
+                .HasForeignKey<RefreshToken>(rt => rt.UserId);
         });
+
+        modelBuilder.Entity<City>(entity =>
+        {
+            entity
+                .HasOne(c => c.Country)
+                .WithMany()
+                .HasForeignKey(c => c.CountryId);
+        });
+
+        modelBuilder.Entity<UserMatchPreference>(entity =>
+        {
+            entity
+                .HasOne(ump => ump.User)
+                .WithOne()
+                .HasForeignKey<UserMatchPreference>(ump => ump.UserId);
+        });
+
+        modelBuilder.Entity<UserMatchTagPreference>(entity =>
+        {
+            entity
+                .HasOne(umtp => umtp.User)
+                .WithOne()
+                .HasForeignKey<UserMatchTagPreference>(umtp => umtp.UserId);
+
+            entity
+                .HasOne(umtp => umtp.Tag)
+                .WithMany()
+                .HasForeignKey(umtp => umtp.TagId);
+        });
+        #endregion
     }
+
 }
