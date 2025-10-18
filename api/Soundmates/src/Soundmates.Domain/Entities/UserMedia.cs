@@ -8,7 +8,8 @@ public abstract class UserMedia
 
     [MaxLength(100)]
     public required string FileName { get; set; }
-    public int DisplayOrder { get; set; } = 0;
+    public int DisplayOrder { get; set; }
 
-    public required Guid UserId { get; set; }
+    public Guid UserId { get; set; }
+    public User User { get; set; } = null!;
 }
