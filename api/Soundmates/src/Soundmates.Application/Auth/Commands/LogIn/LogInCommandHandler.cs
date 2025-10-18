@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Soundmates.Application.Common;
+using Soundmates.Application.ResponseDTOs.Auth;
 using Soundmates.Domain.Interfaces.Repositories;
 using Soundmates.Domain.Interfaces.Services.Auth;
 
@@ -8,15 +9,15 @@ namespace Soundmates.Application.Auth.Commands.LogIn;
 public class LogInCommandHandler(
     IUserRepository _userRepository,
     IAuthService _authService
-): IRequestHandler<LogInCommand, Result<AuthTokens>>
+): IRequestHandler<LogInCommand, Result<AccessRefreshTokensDto>>
 {
-    public async Task<Result<AuthTokens>> Handle(LogInCommand request, CancellationToken cancellationToken)
+    public async Task<Result<AccessRefreshTokensDto>> Handle(LogInCommand request, CancellationToken cancellationToken)
     {
         var user = await _userRepository.GetByEmailAsync(email: request.Email);
 
         if (user is null)
         {
-            return Result<AuthTokens>.Failure(
+            return Result<AccessRefreshTokensDto>.Failure(
                 errorType: ErrorType.Unauthorized,
                 errorMessage: "Invalid email or password.");
         }
@@ -25,14 +26,14 @@ public class LogInCommandHandler(
 
         if (!verifyHashResult)
         {
-            return Result<AuthTokens>.Failure(
+            return Result<AccessRefreshTokensDto>.Failure(
                 errorType: ErrorType.Unauthorized,
                 errorMessage: "Invalid email or password.");
         }
 
         if (!user.IsActive)
         {
-            return Result<AuthTokens>.Failure(
+            return Result<AccessRefreshTokensDto>.Failure(
                 errorType: ErrorType.BadRequest,
                 errorMessage: "Your account has been deactivated. Contact administrator.");
         }
@@ -46,17 +47,17 @@ public class LogInCommandHandler(
 
         if (!logInResult)
         {
-            return Result<AuthTokens>.Failure(
+            return Result<AccessRefreshTokensDto>.Failure(
                 errorType: ErrorType.InternalServerError,
                 errorMessage: "Something went wrong. Failed to log in.");
         }
 
-        var authTokens = new AuthTokens
+        var authTokens = new AccessRefreshTokensDto
         {
             AccessToken = accessToken,
             RefreshToken = refreshToken
         };
 
-        return Result<AuthTokens>.Success(authTokens);
+        return Result<AccessRefreshTokensDto>.Success(authTokens);
     }
 }

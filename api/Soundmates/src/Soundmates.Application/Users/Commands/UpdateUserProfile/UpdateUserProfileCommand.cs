@@ -3,4 +3,11 @@ using Soundmates.Application.Common;
 
 namespace Soundmates.Application.Users.Commands.UpdateUserProfile;
 
-public record UpdateUserProfileCommand(string Name, string Description, int BirthYear, string City, string Country, string? SubClaim) : IRequest<Result>;
+public abstract record UpdateUserProfileCommand(
+    string Name, 
+    string Description, 
+    Guid CountryId, 
+    Guid CityId, 
+    IList<Guid> Tags, 
+    string? SubClaim
+) : IRequest<Result>;
