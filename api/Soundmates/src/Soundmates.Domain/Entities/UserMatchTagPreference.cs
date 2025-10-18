@@ -1,13 +1,12 @@
 ﻿namespace Soundmates.Domain.Entities;
 
-public class Artist
+public class UserMatchTagPreference
 {
     public Guid Id { get; set; } = Guid.CreateVersion7();
-    public DateOnly BirthDate { get; set; }
-
-    public Guid GenderId { get; set; }
-    public Gender Gender { get; set; } = null!;
-
+    
     public Guid UserId { get; set; }
     public User User { get; set; } = null!;
+
+    public Guid TagId { get; set; }
+    public Tag Tag { get; set; } = null!;
 }

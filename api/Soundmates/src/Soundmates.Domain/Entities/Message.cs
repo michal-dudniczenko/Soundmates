@@ -10,6 +10,9 @@ public class Message
     public required string Content { get; set; }
     public DateTime Timestamp { get; private set; } = DateTime.UtcNow;
 
-    public required Guid SenderId { get; set; }
-    public required Guid ReceiverId { get; set; }
+    public Guid SenderId { get; set; }
+    public User Sender { get; set; } = null!;
+
+    public Guid ReceiverId { get; set; }
+    public User Receiver { get; set; } = null!;
 }

@@ -6,4 +6,5 @@ public class Tag
     public required string Name { get; set; }
 
     public Guid TagCategoryId { get; set; }
+    public TagCategory TagCategory { get; set; } = null!;
 }
