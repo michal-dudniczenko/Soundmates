@@ -1,6 +1,6 @@
 ﻿using MediatR;
 using Soundmates.Application.Common;
-using Soundmates.Application.Messages.Common;
+using Soundmates.Application.ResponseDTOs.Messages;
 
 namespace Soundmates.Application.Messages.Queries.GetConversationsPreview;
 

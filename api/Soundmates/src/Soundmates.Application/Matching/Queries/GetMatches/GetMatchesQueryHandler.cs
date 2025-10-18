@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Soundmates.Application.Common;
+using Soundmates.Application.ResponseDTOs.Users;
 using Soundmates.Domain.Interfaces.Repositories;
 using Soundmates.Domain.Interfaces.Services.Auth;
 
@@ -9,11 +10,11 @@ public class GetMatchesQueryHandler(
     IUserRepository _userRepository,
     IAuthService _authService,
     IMatchRepository _matchRepository
-) : IRequestHandler<GetMatchesQuery, Result<List<MatchUserProfile>>>
+) : IRequestHandler<GetMatchesQuery, Result<List<OtherUserProfileDto>>>
 {
     private const int MaxLimit = 50;
 
-    public async Task<Result<List<MatchUserProfile>>> Handle(GetMatchesQuery request, CancellationToken cancellationToken)
+    public async Task<Result<List<OtherUserProfileDto>>> Handle(GetMatchesQuery request, CancellationToken cancellationToken)
     {
         var validationResult = PaginationValidator.ValidateLimitOffset<List<MatchUserProfile>>(request.Limit, request.Offset, MaxLimit);
         if (!validationResult.IsSuccess)
@@ -23,14 +24,14 @@ public class GetMatchesQueryHandler(
 
         if (authorizedUser is null)
         {
-            return Result<List<MatchUserProfile>>.Failure(
+            return Result<List<OtherUserProfileDto>>.Failure(
                 errorType: ErrorType.Unauthorized,
                 errorMessage: "Invalid access token.");
         }
 
         var matches = await _matchRepository.GetUserMatchesAsync(authorizedUser.Id, request.Limit, request.Offset);
 
-        var userProfiles = new List<MatchUserProfile>();
+        var userProfiles = new List<OtherUserProfileDto>();
 
         foreach (var match in matches)
         {
@@ -39,7 +40,7 @@ public class GetMatchesQueryHandler(
             );
             if (user is null || !user.IsActive || user.IsFirstLogin || !user.IsEmailConfirmed) continue;
 
-            userProfiles.Add(new MatchUserProfile
+            userProfiles.Add(new OtherUserProfileDto
             {
                 Id = user.Id,
                 Name = user.Name!,
@@ -50,6 +51,6 @@ public class GetMatchesQueryHandler(
             });
         }
 
-        return Result<List<MatchUserProfile>>.Success(userProfiles);
+        return Result<List<OtherUserProfileDto>>.Success(userProfiles);
     }
 }

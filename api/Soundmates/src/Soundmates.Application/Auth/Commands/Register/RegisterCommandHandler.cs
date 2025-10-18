@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Soundmates.Application.Common;
 using Soundmates.Domain.Entities;
+using Soundmates.Domain.Enums;
 using Soundmates.Domain.Interfaces.Repositories;
 using Soundmates.Domain.Interfaces.Services.Auth;
 
@@ -20,10 +21,19 @@ public class RegisterCommandHandler(
                 errorMessage: "User with that email already exists.");
         }
 
-        var user = new User
+        UserBase user = request.UserType switch
         {
-            Email = request.Email,
-            PasswordHash = _authService.GetPasswordHash(request.Password)
+            UserType.Artist => new Artist
+            {
+                Email = request.Email,
+                PasswordHash = _authService.GetPasswordHash(request.Password)
+            },
+            UserType.Band => new Band
+            {
+                Email = request.Email,
+                PasswordHash = _authService.GetPasswordHash(request.Password)
+            },
+            _ => throw new InvalidOperationException()
         };
 
         await _userRepository.AddAsync(user);

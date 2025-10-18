@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Soundmates.Application.Common;
+using Soundmates.Application.ResponseDTOs.Users;
 
 namespace Soundmates.Application.Matching.Queries.GetMatches;
 
-public record GetMatchesQuery(int Limit, int Offset, string? SubClaim) : IRequest<Result<List<MatchUserProfile>>>;
+public record GetMatchesQuery(int Limit, int Offset, string? SubClaim) : IRequest<Result<List<OtherUserProfileDto>>>;

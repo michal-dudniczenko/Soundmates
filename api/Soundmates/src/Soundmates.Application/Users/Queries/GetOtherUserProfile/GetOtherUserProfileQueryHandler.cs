@@ -1,6 +1,6 @@
 ﻿using MediatR;
 using Soundmates.Application.Common;
-using Soundmates.Application.Users.Common;
+using Soundmates.Application.ResponseDTOs.Users;
 using Soundmates.Domain.Interfaces.Repositories;
 using Soundmates.Domain.Interfaces.Services.Auth;
 
