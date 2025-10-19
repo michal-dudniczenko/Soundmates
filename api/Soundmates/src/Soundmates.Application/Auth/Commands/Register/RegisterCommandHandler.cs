@@ -8,6 +8,7 @@ namespace Soundmates.Application.Auth.Commands.Register;
 
 public class RegisterCommandHandler(
     IUserRepository _userRepository,
+    IMatchPreferenceRepository _matchPreferenceRepository,
     IAuthService _authService
 ) : IRequestHandler<RegisterCommand, Result>
 {
@@ -27,6 +28,13 @@ public class RegisterCommandHandler(
         };
 
         await _userRepository.AddAsync(user);
+
+        var defaultMatchPreference = new UserMatchPreference
+        {
+            UserId = user.Id
+        };
+
+        await _matchPreferenceRepository.AddAsync(defaultMatchPreference);
 
         return Result.Success();
     }
