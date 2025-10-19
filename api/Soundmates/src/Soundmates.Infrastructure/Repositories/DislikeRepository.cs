@@ -1,104 +1,27 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Soundmates.Domain.Entities;
+﻿using Soundmates.Domain.Entities;
 using Soundmates.Domain.Interfaces.Repositories;
-using Soundmates.Infrastructure.Database;
-using Soundmates.Infrastructure.Repositories.Utils;
 
 namespace Soundmates.Infrastructure.Repositories;
 
 public class DislikeRepository : IDislikeRepository
 {
-    private readonly ApplicationDbContext _context;
-
-    public DislikeRepository(ApplicationDbContext context)
+    public Task AddAsync(Dislike entity)
     {
-        _context = context;
+        throw new NotImplementedException();
     }
 
-    public async Task<Dislike?> GetByIdAsync(Guid entityId)
+    public Task<bool> CheckIfExistsAsync(Guid giverId, Guid receiverId)
     {
-        return await _context.Dislikes
-            .AsNoTracking()
-            .FirstOrDefaultAsync(e => e.Id == entityId);
+        throw new NotImplementedException();
     }
 
-    public async Task<IEnumerable<Dislike>> GetAllAsync(int limit, int offset)
+    public Task<IEnumerable<Dislike>> GetUserGivenDislikesAsync(Guid userId, int limit, int offset)
     {
-        RepositoryUtils.ValidateLimitOffset(limit: limit, offset: offset);
-
-        return await _context.Dislikes
-            .AsNoTracking()
-            .OrderBy(e => e.Id)
-            .Skip(offset)
-            .Take(limit)
-            .ToListAsync();
+        throw new NotImplementedException();
     }
 
-    public async Task<bool> CheckIfExistsAsync(Guid entityId)
+    public Task<IEnumerable<Dislike>> GetUserReceivedDislikesAsync(Guid userId, int limit, int offset)
     {
-        return await _context.Dislikes.AnyAsync(e => e.Id == entityId);
-    }
-
-    public async Task<Guid> AddAsync(Dislike entity)
-    {
-        ArgumentNullException.ThrowIfNull(entity);
-
-        _context.Dislikes.Add(entity);
-        await _context.SaveChangesAsync();
-
-        return entity.Id;
-    }
-
-    public async Task<bool> UpdateAsync(Dislike entity)
-    {
-        ArgumentNullException.ThrowIfNull(entity);
-
-        _context.Dislikes.Update(entity);
-        var affected = await _context.SaveChangesAsync();
-
-        return affected > 0;
-    }
-
-    public async Task<bool> RemoveAsync(Guid entityId)
-    {
-        var entity = await _context.Dislikes.FindAsync(entityId);
-
-        if (entity is null) return false;
-
-        _context.Dislikes.Remove(entity);
-        await _context.SaveChangesAsync();
-
-        return true;
-    }
-
-    public async Task<IEnumerable<Dislike>> GetUserGivenDislikesAsync(Guid userId, int limit, int offset)
-    {
-        RepositoryUtils.ValidateLimitOffset(limit: limit, offset: offset);
-
-        return await _context.Dislikes
-            .AsNoTracking()
-            .Where(e => e.GiverId == userId)
-            .OrderBy(e => e.Id)
-            .Skip(offset)
-            .Take(limit)
-            .ToListAsync();
-    }
-
-    public async Task<IEnumerable<Dislike>> GetUserReceivedDislikesAsync(Guid userId, int limit, int offset)
-    {
-        RepositoryUtils.ValidateLimitOffset(limit: limit, offset: offset);
-
-        return await _context.Dislikes
-            .AsNoTracking()
-            .Where(e => e.ReceiverId == userId)
-            .OrderBy(e => e.Id)
-            .Skip(offset)
-            .Take(limit)
-            .ToListAsync();
-    }
-
-    public async Task<bool> CheckIfExistsAsync(Guid giverId, Guid receiverId)
-    {
-        return await _context.Dislikes.AnyAsync(e => e.GiverId == giverId && e.ReceiverId == receiverId);
+        throw new NotImplementedException();
     }
 }

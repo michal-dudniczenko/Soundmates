@@ -2,10 +2,8 @@
 
 namespace Soundmates.Domain.Interfaces.Repositories;
 
-public interface IMusicSampleRepository : IBaseRepository<MusicSample>
+public interface IMusicSampleRepository
 {
-    Task<IEnumerable<MusicSample>> GetUserMusicSamplesAsync(Guid userId, int limit, int offset);
-    Task<int> GetUserMusicSamplesCountAsync(Guid userId);
-    Task<bool> MoveDisplayOrderUpAsync(Guid musicSampleId);
-    Task<bool> MoveDisplayOrderDownAsync(Guid musicSampleId);
+    Task AddAsync(MusicSample entity);
+    Task RemoveAsync(Guid entityId);
 }
