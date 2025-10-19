@@ -23,7 +23,6 @@ public sealed class ApplicationDbContext : DbContext
     public DbSet<City> Cities { get; set; }
     public DbSet<Gender> Genders { get; set; }
     public DbSet<UserMatchPreference> UserMatchPreferences { get; set; }
-    public DbSet<UserMatchTagPreference> UserMatchTagPreferences { get; set; }
 
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
@@ -180,17 +179,8 @@ public sealed class ApplicationDbContext : DbContext
                 .HasForeignKey<UserMatchPreference>(ump => ump.UserId);
 
             entity
-                .HasMany(ump => ump.UserMatchTagPreferences)
-                .WithOne(umtp => umtp.UserMatchPreference)
-                .HasForeignKey(umtp => umtp.UserMatchPreferenceId);
-        });
-
-        modelBuilder.Entity<UserMatchTagPreference>(entity =>
-        {
-            entity
-                .HasOne(umtp => umtp.Tag)
-                .WithMany()
-                .HasForeignKey(umtp => umtp.TagId);
+                .HasMany(ump => ump.Tags)
+                .WithMany();
         });
         #endregion
     }
