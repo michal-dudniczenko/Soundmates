@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Soundmates.Application.Common;
+using Soundmates.Application.ResponseDTOs.Mappings;
 using Soundmates.Application.ResponseDTOs.Users;
 using Soundmates.Domain.Interfaces.Repositories;
 using Soundmates.Domain.Interfaces.Services.Auth;
@@ -9,14 +10,16 @@ namespace Soundmates.Application.Matching.Queries.GetMatches;
 public class GetMatchesQueryHandler(
     IUserRepository _userRepository,
     IAuthService _authService,
-    IMatchRepository _matchRepository
+    IMatchRepository _matchRepository,
+    IArtistRepository _artistRepository,
+    IBandRepository _bandRepository
 ) : IRequestHandler<GetMatchesQuery, Result<List<OtherUserProfileDto>>>
 {
     private const int MaxLimit = 50;
 
     public async Task<Result<List<OtherUserProfileDto>>> Handle(GetMatchesQuery request, CancellationToken cancellationToken)
     {
-        var validationResult = PaginationValidator.ValidateLimitOffset<List<MatchUserProfile>>(request.Limit, request.Offset, MaxLimit);
+        var validationResult = PaginationValidator.ValidateLimitOffset<List<OtherUserProfileDto>>(request.Limit, request.Offset, MaxLimit);
         if (!validationResult.IsSuccess)
             return validationResult;
 
@@ -40,15 +43,20 @@ public class GetMatchesQueryHandler(
             );
             if (user is null || !user.IsActive || user.IsFirstLogin || !user.IsEmailConfirmed) continue;
 
-            userProfiles.Add(new OtherUserProfileDto
+            if (user.IsBand)
             {
-                Id = user.Id,
-                Name = user.Name!,
-                Description = user.Description!,
-                BirthYear = (int)user.BirthYear!,
-                City = user.City!,
-                Country = user.Country!
-            });
+                var band = await _bandRepository.GetByUserIdAsync(user.Id);
+                if (band is null) continue;
+
+                userProfiles.Add(band.ToOtherUserProfileDto());
+            }
+            else
+            {
+                var artist = await _artistRepository.GetByUserIdAsync(user.Id);
+                if (artist is null) continue;
+
+                userProfiles.Add(artist.ToOtherUserProfileDto());
+            }
         }
 
         return Result<List<OtherUserProfileDto>>.Success(userProfiles);

@@ -4,4 +4,4 @@ using Soundmates.Application.ResponseDTOs.Dictionaries;
 
 namespace Soundmates.Application.Dictionaries.Queries.GetTagCategories;
 
-public record GetTagCategoriesQuery() : IRequest<Result<List<UserTagCategoryDto>>>;
+public record GetTagCategoriesQuery() : IRequest<Result<List<TagCategoryDto>>>;

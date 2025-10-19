@@ -21,19 +21,10 @@ public class RegisterCommandHandler(
                 errorMessage: "User with that email already exists.");
         }
 
-        UserBase user = request.UserType switch
+        var user = new User
         {
-            UserType.Artist => new Artist
-            {
-                Email = request.Email,
-                PasswordHash = _authService.GetPasswordHash(request.Password)
-            },
-            UserType.Band => new Band
-            {
-                Email = request.Email,
-                PasswordHash = _authService.GetPasswordHash(request.Password)
-            },
-            _ => throw new InvalidOperationException()
+            Email = request.Email,
+            PasswordHash = _authService.GetPasswordHash(request.Password)
         };
 
         await _userRepository.AddAsync(user);
