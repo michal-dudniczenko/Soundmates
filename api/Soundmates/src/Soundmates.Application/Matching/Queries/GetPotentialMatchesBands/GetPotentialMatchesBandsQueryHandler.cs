@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Soundmates.Application.Common;
+using Soundmates.Application.ResponseDTOs.Mappings;
 using Soundmates.Application.ResponseDTOs.Users;
 using Soundmates.Domain.Interfaces.Repositories;
 using Soundmates.Domain.Interfaces.Services.Auth;
@@ -7,7 +8,7 @@ using Soundmates.Domain.Interfaces.Services.Auth;
 namespace Soundmates.Application.Matching.Queries.GetPotentialMatchesBands;
 
 public class GetPotentialMatchesBandsQueryHandler(
-    IUserRepository _userRepository,
+    IBandRepository _bandRepository,
     IAuthService _authService
 ) : IRequestHandler<GetPotentialMatchesBandsQuery, Result<List<OtherUserProfileBandDto>>>
 {
@@ -28,18 +29,10 @@ public class GetPotentialMatchesBandsQueryHandler(
                 errorMessage: "Invalid access token.");
         }
 
-        var users = await _userRepository.GetPotentialMatchesAsync(authorizedUser.Id, request.Limit, request.Offset);
+        var bands = await _bandRepository.GetPotentialMatchesAsync(authorizedUser.Id, request.Limit, request.Offset);
 
-        var usersProfiles = users.Select(user => new OtherUserProfileBandDto
-        {
-            Id = user.Id,
-            Name = user.Name!,
-            Description = user.Description!,
-            BirthYear = (int)user.BirthYear!,
-            City = user.City!,
-            Country = user.Country!
-        }).ToList();
+        var bandsDtos = bands.Select(b => b.ToOtherUserProfileDto()).ToList();
 
-        return Result<List<OtherUserProfileBandDto>>.Success(usersProfiles);
+        return Result<List<OtherUserProfileBandDto>>.Success(bandsDtos);
     }
 }

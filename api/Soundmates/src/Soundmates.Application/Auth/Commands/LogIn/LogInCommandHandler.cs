@@ -43,14 +43,7 @@ public class LogInCommandHandler(
         var refreshTokenHash = _authService.GetRefreshTokenHash(refreshToken);
         var refreshTokenExpiresAt = DateTime.UtcNow.AddDays(30);
 
-        var logInResult = await _userRepository.LogInUserAsync(userId: user.Id, newRefreshTokenHash: refreshTokenHash, newRefreshTokenExpiresAt: refreshTokenExpiresAt);
-
-        if (!logInResult)
-        {
-            return Result<AccessRefreshTokensDto>.Failure(
-                errorType: ErrorType.InternalServerError,
-                errorMessage: "Something went wrong. Failed to log in.");
-        }
+        await _userRepository.LogInUserAsync(userId: user.Id, newRefreshTokenHash: refreshTokenHash, newRefreshTokenExpiresAt: refreshTokenExpiresAt);
 
         var authTokens = new AccessRefreshTokensDto
         {

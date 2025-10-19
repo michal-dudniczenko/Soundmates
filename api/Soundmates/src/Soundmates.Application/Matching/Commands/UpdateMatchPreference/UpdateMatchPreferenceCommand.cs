@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Soundmates.Application.Common;
+using Soundmates.Application.ResponseDTOs.Dictionaries;
 
 namespace Soundmates.Application.Matching.Commands.UpdateMatchPreference;
 
@@ -14,6 +15,6 @@ public record UpdateMatchPreferenceCommand(
     Guid? ArtistGenderId,
     int? BandMinMembersCount,
     int? BandMaxMembersCount,
-    IList<Guid> FilterTags,
+    IList<TagDto> FilterTags,
     string? SubClaim
 ) : IRequest<Result>;

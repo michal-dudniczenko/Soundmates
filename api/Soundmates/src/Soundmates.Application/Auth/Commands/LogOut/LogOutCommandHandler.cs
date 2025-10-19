@@ -21,14 +21,7 @@ public class LogOutCommandHandler(
                 errorMessage: "Invalid access token.");
         }
 
-        var logOutResult = await _userRepository.LogOutUserAsync(userId: authorizedUser.Id);
-
-        if (!logOutResult)
-        {
-            return Result.Failure(
-                errorType: ErrorType.InternalServerError,
-                errorMessage: "Something went wrong. Failed to log out.");
-        }
+        await _userRepository.LogOutUserAsync(userId: authorizedUser.Id);
 
         return Result.Success();
     }
