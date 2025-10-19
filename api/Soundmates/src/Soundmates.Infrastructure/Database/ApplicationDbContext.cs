@@ -178,15 +178,15 @@ public sealed class ApplicationDbContext : DbContext
                 .HasOne(ump => ump.User)
                 .WithOne()
                 .HasForeignKey<UserMatchPreference>(ump => ump.UserId);
+
+            entity
+                .HasMany(ump => ump.UserMatchTagPreferences)
+                .WithOne(umtp => umtp.UserMatchPreference)
+                .HasForeignKey(umtp => umtp.UserMatchPreferenceId);
         });
 
         modelBuilder.Entity<UserMatchTagPreference>(entity =>
         {
-            entity
-                .HasOne(umtp => umtp.User)
-                .WithOne()
-                .HasForeignKey<UserMatchTagPreference>(umtp => umtp.UserId);
-
             entity
                 .HasOne(umtp => umtp.Tag)
                 .WithMany()

@@ -20,4 +20,6 @@ public class UserMatchPreference
 
     public Guid UserId { get; set; }
     public User User { get; set; } = null!;
+
+    public ICollection<UserMatchTagPreference> UserMatchTagPreferences { get; } = [];
 }
