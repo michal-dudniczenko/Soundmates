@@ -15,7 +15,7 @@ public class DictionaryRepository : IDictionaryRepository
         throw new NotImplementedException();
     }
 
-    public Task<IEnumerable<City>> GetAllCountryCitiesAsync(Guid CountryId)
+    public Task<IEnumerable<City>> GetAllCountryCitiesAsync(Guid countryId)
     {
         throw new NotImplementedException();
     }
@@ -31,6 +31,11 @@ public class DictionaryRepository : IDictionaryRepository
     }
 
     public Task<IEnumerable<Tag>> GetAllTagsAsync()
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<Tag> GetTagByIdAsync(Guid tagId)
     {
         throw new NotImplementedException();
     }
