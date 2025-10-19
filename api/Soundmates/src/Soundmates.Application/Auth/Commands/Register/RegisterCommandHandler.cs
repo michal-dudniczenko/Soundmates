@@ -1,7 +1,6 @@
 ﻿using MediatR;
 using Soundmates.Application.Common;
 using Soundmates.Domain.Entities;
-using Soundmates.Domain.Enums;
 using Soundmates.Domain.Interfaces.Repositories;
 using Soundmates.Domain.Interfaces.Services.Auth;
 
