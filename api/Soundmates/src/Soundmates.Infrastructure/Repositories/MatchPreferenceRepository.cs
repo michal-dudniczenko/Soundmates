@@ -3,19 +3,19 @@ using Soundmates.Domain.Interfaces.Repositories;
 
 namespace Soundmates.Infrastructure.Repositories;
 
-public class MatchRepository : IMatchRepository
+public class MatchPreferenceRepository : IMatchPreferenceRepository
 {
-    public Task AddAsync(Match entity)
+    public Task AddAsync(UserMatchPreference entity)
     {
         throw new NotImplementedException();
     }
 
-    public Task<bool> CheckIfMatchExistsAsync(Guid user1Id, Guid user2Id)
+    public Task<UserMatchPreference> GetUserMatchPreferenceAsync(Guid userId)
     {
         throw new NotImplementedException();
     }
 
-    public Task<IEnumerable<Match>> GetUserMatchesAsync(Guid userId, int limit, int offset)
+    public Task UpdateAsync(UserMatchPreference entity)
     {
         throw new NotImplementedException();
     }
