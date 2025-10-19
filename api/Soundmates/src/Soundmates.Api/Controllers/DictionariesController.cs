@@ -53,7 +53,7 @@ public class DictionariesController(
 
     // GET /dictionaries/tags
     [HttpGet("tags")]
-    public async Task<ActionResult<List<UserTagDto>>> GetTags()
+    public async Task<ActionResult<List<TagDto>>> GetTags()
     {
         var query = new GetTagsQuery();
 
@@ -64,7 +64,7 @@ public class DictionariesController(
 
     // GET /dictionaries/tag-categories
     [HttpGet("tag-categories")]
-    public async Task<ActionResult<List<UserTagCategoryDto>>> GetTagCategories()
+    public async Task<ActionResult<List<TagCategoryDto>>> GetTagCategories()
     {
         var query = new GetTagCategoriesQuery();
 

@@ -1,4 +1,6 @@
-﻿namespace Soundmates.Application.ResponseDTOs.Matching;
+﻿using Soundmates.Application.ResponseDTOs.Dictionaries;
+
+namespace Soundmates.Application.ResponseDTOs.Matching;
 
 public class MatchPreferenceDto
 {
@@ -12,5 +14,5 @@ public class MatchPreferenceDto
     public required Guid? ArtistGenderId { get; set; }
     public required int? BandMinMembersCount { get; set; }
     public required int? BandMaxMembersCount { get; set; }
-    public required IList<Guid> FilterTags { get; set; }
+    public required IList<TagDto> FilterTags { get; set; }
 }

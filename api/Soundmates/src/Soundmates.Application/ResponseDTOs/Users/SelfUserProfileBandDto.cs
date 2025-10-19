@@ -2,5 +2,5 @@
 
 public class SelfUserProfileBandDto : SelfUserProfileDto
 {
-    public required IList<SelfUserProfileBandDto> BandMembers { get; set; }
+    public required IList<BandMemberDto> BandMembers { get; set; }
 }
