@@ -4,9 +4,9 @@ namespace Soundmates.Domain.Interfaces.Repositories;
 
 public interface IArtistRepository
 {
-    Task<Artist?> GetByIdAsync(Guid entityId);
+    Task<Artist?> GetByUserIdAsync(Guid entityId);
     Task<Artist> AddAsync(Artist entity);
     Task UpdateAsync(Artist entity);
-    Task<IEnumerable<Artist>> GetPotentialMatches(Guid entityId);
+    Task<IEnumerable<Artist>> GetPotentialMatchesAsync(Guid entityId, int limit, int offset);
     Task<bool> CheckIfExistsAsync(Guid entityId);
 }

@@ -5,7 +5,7 @@ namespace Soundmates.Infrastructure.Repositories;
 
 public class UserRepository : IUserRepository
 {
-    public Task<User> AddAsync(User entity)
+    public Task AddAsync(User entity)
     {
         throw new NotImplementedException();
     }

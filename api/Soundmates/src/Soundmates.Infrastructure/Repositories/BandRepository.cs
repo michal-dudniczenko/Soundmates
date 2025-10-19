@@ -15,12 +15,12 @@ public class BandRepository : IBandRepository
         throw new NotImplementedException();
     }
 
-    public Task<Band?> GetByIdAsync(Guid entityId)
+    public Task<Band?> GetByUserIdAsync(Guid entityId)
     {
         throw new NotImplementedException();
     }
 
-    public Task<IEnumerable<Band>> GetPotentialMatches(Guid entityId)
+    public Task<IEnumerable<Band>> GetPotentialMatchesAsync(Guid entityId, int limit, int offset)
     {
         throw new NotImplementedException();
     }

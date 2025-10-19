@@ -15,12 +15,12 @@ public class ArtistRepository : IArtistRepository
         throw new NotImplementedException();
     }
 
-    public Task<Artist?> GetByIdAsync(Guid entityId)
+    public Task<Artist?> GetByUserIdAsync(Guid entityId)
     {
         throw new NotImplementedException();
     }
 
-    public Task<IEnumerable<Artist>> GetPotentialMatches(Guid entityId)
+    public Task<IEnumerable<Artist>> GetPotentialMatchesAsync(Guid entityId, int limit, int offset)
     {
         throw new NotImplementedException();
     }

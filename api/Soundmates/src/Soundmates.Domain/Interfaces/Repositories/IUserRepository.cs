@@ -6,7 +6,7 @@ public interface IUserRepository
 {
     Task<User?> GetByIdAsync(Guid entityId);
     Task<User?> GetByEmailAsync(string email);
-    Task<User> AddAsync(User entity);
+    Task AddAsync(User entity);
     Task UpdateAsync(User entity);
     Task DeactivateUserAccountAsync(Guid userId);
     Task UpdateUserPasswordAsync(Guid userId, string newPasswordHash);
