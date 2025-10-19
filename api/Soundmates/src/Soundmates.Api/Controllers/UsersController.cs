@@ -10,8 +10,6 @@ using Soundmates.Application.Users.Commands.UpdateUserProfile;
 using Soundmates.Application.Users.Commands.UpdateUserProfile.UpdateUserProfileArtist;
 using Soundmates.Application.Users.Commands.UpdateUserProfile.UpdateUserProfileBand;
 using Soundmates.Application.Users.Queries.GetOtherUserProfile;
-using Soundmates.Application.Users.Queries.GetPotentialMatchesArtists;
-using Soundmates.Application.Users.Queries.GetPotentialMatchesBands;
 using Soundmates.Application.Users.Queries.GetSelfUserProfile;
 using System.Security.Claims;
 
