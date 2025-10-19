@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Soundmates.Application.ResponseDTOs.Dictionaries;
+using System.ComponentModel.DataAnnotations;
 
 namespace Soundmates.Api.RequestDTOs.Matching;
 
@@ -35,5 +36,5 @@ public class UpdateMatchPreferenceDto
     public required int? BandMaxMembersCount { get; set; }
 
     [Required]
-    public required IList<Guid> FilterTags { get; set; }
+    public required IList<TagDto> FilterTags { get; set; }
 }
