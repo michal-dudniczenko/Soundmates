@@ -16,7 +16,7 @@ services:
         restart: true
     volumes:
       - ./src/Soundmates.Api/wwwroot/images:/app/wwwroot/images
-      - ./src/Soundmates.Api/wwwroot/mp3:/app/wwwroot/mp3
+      - ./src/Soundmates.Api/wwwroot/samples:/app/wwwroot/samples
 
   db:
     image: postgres:17
