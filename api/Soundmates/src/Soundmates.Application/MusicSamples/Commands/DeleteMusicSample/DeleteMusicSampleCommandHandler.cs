@@ -2,6 +2,7 @@
 using Soundmates.Application.Common;
 using Soundmates.Domain.Interfaces.Repositories;
 using Soundmates.Domain.Interfaces.Services.Auth;
+using static Soundmates.Application.Common.UserMediaHelpers;
 
 namespace Soundmates.Application.MusicSamples.Commands.DeleteMusicSample;
 
@@ -10,8 +11,6 @@ public class DeleteMusicSampleCommandHandler(
     IAuthService _authService
 ) : IRequestHandler<DeleteMusicSampleCommand, Result>
 {
-    private const string SamplesDirectoryPath = "mp3";
-
     public async Task<Result> Handle(DeleteMusicSampleCommand request, CancellationToken cancellationToken)
     {
         var authorizedUser = await _authService.GetAuthorizedUserAsync(subClaim: request.SubClaim, checkForFirstLogin: true);
@@ -39,7 +38,7 @@ public class DeleteMusicSampleCommandHandler(
                 errorMessage: "You can only delete your own music samples.");
         }
 
-        var filePath = Path.Combine("wwwroot", SamplesDirectoryPath, musicSample.FileName);
+        var filePath = Path.Combine("wwwroot", GetMusicSampleUrl(musicSample.FileName));
         if (File.Exists(filePath))
         {
             try

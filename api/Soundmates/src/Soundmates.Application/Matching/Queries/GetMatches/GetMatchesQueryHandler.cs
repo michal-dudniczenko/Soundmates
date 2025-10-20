@@ -41,9 +41,9 @@ public class GetMatchesQueryHandler(
             var user = await _userRepository.GetByIdAsync(
                 match.User1Id == authorizedUser.Id ? match.User2Id : match.User1Id
             );
-            if (user is null || !user.IsActive || user.IsFirstLogin || !user.IsEmailConfirmed) continue;
+            if (user is null || !user.IsActive || user.IsFirstLogin || !user.IsEmailConfirmed || user.IsBand is null) continue;
 
-            if (user.IsBand)
+            if ((bool)user.IsBand)
             {
                 var band = await _bandRepository.GetByUserIdAsync(user.Id);
                 if (band is null) continue;

@@ -52,7 +52,10 @@ public class UsersController(
                 CountryId: dto.CountryId,
                 CityId: dto.CityId,
                 Tags: dto.Tags,
+                MusicSamplesOrder: dto.MusicSamplesOrder,
+                ProfilePicturesOrder: dto.ProfilePicturesOrder,
                 BirthDate: dto.BirthDate,
+                GenderId: dto.GenderId,
                 SubClaim: subClaim),
             UpdateUserProfileBandDto dto => new UpdateUserProfileBandCommand(
                 Name: dto.Name,
@@ -60,6 +63,8 @@ public class UsersController(
                 CountryId: dto.CountryId,
                 CityId: dto.CityId,
                 Tags: dto.Tags,
+                MusicSamplesOrder: dto.MusicSamplesOrder,
+                ProfilePicturesOrder: dto.ProfilePicturesOrder,
                 BandMembers: dto.BandMembers,
                 SubClaim: subClaim),
             _ => throw new InvalidOperationException()

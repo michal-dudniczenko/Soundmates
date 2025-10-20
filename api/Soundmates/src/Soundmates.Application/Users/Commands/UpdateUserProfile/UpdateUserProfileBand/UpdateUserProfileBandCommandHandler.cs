@@ -1,6 +1,5 @@
 ﻿using MediatR;
 using Soundmates.Application.Common;
-using Soundmates.Application.Users.Commands.UpdateUserProfile.UpdateUserProfileArtist;
 using Soundmates.Domain.Entities;
 using Soundmates.Domain.Interfaces.Repositories;
 using Soundmates.Domain.Interfaces.Services.Auth;
@@ -8,11 +7,11 @@ using Soundmates.Domain.Interfaces.Services.Auth;
 namespace Soundmates.Application.Users.Commands.UpdateUserProfile.UpdateUserProfileBand;
 
 public class UpdateUserProfileBandCommandHandler(
-    IUserRepository _userRepository,
+    IBandRepository _bandRepository,
     IAuthService _authService
-) : IRequestHandler<UpdateUserProfileArtistCommand, Result>
+) : IRequestHandler<UpdateUserProfileBandCommand, Result>
 {
-    public async Task<Result> Handle(UpdateUserProfileArtistCommand request, CancellationToken cancellationToken)
+    public async Task<Result> Handle(UpdateUserProfileBandCommand request, CancellationToken cancellationToken)
     {
         var authorizedUser = await _authService.GetAuthorizedUserAsync(subClaim: request.SubClaim, checkForFirstLogin: false);
 
@@ -23,31 +22,46 @@ public class UpdateUserProfileBandCommandHandler(
                 errorMessage: "Invalid access token.");
         }
 
-        var updatedUser = new UserBase
-        {
-            Id = authorizedUser.Id,
-            Email = authorizedUser.Email,
-            PasswordHash = authorizedUser.PasswordHash,
-            Name = request.Name,
-            Description = request.Description,
-            BirthYear = request.BirthYear,
-            City = request.City,
-            Country = request.Country,
-            IsActive = authorizedUser.IsActive,
-            IsFirstLogin = false,
-            IsEmailConfirmed = authorizedUser.IsEmailConfirmed,
-            IsLoggedOut = authorizedUser.IsLoggedOut
-        };
+        authorizedUser.IsBand = true;
 
-        var updateResult = await _userRepository.UpdateAsync(updatedUser);
+        authorizedUser.Name = request.Name;
+        authorizedUser.Description = request.Description;
+        authorizedUser.IsFirstLogin = false;
+        authorizedUser.CountryId = request.CountryId;
+        authorizedUser.CityId = request.CityId;
 
-        if (!updateResult)
+        authorizedUser.Tags.Clear();
+        foreach (var tag in request.Tags)
         {
-            return Result.Failure(
-                errorType: ErrorType.InternalServerError,
-                errorMessage: $"Something went wrong. Failed to update user with id: {authorizedUser.Id}"
-                );
+            authorizedUser.Tags.Add(new Tag
+            {
+                Id = tag.Id,
+                Name = tag.Name,
+                TagCategoryId = tag.TagCategoryId
+            });
         }
+
+        var band = await _bandRepository.GetByUserIdAsync(authorizedUser.Id) ?? new Band { UserId = authorizedUser.Id };
+
+        band.Members.Clear();
+        int displayOrder = 0;
+        foreach (var member in request.BandMembers)
+        {
+            band.Members.Add(new BandMember
+            {
+                Name = member.Name,
+                Age = member.Age,
+                DisplayOrder = displayOrder,
+                BandId = band.Id,
+                BandRoleId = member.BandRoleId
+            });
+
+            displayOrder++;
+        }
+
+        band.User = authorizedUser;
+
+        await _bandRepository.UpdateAddAsync(band, request.MusicSamplesOrder, request.ProfilePicturesOrder);
 
         return Result.Success();
     }

@@ -2,6 +2,8 @@
 using Soundmates.Application.Common;
 using Soundmates.Domain.Interfaces.Repositories;
 using Soundmates.Domain.Interfaces.Services.Auth;
+using static Soundmates.Application.Common.UserMediaHelpers;
+
 
 namespace Soundmates.Application.ProfilePictures.Commands.DeleteProfilePicture;
 
@@ -10,8 +12,6 @@ public class DeleteProfilePictureCommandHandler(
     IAuthService _authService
 ) : IRequestHandler<DeleteProfilePictureCommand, Result>
 {
-    private const string ImagesDirectoryPath = "images";
-
     public async Task<Result> Handle(DeleteProfilePictureCommand request, CancellationToken cancellationToken)
     {
         var authorizedUser = await _authService.GetAuthorizedUserAsync(subClaim: request.SubClaim, checkForFirstLogin: true);
@@ -39,13 +39,12 @@ public class DeleteProfilePictureCommandHandler(
                 errorMessage: "You can only delete your own profile pictures.");
         }
 
-        var filePath = Path.Combine("wwwroot", ImagesDirectoryPath, profilePicture.FileName);
+        var filePath = Path.Combine("wwwroot", GetProfilePictureUrl(profilePicture.FileName));
         if (File.Exists(filePath))
         {
             try
             {
                 File.Delete(filePath);
-                await _profilePictureRepository.RemoveAsync(request.ProfilePictureId);
             }
             catch (Exception)
             {
@@ -54,6 +53,8 @@ public class DeleteProfilePictureCommandHandler(
                     errorMessage: "Failed to delete profile picture file.");
             }
         }
+
+        await _profilePictureRepository.RemoveAsync(request.ProfilePictureId);
 
         return Result.Success();
     }
