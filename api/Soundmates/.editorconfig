@@ -1,5 +1,10 @@
+[*.cs]
 # Disable primary constructor suggestion
 dotnet_diagnostic.IDE0290.severity = none
+
+# Disable 'Collection initialization can be simplified' suggestion
+dotnet_diagnostic.IDE0305.severity = none
+
 [*.{cs,vb}]
 #### Naming styles ####
 
