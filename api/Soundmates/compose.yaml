@@ -8,7 +8,7 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: "http://+:80"
-      ConnectionStrings__DefaultConnection: "Host=db;Port=5432;Database=Soundmates;Username=soundmates;Password=soundmates"
+      ConnectionStrings__DefaultConnection: "Host=db;Port=5432;Database=Soundmates;Username=Soundmates;Password=Soundmates"
       SecretKey: "dev_super_secret_key_that_is_at_least_32_chars_long"
     depends_on:
       db:
@@ -22,8 +22,8 @@ services:
     image: postgres:17
     environment:
       POSTGRES_DB: Soundmates
-      POSTGRES_USER: soundmates
-      POSTGRES_PASSWORD: soundmates
+      POSTGRES_USER: Soundmates
+      POSTGRES_PASSWORD: Soundmates
     ports:
       - "5432:5432"
     volumes:
