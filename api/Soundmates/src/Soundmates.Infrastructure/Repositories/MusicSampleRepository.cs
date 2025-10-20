@@ -10,6 +10,11 @@ public class MusicSampleRepository : IMusicSampleRepository
         throw new NotImplementedException();
     }
 
+    public Task<MusicSample?> GetByIdAsync(Guid entityId)
+    {
+        throw new NotImplementedException();
+    }
+
     public Task RemoveAsync(Guid entityId)
     {
         throw new NotImplementedException();

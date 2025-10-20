@@ -55,11 +55,6 @@ public class UserRepository : IUserRepository
         throw new NotImplementedException();
     }
 
-    public Task UpdateAsync(User entity)
-    {
-        throw new NotImplementedException();
-    }
-
     public Task UpdateUserPasswordAsync(Guid userId, string newPasswordHash)
     {
         throw new NotImplementedException();
