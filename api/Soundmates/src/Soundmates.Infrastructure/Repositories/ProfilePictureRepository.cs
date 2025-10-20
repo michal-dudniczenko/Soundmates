@@ -10,6 +10,11 @@ public class ProfilePictureRepository : IProfilePictureRepository
         throw new NotImplementedException();
     }
 
+    public Task<ProfilePicture?> GetByIdAsync(Guid entityId)
+    {
+        throw new NotImplementedException();
+    }
+
     public Task RemoveAsync(Guid entityId)
     {
         throw new NotImplementedException();

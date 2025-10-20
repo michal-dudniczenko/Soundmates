@@ -5,11 +5,6 @@ namespace Soundmates.Infrastructure.Repositories;
 
 public class ArtistRepository : IArtistRepository
 {
-    public Task<Artist> AddAsync(Artist entity)
-    {
-        throw new NotImplementedException();
-    }
-
     public Task<bool> CheckIfExistsAsync(Guid entityId)
     {
         throw new NotImplementedException();
@@ -25,7 +20,7 @@ public class ArtistRepository : IArtistRepository
         throw new NotImplementedException();
     }
 
-    public Task UpdateAsync(Artist entity)
+    public Task UpdateAddAsync(Artist entity, IList<Guid> MusicSamplesOrder, IList<Guid> ProfilePicturesOrder)
     {
         throw new NotImplementedException();
     }

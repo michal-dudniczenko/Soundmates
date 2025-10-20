@@ -5,11 +5,6 @@ namespace Soundmates.Infrastructure.Repositories;
 
 public class BandRepository : IBandRepository
 {
-    public Task<Band> AddAsync(Band entity)
-    {
-        throw new NotImplementedException();
-    }
-
     public Task<bool> CheckIfExistsAsync(Guid entityId)
     {
         throw new NotImplementedException();
@@ -25,7 +20,7 @@ public class BandRepository : IBandRepository
         throw new NotImplementedException();
     }
 
-    public Task UpdateAsync(Band entity)
+    public Task UpdateAddAsync(Band entity, IList<Guid> MusicSamplesOrder, IList<Guid> ProfilePicturesOrder)
     {
         throw new NotImplementedException();
     }
