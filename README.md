@@ -16,6 +16,13 @@ openapi available at: **http://localhost:5000/openapi/soundmates.json**
 
 adminer database management at: **http://localhost:8080**
 
+adminer login data: (**case-sensitive**)
+- System: PostgreSQL
+- Server: db
+- Username: Soundmates
+- Password: Soundmates
+- Database: Soundmates
+
 ## API tutorial
 
 #### TO DO:
