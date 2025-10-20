@@ -27,4 +27,10 @@ public abstract class UpdateUserProfileDto
 
     [Required]
     public required IList<TagDto> Tags { get; set; }
+
+    [Required]
+    public required IList<Guid> MusicSamplesOrder { get; set; }
+
+    [Required]
+    public required IList<Guid> ProfilePicturesOrder { get; set; }
 }

@@ -4,6 +4,7 @@ using Soundmates.Domain.Entities;
 using Soundmates.Domain.Interfaces.Repositories;
 using Soundmates.Domain.Interfaces.Services.Auth;
 using Soundmates.Domain.Interfaces.Services.Mp3;
+using static Soundmates.Application.Common.UserMediaHelpers;
 
 namespace Soundmates.Application.MusicSamples.Commands.UploadMusicSample;
 
@@ -13,8 +14,7 @@ public class UploadMusicSampleCommandHandler(
     IMp3Service _mp3Service
 ) : IRequestHandler<UploadMusicSampleCommand, Result>
 {
-    private const string SamplesDirectoryPath = "mp3";
-    private const int MaxSampleSizeMb = 5;
+    private const int MaxSampleSizeMb = 1000;
     private static readonly int MaxSampleSize = MaxSampleSizeMb * 1024 * 1024;
     private static readonly string[] AllowedContentTypes = ["audio/mpeg"];
     private static readonly string[] AllowedExtensions = [".mp3"];
@@ -47,27 +47,28 @@ public class UploadMusicSampleCommandHandler(
                 errorMessage: $"File size cannot exceed {MaxSampleSizeMb} MB.");
         }
 
-        try
+        if (string.Equals(request.ContentType, "audio/mpeg", StringComparison.OrdinalIgnoreCase))
         {
-            var duration = _mp3Service.GetMp3FileDuration(request.FileStream);
+            try
+            {
+                var duration = _mp3Service.GetMp3FileDuration(request.FileStream);
 
-            if (duration > MaxSampleDuration)
+                if (duration > MaxSampleDuration)
+                {
+                    return Result.Failure(
+                        errorType: ErrorType.BadRequest,
+                        errorMessage: $"Sample is too long. Maximum duration is {MaxSampleDuration.TotalSeconds} seconds.");
+                }
+            }
+            catch
             {
                 return Result.Failure(
-                    errorType: ErrorType.BadRequest,
-                    errorMessage: $"Sample is too long. Maximum duration is {MaxSampleDuration.TotalSeconds} seconds.");
+                        errorType: ErrorType.BadRequest,
+                        errorMessage: "Invalid or corrupted MP3 file.");
             }
         }
-        catch
-        {
-            return Result.Failure(
-                    errorType: ErrorType.BadRequest,
-                    errorMessage: "Invalid or corrupted MP3 file.");
-        }
 
-        var currentUserMusicSamplesCount = await _musicSampleRepository.GetUserMusicSamplesCountAsync(authorizedUser.Id);
-
-        if (currentUserMusicSamplesCount >= MaxMusicSamplesCount)
+        if (authorizedUser.MusicSamples.Count >= MaxMusicSamplesCount)
         {
             return Result.Failure(
                     errorType: ErrorType.BadRequest,
@@ -76,7 +77,7 @@ public class UploadMusicSampleCommandHandler(
 
         var extension = Path.GetExtension(request.FileName).ToLower();
         var fileName = $"{Guid.NewGuid()}{extension}";
-        var filePath = Path.Combine("wwwroot", SamplesDirectoryPath, fileName);
+        var filePath = Path.Combine("wwwroot", GetMusicSampleUrl(fileName));
 
         using (var stream = new FileStream(filePath, FileMode.Create))
         {
@@ -86,6 +87,7 @@ public class UploadMusicSampleCommandHandler(
         var musicSample = new MusicSample
         {
             FileName = fileName,
+            DisplayOrder = authorizedUser.MusicSamples.Count,
             UserId = authorizedUser.Id
         };
 

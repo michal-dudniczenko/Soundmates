@@ -28,7 +28,7 @@ public class GetConversationsPreviewQueryHandler(
                 errorMessage: "Invalid access token.");
         }
 
-        var lastMessages = await _messageRepository.GetConversationsLastMessagesAsync(
+        var lastMessages = await _messageRepository.GetConversationsPreviewAsync(
                 userId: authorizedUser.Id,
                 limit: request.Limit,
                 offset: request.Offset);

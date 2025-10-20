@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Soundmates.Application.Common;
+using Soundmates.Application.ResponseDTOs.Dictionaries;
 
 namespace Soundmates.Application.Users.Commands.UpdateUserProfile.UpdateUserProfileArtist;
 
@@ -8,8 +9,11 @@ public record UpdateUserProfileArtistCommand(
     string Description, 
     Guid CountryId, 
     Guid CityId, 
-    IList<Guid> Tags, 
-    DateOnly BirthDate, 
+    IList<TagDto> Tags,
+    IList<Guid> MusicSamplesOrder,
+    IList<Guid> ProfilePicturesOrder,
+    DateOnly BirthDate,
+    Guid GenderId,
     string? SubClaim
-) : UpdateUserProfileCommand(Name, Description, CountryId, CityId, Tags, SubClaim), 
+) : UpdateUserProfileCommand(Name, Description, CountryId, CityId, Tags, MusicSamplesOrder, ProfilePicturesOrder, SubClaim), 
     IRequest<Result>;

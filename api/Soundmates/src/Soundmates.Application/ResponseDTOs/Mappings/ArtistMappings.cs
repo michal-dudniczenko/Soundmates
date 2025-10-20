@@ -14,6 +14,7 @@ public static class ArtistMappings
         return new OtherUserProfileArtistDto
         {
             Id = artist.User.Id,
+            IsBand = artist.User.IsBand,
             Name = artist.User.Name!,
             Description = artist.User.Description!,
             CountryId = artist.User.CountryId,
@@ -45,11 +46,13 @@ public static class ArtistMappings
         return new SelfUserProfileArtistDto
         {
             Id = artist.User.Id,
+            IsBand = artist.User.IsBand,
             Email = artist.User.Email,
             Name = artist.User.Name!,
             Description = artist.User.Description!,
             CountryId = artist.User.CountryId,
             CityId = artist.User.CityId,
+            IsFirstLogin = artist.User.IsFirstLogin,
             Tags = artist.User.Tags.Select(t => new TagDto
             {
                 Id = t.Id,

@@ -91,7 +91,7 @@ public class AuthService : IAuthService
         }
 
         var user = await _userRepository.GetByIdAsync(authorizedUserId);
-        if (user is null || user.IsLoggedOut || (checkForFirstLogin && user.IsFirstLogin))
+        if (user is null || user.IsLoggedOut || !user.IsEmailConfirmed || (checkForFirstLogin && user.IsFirstLogin))
         {
             return null;
         }

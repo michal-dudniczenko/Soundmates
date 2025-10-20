@@ -14,6 +14,7 @@ public static class BandMappings
         return new OtherUserProfileBandDto
         {
             Id = band.User.Id,
+            IsBand = band.User.IsBand,
             Name = band.User.Name!,
             Description = band.User.Description!,
             CountryId = band.User.CountryId,
@@ -51,11 +52,13 @@ public static class BandMappings
         return new SelfUserProfileBandDto
         {
             Id = band.User.Id,
+            IsBand = band.User.IsBand,
             Email = band.User.Email,
             Name = band.User.Name!,
             Description = band.User.Description!,
             CountryId = band.User.CountryId,
             CityId = band.User.CityId,
+            IsFirstLogin = band.User.IsFirstLogin,
             Tags = band.User.Tags.Select(t => new TagDto
             {
                 Id = t.Id,

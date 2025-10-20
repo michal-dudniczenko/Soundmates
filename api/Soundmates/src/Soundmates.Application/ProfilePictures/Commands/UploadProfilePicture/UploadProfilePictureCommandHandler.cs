@@ -3,6 +3,7 @@ using Soundmates.Application.Common;
 using Soundmates.Domain.Entities;
 using Soundmates.Domain.Interfaces.Repositories;
 using Soundmates.Domain.Interfaces.Services.Auth;
+using static Soundmates.Application.Common.UserMediaHelpers;
 
 namespace Soundmates.Application.ProfilePictures.Commands.UploadProfilePicture;
 
@@ -11,8 +12,7 @@ public class UploadProfilePictureCommandHandler(
     IAuthService _authService
 ) : IRequestHandler<UploadProfilePictureCommand, Result>
 {
-    private const string ImagesDirectoryPath = "images";
-    private const int MaxImageSizeMb = 5;
+    private const int MaxImageSizeMb = 100;
     private static readonly int MaxImageSize = MaxImageSizeMb * 1024 * 1024;
     private static readonly string[] AllowedContentTypes = ["image/jpeg", "image/jpg"];
     private static readonly string[] AllowedExtensions = [".jpeg", ".jpg"];
@@ -44,9 +44,7 @@ public class UploadProfilePictureCommandHandler(
                 errorMessage: $"File size cannot exceed {MaxImageSizeMb} MB.");
         }
 
-        var currentUserProfilePicturesCount = await _profilePictureRepository.GetUserProfilePicturesCountAsync(authorizedUser.Id);
-
-        if (currentUserProfilePicturesCount >= MaxProfilePicturesCount)
+        if (authorizedUser.ProfilePictures.Count >= MaxProfilePicturesCount)
         {
             return Result.Failure(
                     errorType: ErrorType.BadRequest,
@@ -55,7 +53,7 @@ public class UploadProfilePictureCommandHandler(
 
         var extension = Path.GetExtension(request.FileName).ToLower();
         var fileName = $"{Guid.NewGuid()}{extension}";
-        var filePath = Path.Combine("wwwroot", ImagesDirectoryPath, fileName);
+        var filePath = Path.Combine("wwwroot", GetProfilePictureUrl(fileName));
 
         using (var stream = new FileStream(filePath, FileMode.Create))
         {
@@ -65,6 +63,7 @@ public class UploadProfilePictureCommandHandler(
         var profilePicture = new ProfilePicture
         {
             FileName = fileName,
+            DisplayOrder = authorizedUser.ProfilePictures.Count,
             UserId = authorizedUser.Id
         };
 

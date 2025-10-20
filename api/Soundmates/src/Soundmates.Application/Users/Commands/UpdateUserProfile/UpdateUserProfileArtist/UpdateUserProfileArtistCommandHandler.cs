@@ -7,7 +7,7 @@ using Soundmates.Domain.Interfaces.Services.Auth;
 namespace Soundmates.Application.Users.Commands.UpdateUserProfile.UpdateUserProfileArtist;
 
 public class UpdateUserProfileArtistCommandHandler(
-    IUserRepository _userRepository,
+    IArtistRepository _artistRepository,
     IAuthService _authService
 ) : IRequestHandler<UpdateUserProfileArtistCommand, Result>
 {
@@ -22,31 +22,33 @@ public class UpdateUserProfileArtistCommandHandler(
                 errorMessage: "Invalid access token.");
         }
 
-        var updatedUser = new UserBase
-        {
-            Id = authorizedUser.Id,
-            Email = authorizedUser.Email,
-            PasswordHash = authorizedUser.PasswordHash,
-            Name = request.Name,
-            Description = request.Description,
-            BirthYear = request.BirthYear,
-            City = request.City,
-            Country = request.Country,
-            IsActive = authorizedUser.IsActive,
-            IsFirstLogin = false,
-            IsEmailConfirmed = authorizedUser.IsEmailConfirmed,
-            IsLoggedOut = authorizedUser.IsLoggedOut
-        };
+        authorizedUser.IsBand = false;
 
-        var updateResult = await _userRepository.UpdateAsync(updatedUser);
+        authorizedUser.Name = request.Name;
+        authorizedUser.Description = request.Description;
+        authorizedUser.IsFirstLogin = false;
+        authorizedUser.CountryId = request.CountryId;
+        authorizedUser.CityId = request.CityId;
 
-        if (!updateResult)
+        authorizedUser.Tags.Clear();
+        foreach (var tag in request.Tags)
         {
-            return Result.Failure(
-                errorType: ErrorType.InternalServerError,
-                errorMessage: $"Something went wrong. Failed to update user with id: {authorizedUser.Id}"
-                );
+            authorizedUser.Tags.Add(new Tag
+            {
+                Id = tag.Id,
+                Name = tag.Name,
+                TagCategoryId = tag.TagCategoryId
+            });
         }
+
+        var artist = await _artistRepository.GetByUserIdAsync(authorizedUser.Id) ?? new Artist { UserId = authorizedUser.Id };
+
+        artist.BirthDate = request.BirthDate;
+        artist.GenderId = request.GenderId;
+
+        artist.User = authorizedUser;
+
+        await _artistRepository.UpdateAddAsync(artist, request.MusicSamplesOrder, request.ProfilePicturesOrder);
 
         return Result.Success();
     }

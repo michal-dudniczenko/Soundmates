@@ -11,7 +11,7 @@ public class User
 
     public required string PasswordHash { get; set; }
 
-    public bool IsBand { get; set; } = false;
+    public bool? IsBand { get; set; }
 
     [MaxLength(50)]
     public string Name { get; set; } = string.Empty;
