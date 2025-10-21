@@ -15,7 +15,7 @@ public class MatchPreferenceRepository : IMatchPreferenceRepository
         throw new NotImplementedException();
     }
 
-    public Task UpdateAsync(UserMatchPreference entity)
+    public Task UpdateAsync(UserMatchPreference entity, IList<Guid> FilterTagsIds)
     {
         throw new NotImplementedException();
     }
