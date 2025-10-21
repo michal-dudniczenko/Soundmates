@@ -1,6 +1,5 @@
 ﻿using MediatR;
 using Soundmates.Application.Common;
-using Soundmates.Application.ResponseDTOs.Dictionaries;
 using Soundmates.Application.ResponseDTOs.Mappings;
 using Soundmates.Application.ResponseDTOs.Users;
 using Soundmates.Domain.Interfaces.Repositories;
@@ -40,12 +39,7 @@ public class GetSelfUserProfileQueryHandler(
                 CountryId = authorizedUser.CountryId,
                 CityId = authorizedUser.CityId,
                 IsFirstLogin = authorizedUser.IsFirstLogin,
-                Tags = authorizedUser.Tags.Select(t => new TagDto
-                {
-                    Id = t.Id,
-                    Name = t.Name,
-                    TagCategoryId = t.TagCategoryId
-                }).ToList(),
+                TagsIds = authorizedUser.Tags.Select(t => t.Id).ToList(),
                 MusicSamples = authorizedUser.MusicSamples.OrderBy(ms => ms.DisplayOrder).Select(ms => new MusicSampleDto
                 {
                     Id = ms.Id,

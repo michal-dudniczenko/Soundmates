@@ -1,5 +1,4 @@
-﻿using Soundmates.Application.ResponseDTOs.Dictionaries;
-using Soundmates.Application.ResponseDTOs.Users;
+﻿using Soundmates.Application.ResponseDTOs.Users;
 using Soundmates.Domain.Entities;
 using static Soundmates.Application.Common.UserMediaHelpers;
 
@@ -19,12 +18,7 @@ public static class BandMappings
             Description = band.User.Description!,
             CountryId = band.User.CountryId,
             CityId = band.User.CityId,
-            Tags = band.User.Tags.Select(t => new TagDto
-            {
-                Id = t.Id,
-                Name = t.Name,
-                TagCategoryId = t.TagCategoryId
-            }).ToList(),
+            TagsIds = band.User.Tags.Select(t => t.Id).ToList(),
             MusicSamples = band.User.MusicSamples.OrderBy(ms => ms.DisplayOrder).Select(ms => new MusicSampleDto
             {
                 Id = ms.Id,
@@ -59,12 +53,7 @@ public static class BandMappings
             CountryId = band.User.CountryId,
             CityId = band.User.CityId,
             IsFirstLogin = band.User.IsFirstLogin,
-            Tags = band.User.Tags.Select(t => new TagDto
-            {
-                Id = t.Id,
-                Name = t.Name,
-                TagCategoryId = t.TagCategoryId
-            }).ToList(),
+            TagsIds = band.User.Tags.Select(t => t.Id).ToList(),
             MusicSamples = band.User.MusicSamples.OrderBy(ms => ms.DisplayOrder).Select(ms => new MusicSampleDto
             {
                 Id = ms.Id,

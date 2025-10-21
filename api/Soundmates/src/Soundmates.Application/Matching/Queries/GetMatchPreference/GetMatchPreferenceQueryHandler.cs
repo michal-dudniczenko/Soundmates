@@ -1,6 +1,5 @@
 ﻿using MediatR;
 using Soundmates.Application.Common;
-using Soundmates.Application.ResponseDTOs.Dictionaries;
 using Soundmates.Application.ResponseDTOs.Matching;
 using Soundmates.Domain.Interfaces.Repositories;
 using Soundmates.Domain.Interfaces.Services.Auth;
@@ -44,12 +43,7 @@ public class GetMatchPreferenceQueryHandler(
             ArtistGenderId = matchPreference.ArtistGenderId,
             BandMinMembersCount = matchPreference.BandMinMembersCount,
             BandMaxMembersCount = matchPreference.BandMaxMembersCount,
-            FilterTags = matchPreference.Tags.Select(t => new TagDto
-            {
-                Id = t.Id,
-                Name = t.Name,
-                TagCategoryId = t.TagCategoryId
-            }).ToList()
+            FilterTagsIds = matchPreference.Tags.Select(t => t.Id).ToList()
         };
 
         return Result<MatchPreferenceDto>.Success(matchPreferenceDto);

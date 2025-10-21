@@ -35,6 +35,4 @@ public class User
     public ICollection<Tag> Tags { get; } = [];
     public ICollection<ProfilePicture> ProfilePictures { get; } = [];
     public ICollection<MusicSample> MusicSamples { get; } = [];
-    public ICollection<Artist> Artists { get; } = [];
-    public ICollection<Band> Bands { get; } = [];
 }

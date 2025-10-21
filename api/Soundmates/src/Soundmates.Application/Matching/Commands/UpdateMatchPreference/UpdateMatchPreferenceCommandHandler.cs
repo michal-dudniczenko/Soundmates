@@ -37,17 +37,7 @@ public class UpdateMatchPreferenceCommandHandler(
             UserId = authorizedUser.Id
         };
 
-        foreach (var tag in request.FilterTags)
-        {
-            userMatchPreference.Tags.Add(new Tag
-            {
-                Id = tag.Id,
-                Name = tag.Name,
-                TagCategoryId = tag.TagCategoryId
-            });
-        }
-
-        await _matchPreferenceRepository.UpdateAsync(userMatchPreference);
+        await _matchPreferenceRepository.UpdateAsync(userMatchPreference, request.FilterTagsIds);
 
         return Result.Success();
     }

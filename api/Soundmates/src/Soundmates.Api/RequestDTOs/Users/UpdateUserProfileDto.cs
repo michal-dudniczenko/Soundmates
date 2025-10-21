@@ -1,5 +1,4 @@
-﻿using Soundmates.Application.ResponseDTOs.Dictionaries;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
 namespace Soundmates.Api.RequestDTOs.Users;
@@ -26,7 +25,7 @@ public abstract class UpdateUserProfileDto
     public required Guid CityId { get; set; }
 
     [Required]
-    public required IList<TagDto> Tags { get; set; }
+    public required IList<Guid> TagsIds { get; set; }
 
     [Required]
     public required IList<Guid> MusicSamplesOrder { get; set; }

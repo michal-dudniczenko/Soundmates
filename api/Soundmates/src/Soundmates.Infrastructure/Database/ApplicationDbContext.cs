@@ -59,20 +59,14 @@ public sealed class ApplicationDbContext : DbContext
                 .HasMany(u => u.MusicSamples)
                 .WithOne(ms => ms.User)
                 .HasForeignKey(ms => ms.UserId);
-
-            entity
-                .HasMany(u => u.Artists)
-                .WithOne(a => a.User)
-                .HasForeignKey(a => a.UserId);
-
-            entity
-                .HasMany(u => u.Bands)
-                .WithOne(b => b.User)
-                .HasForeignKey(b => b.UserId);
         });
 
         modelBuilder.Entity<Artist>(entity =>
         {
+            entity
+                .HasOne(a => a.User)
+                .WithOne();
+
             entity
                 .HasOne(a => a.Gender)
                 .WithMany()
@@ -81,6 +75,10 @@ public sealed class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<Band>(entity =>
         {
+            entity
+                .HasOne(a => a.User)
+                .WithOne();
+
             entity
                 .HasMany(b => b.Members)
                 .WithOne(bm => bm.Band)

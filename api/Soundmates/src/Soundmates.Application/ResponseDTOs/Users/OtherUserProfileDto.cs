@@ -1,5 +1,4 @@
-﻿using Soundmates.Application.ResponseDTOs.Dictionaries;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace Soundmates.Application.ResponseDTOs.Users;
 
@@ -14,7 +13,7 @@ public abstract class OtherUserProfileDto
     public required string Description { get; set; }
     public required Guid CountryId { get; set; }
     public required Guid CityId { get; set; }
-    public required IList<TagDto> Tags { get; set; }
+    public required IList<Guid> TagsIds { get; set; }
     public required IList<MusicSampleDto> MusicSamples { get; set; }
     public required IList<ProfilePictureDto> ProfilePictures { get; set; }
 }

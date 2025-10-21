@@ -8,7 +8,7 @@ namespace Soundmates.Application.Matching.Commands.CreateDislike;
 
 public class CreateDislikeCommandHandler(
     IUserRepository _userRepository,
-    IDislikeRepository _dislikeRepository,
+    IMatchRepository _matchRepository,
     IAuthService _authService
 ) : IRequestHandler<CreateDislikeCommand, Result>
 {
@@ -31,13 +31,21 @@ public class CreateDislikeCommandHandler(
                 errorMessage: $"No user with ID: {request.ReceiverId}");
         }
 
+        var reactionExists = await _matchRepository.CheckIfReactionExistsAsync(authorizedUser.Id, request.ReceiverId);
+        if (reactionExists)
+        {
+            return Result.Failure(
+                errorType: ErrorType.BadRequest,
+                errorMessage: $"Cannot give another reaction to the same user. From: {authorizedUser.Id} To: {request.ReceiverId}");
+        }
+
         var dislike = new Dislike
         {
             GiverId = authorizedUser.Id,
             ReceiverId = request.ReceiverId
         };
 
-        await _dislikeRepository.AddAsync(dislike);
+        await _matchRepository.AddDislikeAsync(dislike);
 
         return Result.Success();
     }
