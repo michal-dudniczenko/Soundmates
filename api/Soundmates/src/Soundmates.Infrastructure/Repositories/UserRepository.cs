@@ -20,11 +20,6 @@ public class UserRepository : IUserRepository
         throw new NotImplementedException();
     }
 
-    public Task<bool> CheckIfExistsAsync(Guid entityId)
-    {
-        throw new NotImplementedException();
-    }
-
     public Task<Guid?> CheckRefreshTokenGetUserIdAsync(string refreshTokenHash)
     {
         throw new NotImplementedException();

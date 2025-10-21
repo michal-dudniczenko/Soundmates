@@ -1,42 +1,54 @@
-﻿using Soundmates.Domain.Entities;
+﻿using Microsoft.EntityFrameworkCore;
+using Soundmates.Domain.Entities;
 using Soundmates.Domain.Interfaces.Repositories;
+using Soundmates.Infrastructure.Database;
 
 namespace Soundmates.Infrastructure.Repositories;
 
-public class DictionaryRepository : IDictionaryRepository
+public class DictionaryRepository(
+    ApplicationDbContext _context
+) : IDictionaryRepository
 {
-    public Task<IEnumerable<BandRole>> GetAllBandRolesAsync()
+    public async Task<IEnumerable<BandRole>> GetAllBandRolesAsync()
     {
-        throw new NotImplementedException();
+        return await _context.BandRoles
+            .AsNoTracking()
+            .ToListAsync();
     }
 
-    public Task<IEnumerable<Country>> GetAllCountriesAsync()
+    public async Task<IEnumerable<Country>> GetAllCountriesAsync()
     {
-        throw new NotImplementedException();
+        return await _context.Countries
+            .AsNoTracking()
+            .ToListAsync();
     }
 
-    public Task<IEnumerable<City>> GetAllCountryCitiesAsync(Guid countryId)
+    public async Task<IEnumerable<City>> GetAllCountryCitiesAsync(Guid countryId)
     {
-        throw new NotImplementedException();
+        return await _context.Cities
+            .AsNoTracking()
+            .Where(c => c.CountryId == countryId)
+            .ToListAsync();
     }
 
-    public Task<IEnumerable<Gender>> GetAllGendersAsync()
+    public async Task<IEnumerable<Gender>> GetAllGendersAsync()
     {
-        throw new NotImplementedException();
+        return await _context.Genders
+            .AsNoTracking()
+            .ToListAsync();
     }
 
-    public Task<IEnumerable<TagCategory>> GetAllTagCategoriesAsync()
+    public async Task<IEnumerable<TagCategory>> GetAllTagCategoriesAsync()
     {
-        throw new NotImplementedException();
+        return await _context.TagCategories
+            .AsNoTracking()
+            .ToListAsync();
     }
 
-    public Task<IEnumerable<Tag>> GetAllTagsAsync()
+    public async Task<IEnumerable<Tag>> GetAllTagsAsync()
     {
-        throw new NotImplementedException();
-    }
-
-    public Task<Tag> GetTagByIdAsync(Guid tagId)
-    {
-        throw new NotImplementedException();
+        return await _context.Tags
+            .AsNoTracking()
+            .ToListAsync();
     }
 }
