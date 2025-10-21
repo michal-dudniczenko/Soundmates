@@ -8,7 +8,6 @@ namespace Soundmates.Application.Matching.Commands.CreateLike;
 
 public class CreateLikeCommandHandler(
     IUserRepository _userRepository,
-    ILikeRepository _likeRepository,
     IMatchRepository _matchRepository,
     IAuthService _authService
 ) : IRequestHandler<CreateLikeCommand, Result>
@@ -32,15 +31,23 @@ public class CreateLikeCommandHandler(
                 errorMessage: $"No user with ID: {request.ReceiverId}");
         }
 
+        var reactionExists = await _matchRepository.CheckIfReactionExistsAsync(authorizedUser.Id, request.ReceiverId);
+        if (reactionExists)
+        {
+            return Result.Failure(
+                errorType: ErrorType.BadRequest,
+                errorMessage: $"Cannot give another reaction to the same user. From: {authorizedUser.Id} To: {request.ReceiverId}");
+        }
+
         var like = new Like
         { 
             GiverId = authorizedUser.Id, 
             ReceiverId = request.ReceiverId 
         };
 
-        await _likeRepository.AddAsync(like);
+        await _matchRepository.AddLikeAsync(like);
 
-        if (await _likeRepository.CheckIfExistsAsync(giverId: request.ReceiverId, receiverId: authorizedUser.Id))
+        if (await _matchRepository.CheckIfLikeExistsAsync(giverId: request.ReceiverId, receiverId: authorizedUser.Id))
         {
             var match = new Match
             { 

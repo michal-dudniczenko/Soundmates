@@ -30,17 +30,6 @@ public class UpdateUserProfileArtistCommandHandler(
         authorizedUser.CountryId = request.CountryId;
         authorizedUser.CityId = request.CityId;
 
-        authorizedUser.Tags.Clear();
-        foreach (var tag in request.Tags)
-        {
-            authorizedUser.Tags.Add(new Tag
-            {
-                Id = tag.Id,
-                Name = tag.Name,
-                TagCategoryId = tag.TagCategoryId
-            });
-        }
-
         var artist = await _artistRepository.GetByUserIdAsync(authorizedUser.Id) ?? new Artist { UserId = authorizedUser.Id };
 
         artist.BirthDate = request.BirthDate;
@@ -48,7 +37,7 @@ public class UpdateUserProfileArtistCommandHandler(
 
         artist.User = authorizedUser;
 
-        await _artistRepository.UpdateAddAsync(artist, request.MusicSamplesOrder, request.ProfilePicturesOrder);
+        await _artistRepository.UpdateAddAsync(artist, request.TagsIds, request.MusicSamplesOrder, request.ProfilePicturesOrder);
 
         return Result.Success();
     }

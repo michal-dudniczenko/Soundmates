@@ -37,8 +37,6 @@ public static class DIRegistrations
         services.AddScoped<IArtistRepository, ArtistRepository>();
         services.AddScoped<IBandRepository, BandRepository>();
         services.AddScoped<IDictionaryRepository, DictionaryRepository>();
-        services.AddScoped<IDislikeRepository, DislikeRepository>();
-        services.AddScoped<ILikeRepository, LikeRepository>();
         services.AddScoped<IMatchPreferenceRepository, MatchPreferenceRepository>();
         services.AddScoped<IMatchRepository, MatchRepository>();
         services.AddScoped<IMessageRepository, MessageRepository>();

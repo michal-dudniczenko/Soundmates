@@ -8,7 +8,6 @@ public interface IDictionaryRepository
     Task<IEnumerable<City>> GetAllCountryCitiesAsync(Guid countryId);
     Task<IEnumerable<BandRole>> GetAllBandRolesAsync();
     Task<IEnumerable<TagCategory>> GetAllTagCategoriesAsync();
-    Task<Tag> GetTagByIdAsync(Guid tagId);
     Task<IEnumerable<Tag>> GetAllTagsAsync();
     Task<IEnumerable<Gender>> GetAllGendersAsync();
 }

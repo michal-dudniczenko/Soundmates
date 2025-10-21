@@ -93,7 +93,7 @@ public class MatchingController(
             ArtistGenderId: dto.ArtistGenderId,
             BandMinMembersCount: dto.BandMinMembersCount,
             BandMaxMembersCount: dto.BandMaxMembersCount,
-            FilterTags: dto.FilterTags,
+            FilterTagsIds: dto.FilterTagsIds,
             SubClaim: subClaim);
 
         var result = await _mediator.Send(query);

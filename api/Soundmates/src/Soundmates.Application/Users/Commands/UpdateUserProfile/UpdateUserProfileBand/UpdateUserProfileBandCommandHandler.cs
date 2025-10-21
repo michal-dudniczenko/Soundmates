@@ -30,17 +30,6 @@ public class UpdateUserProfileBandCommandHandler(
         authorizedUser.CountryId = request.CountryId;
         authorizedUser.CityId = request.CityId;
 
-        authorizedUser.Tags.Clear();
-        foreach (var tag in request.Tags)
-        {
-            authorizedUser.Tags.Add(new Tag
-            {
-                Id = tag.Id,
-                Name = tag.Name,
-                TagCategoryId = tag.TagCategoryId
-            });
-        }
-
         var band = await _bandRepository.GetByUserIdAsync(authorizedUser.Id) ?? new Band { UserId = authorizedUser.Id };
 
         band.Members.Clear();
@@ -61,7 +50,7 @@ public class UpdateUserProfileBandCommandHandler(
 
         band.User = authorizedUser;
 
-        await _bandRepository.UpdateAddAsync(band, request.MusicSamplesOrder, request.ProfilePicturesOrder);
+        await _bandRepository.UpdateAddAsync(band, request.TagsIds, request.MusicSamplesOrder, request.ProfilePicturesOrder);
 
         return Result.Success();
     }

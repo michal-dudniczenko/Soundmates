@@ -4,8 +4,7 @@ namespace Soundmates.Domain.Interfaces.Repositories;
 
 public interface IBandRepository
 {
-    Task<Band?> GetByUserIdAsync(Guid entityId);
-    Task UpdateAddAsync(Band entity, IList<Guid> MusicSamplesOrder, IList<Guid> ProfilePicturesOrder);
-    Task<IEnumerable<Band>> GetPotentialMatchesAsync(Guid entityId, int limit, int offset);
-    Task<bool> CheckIfExistsAsync(Guid entityId);
+    Task<Band?> GetByUserIdAsync(Guid userId);
+    Task UpdateAddAsync(Band entity, IList<Guid> tagsIds, IList<Guid> musicSamplesOrder, IList<Guid> profilePicturesOrder);
+    Task<IEnumerable<Band>> GetPotentialMatchesAsync(Guid userId, int limit, int offset);
 }
