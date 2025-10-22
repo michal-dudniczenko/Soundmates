@@ -37,7 +37,7 @@ public class UpdateMatchPreferenceCommandHandler(
             UserId = authorizedUser.Id
         };
 
-        await _matchPreferenceRepository.UpdateAsync(userMatchPreference, request.FilterTagsIds);
+        await _matchPreferenceRepository.AddUpdateAsync(userMatchPreference, request.FilterTagsIds);
 
         return Result.Success();
     }

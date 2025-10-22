@@ -8,7 +8,6 @@ using Soundmates.Domain.Interfaces.Services.Auth;
 namespace Soundmates.Application.Matching.Queries.GetMatches;
 
 public class GetMatchesQueryHandler(
-    IUserRepository _userRepository,
     IAuthService _authService,
     IMatchRepository _matchRepository,
     IArtistRepository _artistRepository,
@@ -38,9 +37,8 @@ public class GetMatchesQueryHandler(
 
         foreach (var match in matches)
         {
-            var user = await _userRepository.GetByIdAsync(
-                match.User1Id == authorizedUser.Id ? match.User2Id : match.User1Id
-            );
+            var user = match.User1Id == authorizedUser.Id ? match.User1 : match.User2;
+
             if (user is null || !user.IsActive || user.IsFirstLogin || !user.IsEmailConfirmed || user.IsBand is null) continue;
 
             if ((bool)user.IsBand)

@@ -34,7 +34,7 @@ public class RegisterCommandHandler(
             UserId = user.Id
         };
 
-        await _matchPreferenceRepository.AddAsync(defaultMatchPreference);
+        await _matchPreferenceRepository.AddUpdateAsync(defaultMatchPreference);
 
         return Result.Success();
     }
