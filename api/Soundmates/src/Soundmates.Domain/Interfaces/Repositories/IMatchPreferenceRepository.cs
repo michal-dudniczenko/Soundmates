@@ -4,7 +4,6 @@ namespace Soundmates.Domain.Interfaces.Repositories;
 
 public interface IMatchPreferenceRepository
 {
-    Task<UserMatchPreference> GetUserMatchPreferenceAsync(Guid userId);
-    Task AddAsync(UserMatchPreference entity);
-    Task UpdateAsync(UserMatchPreference entity, IList<Guid> FilterTagsIds);
+    Task<UserMatchPreference?> GetUserMatchPreferenceAsync(Guid userId);
+    Task AddUpdateAsync(UserMatchPreference entity, IList<Guid>? filterTagsIds = null);
 }

@@ -31,7 +31,7 @@ public class CreateLikeCommandHandler(
                 errorMessage: $"No user with ID: {request.ReceiverId}");
         }
 
-        var reactionExists = await _matchRepository.CheckIfReactionExistsAsync(authorizedUser.Id, request.ReceiverId);
+        var reactionExists = (await _matchRepository.CheckIfLikeExistsAsync(authorizedUser.Id, request.ReceiverId)) || (await _matchRepository.CheckIfDislikeExistsAsync(authorizedUser.Id, request.ReceiverId));
         if (reactionExists)
         {
             return Result.Failure(
@@ -55,7 +55,7 @@ public class CreateLikeCommandHandler(
                 User2Id = request.ReceiverId 
             };
 
-            await _matchRepository.AddAsync(match);
+            await _matchRepository.AddMatchAsync(match);
         }
 
         return Result.Success();

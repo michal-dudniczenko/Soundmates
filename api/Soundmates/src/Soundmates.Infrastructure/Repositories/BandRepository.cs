@@ -88,7 +88,6 @@ public class BandRepository(
     public async Task UpdateAddAsync(Band entity, IList<Guid> tagsIds, IList<Guid> musicSamplesOrder, IList<Guid> profilePicturesOrder)
     {
         var bandTags = await _context.Tags
-            .AsNoTracking()
             .Include(t => t.TagCategory)
             .Where(t => t.TagCategory.IsForBand)
             .ToListAsync();
@@ -104,9 +103,7 @@ public class BandRepository(
 
         var existingMusicSamples = await _context.MusicSamples.Where(ms => ms.UserId == entity.UserId).ToListAsync();
 
-        var uniqueMusicSamplesOrder = musicSamplesOrder.Distinct();
-
-        if (musicSamplesOrder.Count != uniqueMusicSamplesOrder.Count())
+        if (musicSamplesOrder.Count != musicSamplesOrder.Distinct().Count())
         {
             throw new InvalidOperationException("Provided list of music samples contained duplicates.");
         }
@@ -126,9 +123,7 @@ public class BandRepository(
 
         var existingProfilePictures = await _context.ProfilePictures.Where(pp => pp.UserId == entity.UserId).ToListAsync();
 
-        var uniqueProfilePicturesOrder = profilePicturesOrder.Distinct();
-
-        if (profilePicturesOrder.Count != uniqueProfilePicturesOrder.Count())
+        if (profilePicturesOrder.Count != profilePicturesOrder.Distinct().Count())
         {
             throw new InvalidOperationException("Provided list of profile pictures contained duplicates.");
         }
