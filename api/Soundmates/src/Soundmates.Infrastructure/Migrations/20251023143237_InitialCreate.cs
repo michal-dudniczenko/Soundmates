@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -107,15 +108,15 @@ namespace Soundmates.Infrastructure.Migrations
                     Email = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     PasswordHash = table.Column<string>(type: "text", nullable: false),
                     IsBand = table.Column<bool>(type: "boolean", nullable: true),
-                    Name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    Name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
                     Description = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     IsActive = table.Column<bool>(type: "boolean", nullable: false),
                     IsFirstLogin = table.Column<bool>(type: "boolean", nullable: false),
                     IsEmailConfirmed = table.Column<bool>(type: "boolean", nullable: false),
                     IsLoggedOut = table.Column<bool>(type: "boolean", nullable: false),
-                    CountryId = table.Column<Guid>(type: "uuid", nullable: false),
-                    CityId = table.Column<Guid>(type: "uuid", nullable: false)
+                    CountryId = table.Column<Guid>(type: "uuid", nullable: true),
+                    CityId = table.Column<Guid>(type: "uuid", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -124,14 +125,12 @@ namespace Soundmates.Infrastructure.Migrations
                         name: "FK_Users_Cities_CityId",
                         column: x => x.CityId,
                         principalTable: "Cities",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Users_Countries_CountryId",
                         column: x => x.CountryId,
                         principalTable: "Countries",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -455,7 +454,8 @@ namespace Soundmates.Infrastructure.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Artists_UserId",
                 table: "Artists",
-                column: "UserId");
+                column: "UserId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_BandMembers_BandId",
@@ -470,7 +470,8 @@ namespace Soundmates.Infrastructure.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Bands_UserId",
                 table: "Bands",
-                column: "UserId");
+                column: "UserId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Cities_CountryId",
@@ -478,9 +479,10 @@ namespace Soundmates.Infrastructure.Migrations
                 column: "CountryId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Dislikes_GiverId",
+                name: "IX_Dislikes_GiverId_ReceiverId",
                 table: "Dislikes",
-                column: "GiverId");
+                columns: new[] { "GiverId", "ReceiverId" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Dislikes_ReceiverId",
@@ -488,9 +490,10 @@ namespace Soundmates.Infrastructure.Migrations
                 column: "ReceiverId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Likes_GiverId",
+                name: "IX_Likes_GiverId_ReceiverId",
                 table: "Likes",
-                column: "GiverId");
+                columns: new[] { "GiverId", "ReceiverId" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Likes_ReceiverId",

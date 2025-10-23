@@ -14,7 +14,7 @@ public class User
     public bool? IsBand { get; set; }
 
     [MaxLength(50)]
-    public string Name { get; set; } = string.Empty;
+    public string? Name { get; set; }
 
     [MaxLength(500)]
     public string Description { get; set; } = string.Empty;
@@ -26,10 +26,10 @@ public class User
     public bool IsEmailConfirmed { get; set; } = true;
     public bool IsLoggedOut { get; set; } = false;
 
-    public Guid CountryId { get; set; }
+    public Guid? CountryId { get; set; }
     public Country Country { get; set; } = null!;
 
-    public Guid CityId { get; set; }
+    public Guid? CityId { get; set; }
     public City City { get; set; } = null!;
 
     public ICollection<Tag> Tags { get; } = [];

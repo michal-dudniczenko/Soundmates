@@ -12,7 +12,7 @@ using Soundmates.Infrastructure.Database;
 namespace Soundmates.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251020132650_InitialCreate")]
+    [Migration("20251023143237_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -44,7 +44,8 @@ namespace Soundmates.Infrastructure.Migrations
 
                     b.HasIndex("GenderId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId")
+                        .IsUnique();
 
                     b.ToTable("Artists");
                 });
@@ -60,7 +61,8 @@ namespace Soundmates.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId")
+                        .IsUnique();
 
                     b.ToTable("Bands");
                 });
@@ -169,9 +171,10 @@ namespace Soundmates.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("GiverId");
-
                     b.HasIndex("ReceiverId");
+
+                    b.HasIndex("GiverId", "ReceiverId")
+                        .IsUnique();
 
                     b.ToTable("Dislikes");
                 });
@@ -208,9 +211,10 @@ namespace Soundmates.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("GiverId");
-
                     b.HasIndex("ReceiverId");
+
+                    b.HasIndex("GiverId", "ReceiverId")
+                        .IsUnique();
 
                     b.ToTable("Likes");
                 });
@@ -384,10 +388,10 @@ namespace Soundmates.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("CityId")
+                    b.Property<Guid?>("CityId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("CountryId")
+                    b.Property<Guid?>("CountryId")
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
@@ -419,7 +423,6 @@ namespace Soundmates.Infrastructure.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<string>("Name")
-                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
@@ -522,8 +525,8 @@ namespace Soundmates.Infrastructure.Migrations
                         .IsRequired();
 
                     b.HasOne("Soundmates.Domain.Entities.User", "User")
-                        .WithMany("Artists")
-                        .HasForeignKey("UserId")
+                        .WithOne()
+                        .HasForeignKey("Soundmates.Domain.Entities.Artist", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -535,8 +538,8 @@ namespace Soundmates.Infrastructure.Migrations
             modelBuilder.Entity("Soundmates.Domain.Entities.Band", b =>
                 {
                     b.HasOne("Soundmates.Domain.Entities.User", "User")
-                        .WithMany("Bands")
-                        .HasForeignKey("UserId")
+                        .WithOne()
+                        .HasForeignKey("Soundmates.Domain.Entities.Band", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -697,15 +700,11 @@ namespace Soundmates.Infrastructure.Migrations
                 {
                     b.HasOne("Soundmates.Domain.Entities.City", "City")
                         .WithMany()
-                        .HasForeignKey("CityId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CityId");
 
                     b.HasOne("Soundmates.Domain.Entities.Country", "Country")
                         .WithMany()
-                        .HasForeignKey("CountryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CountryId");
 
                     b.Navigation("City");
 
@@ -765,10 +764,6 @@ namespace Soundmates.Infrastructure.Migrations
 
             modelBuilder.Entity("Soundmates.Domain.Entities.User", b =>
                 {
-                    b.Navigation("Artists");
-
-                    b.Navigation("Bands");
-
                     b.Navigation("MusicSamples");
 
                     b.Navigation("ProfilePictures");
