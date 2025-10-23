@@ -29,13 +29,13 @@ public class GetConversationQueryHandler(
                 errorMessage: "Invalid access token.");
         }
 
-        var otherUserExists = await _userRepository.CheckIfExistsActiveAsync(request.OtherUserId);
+        var otherUser = await _userRepository.GetByIdAsync(request.OtherUserId);
 
-        if (!otherUserExists)
+        if (otherUser is null || otherUser.IsFirstLogin)
         {
             return Result<List<MessageDto>>.Failure(
                 errorType: ErrorType.NotFound,
-                errorMessage: $"No user with ID: {request.OtherUserId}");
+                errorMessage: $"User with id {request.OtherUserId} not found.");
         }
 
         var conversation = await _messageRepository.GetConversationAsync(

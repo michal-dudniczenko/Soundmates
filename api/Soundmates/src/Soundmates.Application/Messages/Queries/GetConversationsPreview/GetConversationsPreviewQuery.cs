@@ -4,4 +4,4 @@ using Soundmates.Application.ResponseDTOs.Messages;
 
 namespace Soundmates.Application.Messages.Queries.GetConversationsPreview;
 
-public record GetConversationsPreviewQuery(int Limit, int Offset, string? SubClaim) : IRequest<Result<List<MessageDto>>>;
+public record GetConversationsPreviewQuery(string? SubClaim) : IRequest<Result<List<MessageDto>>>;

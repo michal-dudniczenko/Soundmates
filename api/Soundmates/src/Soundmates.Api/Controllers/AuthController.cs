@@ -38,7 +38,7 @@ public class AuthController(
         [FromBody] LoginDto loginDto)
     {
         var command = new LogInCommand(
-            Email: loginDto.Email,
+            Email: loginDto.Email.NormalizeEmail(),
             Password: loginDto.Password);
 
         var result = await _mediator.Send(command);

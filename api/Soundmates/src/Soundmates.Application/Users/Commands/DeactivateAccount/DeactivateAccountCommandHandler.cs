@@ -29,6 +29,13 @@ public class DeactivateAccountCommandHandler(
 
         }
 
+        if (!authorizedUser.IsActive)
+        {
+            return Result.Failure(
+                errorType: ErrorType.BadRequest,
+                errorMessage: "User account has already been deactivated.");
+        }
+
         await _userRepository.DeactivateUserAccountAsync(authorizedUser.Id);
 
         return Result.Success();

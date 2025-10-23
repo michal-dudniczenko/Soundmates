@@ -22,17 +22,16 @@ public class UpdateUserProfileBandCommandHandler(
                 errorMessage: "Invalid access token.");
         }
 
-        authorizedUser.IsBand = true;
-
         authorizedUser.Name = request.Name;
         authorizedUser.Description = request.Description;
-        authorizedUser.IsFirstLogin = false;
         authorizedUser.CountryId = request.CountryId;
         authorizedUser.CityId = request.CityId;
 
-        var band = await _bandRepository.GetByUserIdAsync(authorizedUser.Id) ?? new Band { UserId = authorizedUser.Id };
+        var band = new Band { 
+            UserId = authorizedUser.Id,
+            User = authorizedUser
+        };
 
-        band.Members.Clear();
         int displayOrder = 0;
         foreach (var member in request.BandMembers)
         {
@@ -47,8 +46,6 @@ public class UpdateUserProfileBandCommandHandler(
 
             displayOrder++;
         }
-
-        band.User = authorizedUser;
 
         await _bandRepository.UpdateAddAsync(band, request.TagsIds, request.MusicSamplesOrder, request.ProfilePicturesOrder);
 
