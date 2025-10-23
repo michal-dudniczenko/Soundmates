@@ -34,6 +34,7 @@ public sealed class ApplicationDbContext : DbContext
         base.OnModelCreating(modelBuilder);
 
         #region relationships
+
         modelBuilder.Entity<User>(entity =>
         {
             entity
@@ -180,6 +181,53 @@ public sealed class ApplicationDbContext : DbContext
                 .HasMany(ump => ump.Tags)
                 .WithMany();
         });
+
+        #endregion
+
+        #region constraints
+
+        modelBuilder.Entity<Artist>(entity =>
+        {
+            entity
+                .HasIndex(a => a.UserId)
+                .IsUnique();
+        });
+
+        modelBuilder.Entity<Band>(entity =>
+        {
+            entity
+                .HasIndex(b => b.UserId)
+                .IsUnique();
+        });
+
+        modelBuilder.Entity<Dislike>(entity =>
+        {
+            entity
+                .HasIndex(dl => new { dl.GiverId, dl.ReceiverId })
+                .IsUnique();
+        });
+
+        modelBuilder.Entity<Like>(entity =>
+        {
+            entity
+                .HasIndex(l => new { l.GiverId, l.ReceiverId })
+                .IsUnique();
+        });
+
+        modelBuilder.Entity<RefreshToken>(entity =>
+        {
+            entity
+                .HasIndex(rt => rt.UserId)
+                .IsUnique();
+        });
+
+        modelBuilder.Entity<UserMatchPreference>(entity =>
+        {
+            entity
+                .HasIndex(ump => ump.UserId)
+                .IsUnique();
+        });
+
         #endregion
     }
 

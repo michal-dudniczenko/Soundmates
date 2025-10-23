@@ -17,19 +17,14 @@ public class MessagesController(
     IMediator _mediator
 ) : ControllerBase
 {
-    // GET /messages/preview?limit=20&offset=0
+    // GET /messages/preview
     [HttpGet("preview")]
     [Authorize]
-    public async Task<ActionResult<List<MessageDto>>> GetConversationsPreview(
-        [FromQuery] int limit = 20,
-        [FromQuery] int offset = 0)
+    public async Task<ActionResult<List<MessageDto>>> GetConversationsPreview()
     {
         var subClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        var query = new GetConversationsPreviewQuery(
-            Limit: limit,
-            Offset: offset,
-            SubClaim: subClaim);
+        var query = new GetConversationsPreviewQuery(SubClaim: subClaim);
 
         var result = await _mediator.Send(query);
 
@@ -67,7 +62,7 @@ public class MessagesController(
 
         var command = new SendMessageCommand(
             ReceiverId: sendMessageDto.ReceiverId,
-            Content: sendMessageDto.Content,
+            Content: sendMessageDto.Content.Trim(),
             SubClaim: subClaim);
 
         var result = await _mediator.Send(command);

@@ -18,12 +18,10 @@ public class MatchPreferenceRepository(
                 .Where(t => filterTagsIds.Contains(t.Id))
                 .ToListAsync();
 
-            foreach (var tagId in filterTagsIds)
+            var invalidTagId = filterTagsIds.FirstOrDefault(tagId => !tags.Any(t => t.Id == tagId));
+            if (invalidTagId != Guid.Empty)
             {
-                if (!tags.Any(t => t.Id == tagId))
-                {
-                    throw new InvalidOperationException($"Invalid tag id provided: {tagId}");
-                }
+                throw new InvalidOperationException($"Invalid tag id provided: {invalidTagId}");
             }
         }
 

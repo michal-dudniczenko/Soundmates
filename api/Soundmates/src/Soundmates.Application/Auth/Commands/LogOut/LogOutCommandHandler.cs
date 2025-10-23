@@ -21,6 +21,13 @@ public class LogOutCommandHandler(
                 errorMessage: "Invalid access token.");
         }
 
+        if (authorizedUser.IsLoggedOut)
+        {
+            return Result.Failure(
+                errorType: ErrorType.BadRequest,
+                errorMessage: "User is already logged out.");
+        }
+
         await _userRepository.LogOutUserAsync(userId: authorizedUser.Id);
 
         return Result.Success();

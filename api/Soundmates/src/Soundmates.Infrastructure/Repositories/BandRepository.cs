@@ -87,28 +87,31 @@ public class BandRepository(
 
     public async Task UpdateAddAsync(Band entity, IList<Guid> tagsIds, IList<Guid> musicSamplesOrder, IList<Guid> profilePicturesOrder)
     {
+        var existingUser = await _context.Users.FindAsync(entity.UserId)
+            ?? throw new InvalidOperationException($"User with id {entity.UserId} was not found.");
+
         var bandTags = await _context.Tags
             .Include(t => t.TagCategory)
             .Where(t => t.TagCategory.IsForBand)
             .ToListAsync();
 
-        entity.User.Tags.Clear();
+        existingUser.Tags.Clear();
         foreach (var tagId in tagsIds)
         {
             var tag = bandTags.FirstOrDefault(t => t.Id == tagId)
                 ?? throw new InvalidOperationException($"Invalid tag id provided: {tagId}");
 
-            entity.User.Tags.Add(tag);
+            existingUser.Tags.Add(tag);
         }
 
-        var existingMusicSamples = await _context.MusicSamples.Where(ms => ms.UserId == entity.UserId).ToListAsync();
+        var existingMusicSamples = await _context.MusicSamples.Where(ms => ms.UserId == existingUser.Id).ToListAsync();
 
         if (musicSamplesOrder.Count != musicSamplesOrder.Distinct().Count())
         {
             throw new InvalidOperationException("Provided list of music samples contained duplicates.");
         }
 
-        entity.User.MusicSamples.Clear();
+        existingUser.MusicSamples.Clear();
         int displayOrder = 0;
         foreach (var sampleId in musicSamplesOrder)
         {
@@ -116,19 +119,19 @@ public class BandRepository(
                 ?? throw new InvalidOperationException($"Not existing music sample provided with id: {sampleId}");
 
             sample.DisplayOrder = displayOrder;
-            entity.User.MusicSamples.Add(sample);
+            existingUser.MusicSamples.Add(sample);
 
             displayOrder++;
         }
 
-        var existingProfilePictures = await _context.ProfilePictures.Where(pp => pp.UserId == entity.UserId).ToListAsync();
+        var existingProfilePictures = await _context.ProfilePictures.Where(pp => pp.UserId == existingUser.Id).ToListAsync();
 
         if (profilePicturesOrder.Count != profilePicturesOrder.Distinct().Count())
         {
             throw new InvalidOperationException("Provided list of profile pictures contained duplicates.");
         }
 
-        entity.User.ProfilePictures.Clear();
+        existingUser.ProfilePictures.Clear();
         displayOrder = 0;
         foreach (var pictureId in profilePicturesOrder)
         {
@@ -136,22 +139,37 @@ public class BandRepository(
                 ?? throw new InvalidOperationException($"Not existing profile picture provided with id: {pictureId}");
 
             picture.DisplayOrder = displayOrder;
-            entity.User.ProfilePictures.Add(picture);
+            existingUser.ProfilePictures.Add(picture);
 
             displayOrder++;
         }
 
-        _context.Users.Update(entity.User);
+        existingUser.IsBand = true;
+        existingUser.IsFirstLogin = false;
 
-        var bandExists = await _context.Bands.AnyAsync(a => a.Id == entity.Id);
+        existingUser.Name = entity.User.Name;
+        existingUser.Description = entity.User.Description;
+        existingUser.CountryId = entity.User.CountryId;
+        existingUser.CityId = entity.User.CityId;
 
-        if (bandExists)
+        var existingBand = await _context.Bands
+            .Where(a => a.UserId == existingUser.Id)
+            .FirstOrDefaultAsync();
+
+        if (existingBand is null)
         {
-            _context.Bands.Update(entity);
+            entity.User = existingUser;
+
+            _context.Bands.Add(entity);
         }
         else
         {
-            _context.Bands.Add(entity);
+            existingBand.Members.Clear();
+
+            foreach (var member in entity.Members)
+            {
+                existingBand.Members.Add(member);
+            }
         }
 
         await _context.SaveChangesAsync();

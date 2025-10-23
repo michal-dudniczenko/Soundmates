@@ -11,14 +11,8 @@ public class GetConversationsPreviewQueryHandler(
     IAuthService _authService
 ) : IRequestHandler<GetConversationsPreviewQuery, Result<List<MessageDto>>>
 {
-    private const int MaxLimit = 50;
-
     public async Task<Result<List<MessageDto>>> Handle(GetConversationsPreviewQuery request, CancellationToken cancellationToken)
     {
-        var validationResult = PaginationValidator.ValidateLimitOffset<List<MessageDto>>(request.Limit, request.Offset, MaxLimit);
-        if (!validationResult.IsSuccess)
-            return validationResult;
-
         var authorizedUser = await _authService.GetAuthorizedUserAsync(subClaim: request.SubClaim, checkForFirstLogin: true);
 
         if (authorizedUser is null)
@@ -28,10 +22,7 @@ public class GetConversationsPreviewQueryHandler(
                 errorMessage: "Invalid access token.");
         }
 
-        var lastMessages = await _messageRepository.GetConversationsPreviewAsync(
-                userId: authorizedUser.Id,
-                limit: request.Limit,
-                offset: request.Offset);
+        var lastMessages = await _messageRepository.GetConversationsPreviewAsync(userId: authorizedUser.Id);
 
         var lastMessagesDtos = lastMessages.Select(m => new MessageDto
         {

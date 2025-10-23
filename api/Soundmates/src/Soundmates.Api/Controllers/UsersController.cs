@@ -2,13 +2,11 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Soundmates.Api.Extensions;
+using Soundmates.Api.Mappings;
 using Soundmates.Api.RequestDTOs.Users;
 using Soundmates.Application.ResponseDTOs.Users;
 using Soundmates.Application.Users.Commands.ChangePassword;
 using Soundmates.Application.Users.Commands.DeactivateAccount;
-using Soundmates.Application.Users.Commands.UpdateUserProfile;
-using Soundmates.Application.Users.Commands.UpdateUserProfile.UpdateUserProfileArtist;
-using Soundmates.Application.Users.Commands.UpdateUserProfile.UpdateUserProfileBand;
 using Soundmates.Application.Users.Queries.GetOtherUserProfile;
 using Soundmates.Application.Users.Queries.GetSelfUserProfile;
 using System.Security.Claims;
@@ -44,31 +42,7 @@ public class UsersController(
     {
         var subClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        UpdateUserProfileCommand command = updateUserDto switch
-        {
-            UpdateUserProfileArtistDto dto => new UpdateUserProfileArtistCommand(
-                Name: dto.Name,
-                Description: dto.Description,
-                CountryId: dto.CountryId,
-                CityId: dto.CityId,
-                TagsIds: dto.TagsIds,
-                MusicSamplesOrder: dto.MusicSamplesOrder,
-                ProfilePicturesOrder: dto.ProfilePicturesOrder,
-                BirthDate: dto.BirthDate,
-                GenderId: dto.GenderId,
-                SubClaim: subClaim),
-            UpdateUserProfileBandDto dto => new UpdateUserProfileBandCommand(
-                Name: dto.Name,
-                Description: dto.Description,
-                CountryId: dto.CountryId,
-                CityId: dto.CityId,
-                TagsIds: dto.TagsIds,
-                MusicSamplesOrder: dto.MusicSamplesOrder,
-                ProfilePicturesOrder: dto.ProfilePicturesOrder,
-                BandMembers: dto.BandMembers,
-                SubClaim: subClaim),
-            _ => throw new InvalidOperationException()
-        };
+        var command = updateUserDto.ToCommand(subClaim);
 
         var result = await _mediator.Send(command);
 
