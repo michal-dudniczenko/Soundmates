@@ -9,9 +9,6 @@ namespace Soundmates.Api.RequestDTOs.Users;
 public abstract class UpdateUserProfileDto
 {
     [Required]
-    public required bool IsBand { get; set; }
-
-    [Required]
     [MaxLength(50)]
     public required string Name { get; set; }
 

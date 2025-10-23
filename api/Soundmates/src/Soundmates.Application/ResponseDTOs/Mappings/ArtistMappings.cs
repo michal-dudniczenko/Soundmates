@@ -16,8 +16,8 @@ public static class ArtistMappings
             IsBand = artist.User.IsBand,
             Name = artist.User.Name!,
             Description = artist.User.Description!,
-            CountryId = artist.User.CountryId,
-            CityId = artist.User.CityId,
+            CountryId = (Guid)artist.User.CountryId!,
+            CityId = (Guid)artist.User.CityId!,
             TagsIds = artist.User.Tags.Select(t => t.Id).ToList(),
             MusicSamples = artist.User.MusicSamples.OrderBy(ms => ms.DisplayOrder).Select(ms => new MusicSampleDto
             {
