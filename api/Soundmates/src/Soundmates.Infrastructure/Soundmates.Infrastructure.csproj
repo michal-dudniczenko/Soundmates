@@ -20,4 +20,8 @@
     <Folder Include="Migrations\" />
   </ItemGroup>
 
+  <ItemGroup>
+	<Content Include="DataSeeding\*.json" CopyToOutputDirectory="Always" />
+  </ItemGroup>
+
 </Project>
