@@ -12,17 +12,17 @@ public static class SeedingScripts
         PropertyNameCaseInsensitive = true
     };
 
-    private const string SeedDataDirectoryName = "DataSeeding";
+    private const string SeedDataDirectoryPath = "DataSeeding/SeedData";
+
     private const string CountriesCitiesDataFileName = "countries-cities.json";
+    private const string GendersDataFileName = "genders.json";
+    private const string BandRolesDataFileName = "band-roles.json";
+    private const string TagCategoriesDataFileName = "tag-categories.json";
+    private const string TagsDataFileName = "tags.json";
 
     public static async Task SeedCountriesCities(DbContext context, CancellationToken ct)
     {
-        var path = Path.Combine(AppContext.BaseDirectory, SeedDataDirectoryName, CountriesCitiesDataFileName);
-
-        var jsonString = await File.ReadAllTextAsync(path, ct);
-
-        var data = JsonSerializer.Deserialize<List<CountryCitySeedEntity>>(jsonString, serializerOptions)
-            ?? throw new InvalidOperationException("Failed to deserialize json data.");
+        var data = await DeserializeSeedCollection<CountryCitySeedEntity>(CountriesCitiesDataFileName, ct);
 
         var countries = data.Select(x => x.Country).Distinct().Select(c => new Country
         {
@@ -48,5 +48,88 @@ public static class SeedingScripts
 
         context.Set<Country>().AddRange(countries);
         context.Set<City>().AddRange(cities);
+
+        await context.SaveChangesAsync(ct);
+    }
+
+    public static async Task SeedGenders(DbContext context, CancellationToken ct)
+    {
+        var data = await DeserializeSeedCollection<GenderSeedEntity>(GendersDataFileName, ct);
+
+        var genders = data.Select(x => x.Name).Distinct().Select(g => new Gender
+        {
+            Name = g
+        }).ToList();
+
+        context.Set<Gender>().AddRange(genders);
+
+        await context.SaveChangesAsync(ct);
+    }
+
+    public static async Task SeedBandRoles(DbContext context, CancellationToken ct)
+    {
+        var data = await DeserializeSeedCollection<BandRoleSeedEntity>(BandRolesDataFileName, ct);
+
+        var bandRoles = data.Select(x => x.Name).Distinct().Select(br => new BandRole
+        {
+            Name = br
+        }).ToList();
+
+        context.Set<BandRole>().AddRange(bandRoles);
+
+        await context.SaveChangesAsync(ct);
+    }
+
+    public static async Task SeedTagCategories(DbContext context, CancellationToken ct)
+    {
+        var data = await DeserializeSeedCollection<TagCategorySeedEntity>(TagCategoriesDataFileName, ct);
+
+        var tagCategories = data.Select(tc => new TagCategory
+        {
+            Name = tc.Name,
+            IsForBand = tc.IsForBand
+        }).ToList();
+
+        context.Set<TagCategory>().AddRange(tagCategories);
+
+        await context.SaveChangesAsync(ct);
+    }
+
+    public static async Task SeedTags(DbContext context, CancellationToken ct)
+    {
+        var data = await DeserializeSeedCollection<TagSeedEntity>(TagsDataFileName, ct);
+
+        var tagCategories = await context.Set<TagCategory>().ToListAsync(ct);
+
+        List<Tag> tags = [];
+
+        foreach (var entry in data)
+        {
+            var category = tagCategories.FirstOrDefault(c => c.Name == entry.CategoryName);
+
+            if (category is null) continue;
+
+            tags.Add(new Tag
+            {
+                Name = entry.Name,
+                TagCategoryId = category.Id
+            });
+        }
+
+        context.Set<Tag>().AddRange(tags);
+
+        await context.SaveChangesAsync(ct);
+    }
+
+    private static async Task<List<T>> DeserializeSeedCollection<T>(string seedFileName, CancellationToken ct)
+    {
+        var path = Path.Combine(AppContext.BaseDirectory, SeedDataDirectoryPath, seedFileName);
+
+        var jsonString = await File.ReadAllTextAsync(path, ct);
+
+        var data = JsonSerializer.Deserialize<List<T>>(jsonString, serializerOptions)
+            ?? throw new InvalidOperationException("Failed to deserialize json data.");
+
+        return data;
     }
 }
