@@ -34,6 +34,31 @@ builder.Services.AddAuthorization();
 
 builder.Services.AddControllers();
 
+var clientCors = "AllowFlutter5555";
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(clientCors, policy =>
+    {
+
+        policy.SetIsOriginAllowed(origin =>
+        {
+            if (string.IsNullOrEmpty(origin)) return false;
+            try
+            {
+                var uri = new Uri(origin);
+                return uri.Port == 5555;
+            }
+            catch
+            {
+                return false;
+            }
+        })
+        .AllowAnyHeader()
+        .AllowAnyMethod()
+        .AllowCredentials();
+    });
+});
+
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
@@ -56,6 +81,8 @@ if (app.Environment.IsDevelopment())
 app.UseExceptionHandler();
 
 app.UseStaticFiles();
+
+app.UseCors(clientCors);
 
 app.UseAuthentication();
 app.UseAuthorization();
