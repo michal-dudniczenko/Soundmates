@@ -1,0 +1,14 @@
+[
+  {
+    "name": "TagCategory1",
+    "isForBand": true
+  },
+  {
+    "name": "TagCategory2",
+    "isForBand": true
+  },
+  {
+    "name": "TagCategory3",
+    "isForBand": false
+  }
+]

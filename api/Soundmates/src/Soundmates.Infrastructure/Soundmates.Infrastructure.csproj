@@ -21,7 +21,15 @@
   </ItemGroup>
 
   <ItemGroup>
-	<Content Include="DataSeeding\*.json" CopyToOutputDirectory="Always" />
+	  <Content Include="DataSeeding\SeedData\*.json" CopyToOutputDirectory="Always" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="DataSeeding\SeedData\band-roles.json" />
+    <Content Include="DataSeeding\SeedData\countries-cities.json" />
+    <Content Include="DataSeeding\SeedData\genders.json" />
+    <Content Include="DataSeeding\SeedData\tag-categories.json" />
+    <Content Include="DataSeeding\SeedData\tags.json" />
   </ItemGroup>
 
 </Project>
