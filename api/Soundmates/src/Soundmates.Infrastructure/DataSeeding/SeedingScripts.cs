@@ -7,7 +7,7 @@ namespace Soundmates.Infrastructure.DataSeeding;
 
 public static class SeedingScripts
 {
-    private static readonly JsonSerializerOptions serializerOptions = new JsonSerializerOptions
+    private static readonly JsonSerializerOptions serializerOptions = new ()
     {
         PropertyNameCaseInsensitive = true
     };
@@ -15,7 +15,7 @@ public static class SeedingScripts
     private const string SeedDataDirectoryName = "DataSeeding";
     private const string CountriesCitiesDataFileName = "countries-cities.json";
 
-    public async static Task SeedCountriesCities(DbContext context, CancellationToken ct)
+    public static async Task SeedCountriesCities(DbContext context, CancellationToken ct)
     {
         var path = Path.Combine(AppContext.BaseDirectory, SeedDataDirectoryName, CountriesCitiesDataFileName);
 
