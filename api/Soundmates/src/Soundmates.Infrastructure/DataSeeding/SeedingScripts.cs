@@ -17,10 +17,23 @@ public static class SeedingScripts
     private const string CountriesCitiesDataFileName = "countries-cities.json";
     private const string GendersDataFileName = "genders.json";
     private const string BandRolesDataFileName = "band-roles.json";
-    private const string TagCategoriesDataFileName = "tag-categories.json";
-    private const string TagsDataFileName = "tags.json";
+    private const string ArtistTagCategoriesDataFileName = "artist-tag-categories.json";
+    private const string BandTagCategoriesDataFileName = "band-tag-categories.json";
+    private const string ArtistTagsDataFileName = "artist-tags.json";
+    private const string BandTagsDataFileName = "band-tags.json";
 
-    public static async Task SeedCountriesCities(DbContext context, CancellationToken ct)
+    public static async Task SeedData(DbContext context, CancellationToken ct)
+    {
+        await SeedCountriesCities(context, ct);
+        await SeedGenders(context, ct);
+        await SeedBandRoles(context, ct);
+        await SeedArtistTagCategories(context, ct);
+        await SeedBandTagCategories(context, ct);
+        await SeedArtistTags(context, ct);
+        await SeedBandTags(context, ct);
+    }
+
+    private static async Task SeedCountriesCities(DbContext context, CancellationToken ct)
     {
         var data = await DeserializeSeedCollection<CountryCitySeedEntity>(CountriesCitiesDataFileName, ct);
 
@@ -52,7 +65,7 @@ public static class SeedingScripts
         await context.SaveChangesAsync(ct);
     }
 
-    public static async Task SeedGenders(DbContext context, CancellationToken ct)
+    private static async Task SeedGenders(DbContext context, CancellationToken ct)
     {
         var data = await DeserializeSeedCollection<GenderSeedEntity>(GendersDataFileName, ct);
 
@@ -66,7 +79,7 @@ public static class SeedingScripts
         await context.SaveChangesAsync(ct);
     }
 
-    public static async Task SeedBandRoles(DbContext context, CancellationToken ct)
+    private static async Task SeedBandRoles(DbContext context, CancellationToken ct)
     {
         var data = await DeserializeSeedCollection<BandRoleSeedEntity>(BandRolesDataFileName, ct);
 
@@ -80,14 +93,14 @@ public static class SeedingScripts
         await context.SaveChangesAsync(ct);
     }
 
-    public static async Task SeedTagCategories(DbContext context, CancellationToken ct)
+    private static async Task SeedArtistTagCategories(DbContext context, CancellationToken ct)
     {
-        var data = await DeserializeSeedCollection<TagCategorySeedEntity>(TagCategoriesDataFileName, ct);
+        var data = await DeserializeSeedCollection<TagCategorySeedEntity>(ArtistTagCategoriesDataFileName, ct);
 
         var tagCategories = data.Select(tc => new TagCategory
         {
             Name = tc.Name,
-            IsForBand = tc.IsForBand
+            IsForBand = false
         }).ToList();
 
         context.Set<TagCategory>().AddRange(tagCategories);
@@ -95,11 +108,56 @@ public static class SeedingScripts
         await context.SaveChangesAsync(ct);
     }
 
-    public static async Task SeedTags(DbContext context, CancellationToken ct)
+    private static async Task SeedBandTagCategories(DbContext context, CancellationToken ct)
     {
-        var data = await DeserializeSeedCollection<TagSeedEntity>(TagsDataFileName, ct);
+        var data = await DeserializeSeedCollection<TagCategorySeedEntity>(BandTagCategoriesDataFileName, ct);
 
-        var tagCategories = await context.Set<TagCategory>().ToListAsync(ct);
+        var tagCategories = data.Select(tc => new TagCategory
+        {
+            Name = tc.Name,
+            IsForBand = true
+        }).ToList();
+
+        context.Set<TagCategory>().AddRange(tagCategories);
+
+        await context.SaveChangesAsync(ct);
+    }
+
+    private static async Task SeedArtistTags(DbContext context, CancellationToken ct)
+    {
+        var data = await DeserializeSeedCollection<TagSeedEntity>(ArtistTagsDataFileName, ct);
+
+        var tagCategories = await context.Set<TagCategory>()
+            .Where(tc => !tc.IsForBand)
+            .ToListAsync(ct);
+
+        List<Tag> tags = [];
+
+        foreach (var entry in data)
+        {
+            var category = tagCategories.FirstOrDefault(c => c.Name == entry.CategoryName);
+
+            if (category is null) continue;
+
+            tags.Add(new Tag
+            {
+                Name = entry.Name,
+                TagCategoryId = category.Id
+            });
+        }
+
+        context.Set<Tag>().AddRange(tags);
+
+        await context.SaveChangesAsync(ct);
+    }
+
+    private static async Task SeedBandTags(DbContext context, CancellationToken ct)
+    {
+        var data = await DeserializeSeedCollection<TagSeedEntity>(BandTagsDataFileName, ct);
+
+        var tagCategories = await context.Set<TagCategory>()
+            .Where(tc => tc.IsForBand)
+            .ToListAsync(ct);
 
         List<Tag> tags = [];
 
