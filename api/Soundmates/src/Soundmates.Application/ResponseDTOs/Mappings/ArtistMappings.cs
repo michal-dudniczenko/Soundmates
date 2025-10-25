@@ -58,7 +58,8 @@ public static class ArtistMappings
                 Id = pp.Id,
                 FileUrl = GetProfilePictureUrl(pp.FileName)
             }).ToList(),
-            BirthDate = artist.BirthDate
+            BirthDate = artist.BirthDate,
+            GenderId = artist.GenderId
         };
     }
 }
