@@ -94,7 +94,11 @@ public class ArtistRepository(
 
     public async Task UpdateAddAsync(Artist entity, IList<Guid> tagsIds, IList<Guid> musicSamplesOrder, IList<Guid> profilePicturesOrder)
     {
-        var existingUser = await _context.Users.FindAsync(entity.UserId)
+        var existingUser = await _context.Users
+            .Include(u => u.Tags)
+            .Include(u => u.MusicSamples)
+            .Include(u => u.ProfilePictures)
+            .FirstOrDefaultAsync(u => u.Id == entity.UserId)
             ?? throw new InvalidOperationException($"User with id {entity.UserId} was not found.");
 
         var artistTags = await _context.Tags
@@ -111,12 +115,12 @@ public class ArtistRepository(
             existingUser.Tags.Add(tag);
         }
 
-        var existingMusicSamples = await _context.MusicSamples.Where(ms => ms.UserId == existingUser.Id).ToListAsync();
-
         if (musicSamplesOrder.Count != musicSamplesOrder.Distinct().Count())
         {
             throw new InvalidOperationException("Provided list of music samples contained duplicates.");
         }
+
+        var existingMusicSamples = existingUser.MusicSamples.ToList();
 
         existingUser.MusicSamples.Clear();
         int displayOrder = 0;
@@ -131,12 +135,12 @@ public class ArtistRepository(
             displayOrder++;
         }
 
-        var existingProfilePictures = await _context.ProfilePictures.Where(pp => pp.UserId == existingUser.Id).ToListAsync();
-
         if (profilePicturesOrder.Count != profilePicturesOrder.Distinct().Count())
         {
             throw new InvalidOperationException("Provided list of profile pictures contained duplicates.");
         }
+
+        var existingProfilePictures = existingUser.ProfilePictures.ToList();
 
         existingUser.ProfilePictures.Clear();
         displayOrder = 0;
