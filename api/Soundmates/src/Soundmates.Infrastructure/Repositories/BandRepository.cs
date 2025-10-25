@@ -47,7 +47,7 @@ public class BandRepository(
             .Include(b => b.User)
                 .ThenInclude(u => u.ProfilePictures);
 
-        bands = bands.Where(b => b.User.IsActive && b.User.IsEmailConfirmed && !b.User.IsFirstLogin);
+        bands = bands.Where(b => b.Id != userId && b.User.IsActive && b.User.IsEmailConfirmed && !b.User.IsFirstLogin);
 
         if (userMatchPreference.MaxDistance is not null)
         {

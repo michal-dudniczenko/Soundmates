@@ -24,6 +24,13 @@ public class SendMessageCommandHandler(
                 errorMessage: "Invalid access token.");
         }
 
+        if (request.ReceiverId == authorizedUser.Id)
+        {
+            return Result.Failure(
+                errorType: ErrorType.BadRequest,
+                errorMessage: "You cannot send message to yourself.");
+        }
+
         var otherUserExists = await _userRepository.CheckIfExistsActiveAsync(request.ReceiverId);
 
         if (!otherUserExists)

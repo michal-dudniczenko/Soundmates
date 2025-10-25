@@ -45,7 +45,7 @@ public class ArtistRepository(
             .Include(a => a.User)
                 .ThenInclude(u => u.ProfilePictures);
 
-        artists = artists.Where(a => a.User.IsActive && a.User.IsEmailConfirmed && !a.User.IsFirstLogin);
+        artists = artists.Where(a => a.Id != userId && a.User.IsActive && a.User.IsEmailConfirmed && !a.User.IsFirstLogin);
 
         if (userMatchPreference.MaxDistance is not null)
         {

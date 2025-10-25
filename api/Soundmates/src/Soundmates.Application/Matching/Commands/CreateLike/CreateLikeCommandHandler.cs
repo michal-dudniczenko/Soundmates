@@ -23,6 +23,13 @@ public class CreateLikeCommandHandler(
                 errorMessage: "Invalid access token.");
         }
 
+        if (request.ReceiverId == authorizedUser.Id)
+        {
+            return Result.Failure(
+                errorType: ErrorType.BadRequest,
+                errorMessage: "You cannot like your own profile.");
+        }
+
         var receiverExists = await _userRepository.CheckIfExistsActiveAsync(request.ReceiverId);
         if (!receiverExists)
         {

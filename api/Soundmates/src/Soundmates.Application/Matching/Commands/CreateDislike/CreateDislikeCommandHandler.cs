@@ -23,6 +23,13 @@ public class CreateDislikeCommandHandler(
                 errorMessage: "Invalid access token.");
         }
 
+        if (request.ReceiverId == authorizedUser.Id)
+        {
+            return Result.Failure(
+                errorType: ErrorType.BadRequest,
+                errorMessage: "You cannot dislike your own profile.");
+        }
+
         var receiverExists = await _userRepository.CheckIfExistsActiveAsync(request.ReceiverId);
         if (!receiverExists)
         {
