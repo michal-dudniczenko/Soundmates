@@ -1,9 +1,13 @@
-[*.cs]
 # Disable primary constructor suggestion
+[*.cs]
 dotnet_diagnostic.IDE0290.severity = none
 
 # Disable 'Collection initialization can be simplified' suggestion
 dotnet_diagnostic.IDE0305.severity = none
+
+# Disable linting in migration generated files
+[**/Migrations/*.cs]
+dotnet_analyzer_diagnostic.severity = none
 
 [*.{cs,vb}]
 #### Naming styles ####

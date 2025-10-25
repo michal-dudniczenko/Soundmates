@@ -33,11 +33,7 @@ public static class DIRegistrations
                 {
                     if (!await context.Set<Country>().AnyAsync(cancellationToken: ct))
                     {
-                        await SeedCountriesCities(context, ct);
-                        await SeedGenders(context, ct);
-                        await SeedBandRoles(context, ct);
-                        await SeedTagCategories(context, ct);
-                        await SeedTags(context, ct);
+                        await SeedData(context, ct);
                     }
                 });
         });
