@@ -1,14 +1,18 @@
 [
   {
-    "name": "TagCategory1",
-    "isForBand": true
-  },
-  {
-    "name": "TagCategory2",
-    "isForBand": true
-  },
-  {
-    "name": "TagCategory3",
+    "name": "Instruments",
     "isForBand": false
+  },
+  {
+    "name": "Genres",
+    "isForBand": true
+  },
+  {
+    "name": "Activity",
+    "isForBand": false
+  },
+  {
+    "name": "Collaboration type",
+    "isForBand": true
   }
 ]
