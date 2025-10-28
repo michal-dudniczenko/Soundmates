@@ -9,6 +9,7 @@ public class ArtistRepository(
     ApplicationDbContext _context
 ) : IArtistRepository
 {
+    private record ScoredArtist(Artist Artist, double MatchScore);
     public async Task<Artist?> GetByUserIdAsync(Guid userId)
     {
         return await _context.Artists
@@ -33,7 +34,7 @@ public class ArtistRepository(
 
         if (!userMatchPreference.ShowArtists)
         {
-            return [];
+            return Enumerable.Empty<Artist>();
         }
 
         IQueryable<Artist> artists = _context.Artists
@@ -45,11 +46,19 @@ public class ArtistRepository(
             .Include(a => a.User)
                 .ThenInclude(u => u.ProfilePictures);
 
-        artists = artists.Where(a => a.Id != userId && a.User.IsActive && a.User.IsEmailConfirmed && !a.User.IsFirstLogin);
+        artists = artists.Where(a => a.User.IsActive && a.User.IsEmailConfirmed && !a.User.IsFirstLogin);
 
         if (userMatchPreference.MaxDistance is not null)
         {
-            // TODO calculate distance
+            var originCity = userMatchPreference.User?.City;
+            if (originCity is not null)
+            {
+                artists = artists.Where(a => a.User.City != null);
+                artists = artists.Where(a =>
+                    CalculateHaversineDistance(originCity.Latitude, originCity.Longitude, a.User.City!.Latitude, a.User.City!.Longitude
+                    ) <= userMatchPreference.MaxDistance.Value
+                );
+            }
         }
 
         if (userMatchPreference.CountryId is not null)
@@ -65,15 +74,15 @@ public class ArtistRepository(
         if (userMatchPreference.ArtistMinAge is not null)
         {
             var today = DateOnly.FromDateTime(DateTime.Today);
-
-            artists = artists.Where(a => today.Year - a.BirthDate.Year >= userMatchPreference.ArtistMinAge);
+            var minAgeCutoffDate = today.AddYears(-userMatchPreference.ArtistMinAge.Value);
+            artists = artists.Where(a => a.BirthDate <= minAgeCutoffDate);
         }
 
         if (userMatchPreference.ArtistMaxAge is not null)
         {
             var today = DateOnly.FromDateTime(DateTime.Today);
-
-            artists = artists.Where(a => today.Year - a.BirthDate.Year <= userMatchPreference.ArtistMaxAge);
+            var maxAgeCutoffDate = today.AddYears(-(userMatchPreference.ArtistMaxAge.Value + 1));
+            artists = artists.Where(a => a.BirthDate > maxAgeCutoffDate);
         }
 
         if (userMatchPreference.ArtistGenderId is not null)
@@ -86,19 +95,19 @@ public class ArtistRepository(
             artists = artists.Where(a => a.User.Tags.Any(t => t.Id == tag.Id));
         }
 
-        return await artists
-            .OrderBy(a => a.Id)
+        var scoredQuery = ScorePotentialMatches(artists, userMatchPreference);
+
+        return await scoredQuery
+            .OrderByDescending(x => x.MatchScore)
             .Skip(offset)
-            .Take(limit).ToListAsync();
+            .Take(limit)
+            .Select(x => x.Artist)
+            .ToListAsync();
     }
 
     public async Task UpdateAddAsync(Artist entity, IList<Guid> tagsIds, IList<Guid> musicSamplesOrder, IList<Guid> profilePicturesOrder)
     {
-        var existingUser = await _context.Users
-            .Include(u => u.Tags)
-            .Include(u => u.MusicSamples)
-            .Include(u => u.ProfilePictures)
-            .FirstOrDefaultAsync(u => u.Id == entity.UserId)
+        var existingUser = await _context.Users.FindAsync(entity.UserId)
             ?? throw new InvalidOperationException($"User with id {entity.UserId} was not found.");
 
         var artistTags = await _context.Tags
@@ -115,12 +124,12 @@ public class ArtistRepository(
             existingUser.Tags.Add(tag);
         }
 
+        var existingMusicSamples = await _context.MusicSamples.Where(ms => ms.UserId == existingUser.Id).ToListAsync();
+
         if (musicSamplesOrder.Count != musicSamplesOrder.Distinct().Count())
         {
             throw new InvalidOperationException("Provided list of music samples contained duplicates.");
         }
-
-        var existingMusicSamples = existingUser.MusicSamples.ToList();
 
         existingUser.MusicSamples.Clear();
         int displayOrder = 0;
@@ -135,12 +144,12 @@ public class ArtistRepository(
             displayOrder++;
         }
 
+        var existingProfilePictures = await _context.ProfilePictures.Where(pp => pp.UserId == existingUser.Id).ToListAsync();
+
         if (profilePicturesOrder.Count != profilePicturesOrder.Distinct().Count())
         {
             throw new InvalidOperationException("Provided list of profile pictures contained duplicates.");
         }
-
-        var existingProfilePictures = existingUser.ProfilePictures.ToList();
 
         existingUser.ProfilePictures.Clear();
         displayOrder = 0;
@@ -180,5 +189,41 @@ public class ArtistRepository(
         }
 
         await _context.SaveChangesAsync();
+    }
+    private static double CalculateHaversineDistance(double originLat, double originLon, double destLat, double destLon)
+    {
+        const double earthRadiusKm = 6371.0;
+        double originLatRad = originLat * (Math.PI / 180.0);
+        double originLonRad = originLon * (Math.PI / 180.0);
+        double destLatRad = destLat * (Math.PI / 180.0);
+        double destLonRad = destLon * (Math.PI / 180.0);
+
+        // Haversine formula
+        double dLat = (destLatRad - originLatRad) / 2.0;
+        double dLon = (destLonRad - originLonRad) / 2.0;
+        double a = Math.Pow(Math.Sin(dLat), 2.0) +
+                   Math.Cos(originLatRad) * Math.Cos(destLatRad) *
+                   Math.Pow(Math.Sin(dLon), 2.0);
+
+        double c = 2.0 * Math.Asin(Math.Sqrt(a));
+        return earthRadiusKm * c;
+    }
+
+    private static IQueryable<ScoredArtist> ScorePotentialMatches(IQueryable<Artist> artists, UserMatchPreference userMatchPreference)
+    {
+        var userPreferenceTagIds = userMatchPreference.Tags
+            .Where(t => !t.TagCategory.IsForBand)
+            .Select(t => t.Id)
+            .ToList();
+
+        var originCity = userMatchPreference.User?.City;
+        var maxDistance = userMatchPreference.MaxDistance;
+
+        return artists.Select(a => new ScoredArtist(
+            a,
+            (a.User.Tags.Count(t => userPreferenceTagIds.Contains(t.Id)) * 100.0) +
+            (originCity == null || a.User.City == null || maxDistance == null || maxDistance.Value == 0 ? 0.0 :
+             (1.0 - (CalculateHaversineDistance(originCity.Latitude, originCity.Longitude, a.User.City.Latitude, a.User.City.Longitude) / maxDistance.Value)) * 100.0)
+        ));
     }
 }
