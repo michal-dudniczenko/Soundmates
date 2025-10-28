@@ -1,362 +1,230 @@
 [
-  {
-    "name": "Vocals",
-    "categoryName": "Instruments"
-  },
-  {
-    "name": "Electric Guitar (Lead)",
-    "categoryName": "Instruments"
-  },
-  {
-    "name": "Electric Guitar (Rhythm)",
-    "categoryName": "Instruments"
-  },
-  {
-    "name": "Acoustic Guitar",
-    "categoryName": "Instruments"
-  },
-  {
-    "name": "Bass Guitar",
-    "categoryName": "Instruments"
-  },
-  {
-    "name": "Drums (Drum Kit)",
-    "categoryName": "Instruments"
-  },
-  {
-    "name": "Keyboard",
-    "categoryName": "Instruments"
-  },
-  {
-    "name": "Piano",
-    "categoryName": "Instruments"
-  },
-  {
-    "name": "Synthesizer",
-    "categoryName": "Instruments"
-  },
-  {
-    "name": "Saxophone",
-    "categoryName": "Instruments"
-  },
-  {
-    "name": "Trumpet",
-    "categoryName": "Instruments"
-  },
-  {
-    "name": "Violin",
-    "categoryName": "Instruments"
-  },
-  {
-    "name": "Cello",
-    "categoryName": "Instruments"
-  },
-  {
-    "name": "Ukulele",
-    "categoryName": "Instruments"
-  },
-  {
-    "name": "Mandolin",
-    "categoryName": "Instruments"
-  },
-  {
-    "name": "Banjo",
-    "categoryName": "Instruments"
-  },
-  {
-    "name": "Harmonica",
-    "categoryName": "Instruments"
-  },
-  {
-    "name": "Flute",
-    "categoryName": "Instruments"
-  },
-  {
-    "name": "Clarinet",
-    "categoryName": "Instruments"
-  },
-  {
-    "name": "Trombone",
-    "categoryName": "Instruments"
-  },
-  {
-    "name": "Double Bass (Upright Bass)",
-    "categoryName": "Instruments"
-  },
-  {
-    "name": "Percussion (Congas, Bongos, etc.)",
-    "categoryName": "Instruments"
-  },
-  {
-    "name": "DJ Turntables",
-    "categoryName": "Instruments"
-  },
-  {
-    "name": "Sampler",
-    "categoryName": "Instruments"
-  },
-  {
-    "name": "Drum Machine",
-    "categoryName": "Instruments"
-  },
-  {
-    "name": "Accordion",
-    "categoryName": "Instruments"
-  },
-  {
-    "name": "Viola",
-    "categoryName": "Instruments"
-  },
-  {
-    "name": "Harp",
-    "categoryName": "Instruments"
-  },
-  {
-    "name": "Organ",
-    "categoryName": "Instruments"
-  },
-  {
-    "name": "Bagpipes",
-    "categoryName": "Instruments"
-  },
-  {
-    "name": "Rock",
-    "categoryName": "Genres"
-  },
-  {
-    "name": "Pop",
-    "categoryName": "Genres"
-  },
-  {
-    "name": "Hip-Hop / Rap",
-    "categoryName": "Genres"
-  },
-  {
-    "name": "Electronic",
-    "categoryName": "Genres"
-  },
-  {
-    "name": "Jazz",
-    "categoryName": "Genres"
-  },
-  {
-    "name": "Blues",
-    "categoryName": "Genres"
-  },
-  {
-    "name": "R&B",
-    "categoryName": "Genres"
-  },
-  {
-    "name": "Soul",
-    "categoryName": "Genres"
-  },
-  {
-    "name": "Funk",
-    "categoryName": "Genres"
-  },
-  {
-    "name": "Country",
-    "categoryName": "Genres"
-  },
-  {
-    "name": "Folk",
-    "categoryName": "Genres"
-  },
-  {
-    "name": "Metal",
-    "categoryName": "Genres"
-  },
-  {
-    "name": "Punk",
-    "categoryName": "Genres"
-  },
-  {
-    "name": "Alternative Rock",
-    "categoryName": "Genres"
-  },
-  {
-    "name": "Indie Rock",
-    "categoryName": "Genres"
-  },
-  {
-    "name": "Classic Rock",
-    "categoryName": "Genres"
-  },
-  {
-    "name": "Progressive Rock",
-    "categoryName": "Genres"
-  },
-  {
-    "name": "Psychedelic Rock",
-    "categoryName": "Genres"
-  },
-  {
-    "name": "Techno",
-    "categoryName": "Genres"
-  },
-  {
-    "name": "House",
-    "categoryName": "Genres"
-  },
-  {
-    "name": "EDM",
-    "categoryName": "Genres"
-  },
-  {
-    "name": "Ambient",
-    "categoryName": "Genres"
-  },
-  {
-    "name": "Synth-Pop",
-    "categoryName": "Genres"
-  },
-  {
-    "name": "Trap",
-    "categoryName": "Genres"
-  },
-  {
-    "name": "Reggae",
-    "categoryName": "Genres"
-  },
-  {
-    "name": "Latin",
-    "categoryName": "Genres"
-  },
-  {
-    "name": "Classical",
-    "categoryName": "Genres"
-  },
-  {
-    "name": "Orchestral",
-    "categoryName": "Genres"
-  },
-  {
-    "name": "Singer-Songwriter",
-    "categoryName": "Genres"
-  },
-  {
-    "name": "Americana",
-    "categoryName": "Genres"
-  },
-  {
-    "name": "Bluegrass",
-    "categoryName": "Genres"
-  },
-  {
-    "name": "Experimental",
-    "categoryName": "Genres"
-  },
-  {
-    "name": "World Music",
-    "categoryName": "Genres"
-  },
-  {
-    "name": "Gospel",
-    "categoryName": "Genres"
-  },
-  {
-    "name": "Pop Punk",
-    "categoryName": "Genres"
-  },
-  {
-    "name": "Shoegaze",
-    "categoryName": "Genres"
-  },
-  {
-    "name": "Producing",
-    "categoryName": "Activity"
-  },
-  {
-    "name": "Mixing",
-    "categoryName": "Activity"
-  },
-  {
-    "name": "Mastering",
-    "categoryName": "Activity"
-  },
-  {
-    "name": "Songwriting",
-    "categoryName": "Activity"
-  },
-  {
-    "name": "Lyric Writing",
-    "categoryName": "Activity"
-  },
-  {
-    "name": "Arranging",
-    "categoryName": "Activity"
-  },
-  {
-    "name": "Audio Engineering",
-    "categoryName": "Activity"
-  },
-  {
-    "name": "Ableton Live",
-    "categoryName": "Activity"
-  },
-  {
-    "name": "FL Studio",
-    "categoryName": "Activity"
-  },
-  {
-    "name": "Logic Pro",
-    "categoryName": "Activity"
-  },
-  {
-    "name": "Pro Tools",
-    "categoryName": "Activity"
-  },
-  {
-    "name": "Live Sound",
-    "categoryName": "Activity"
-  },
-  {
-    "name": "Stage Photography",
-    "categoryName": "Activity"
-  },
-  {
-    "name": "Music Video Production",
-    "categoryName": "Activity"
-  },
-  {
-    "name": "Booking / Management",
-    "categoryName": "Activity"
-  },
-  {
-    "name": "Session Musician",
-    "categoryName": "Activity"
-  },
-  {
-    "name": "Music Teacher",
-    "categoryName": "Activity"
-  },
-  {
-    "name": "VJ (Visual Jockey)",
-    "categoryName": "Activity"
-  },
-  {
-    "name": "Looking for a band",
-    "categoryName": "Collaboration type"
-  },
-  {
-    "name": "Looking for band members",
-    "categoryName": "Collaboration type"
-  },
-  {
-    "name": "Jamming",
-    "categoryName": "Collaboration type"
-  },
-  {
-    "name": "Song collaboration",
-    "categoryName": "Collaboration type"
-  },
-  {
-    "name": "Touring",
-    "categoryName": "Collaboration type"
-  },
-  {
-    "name": "Studio session work",
-    "categoryName": "Collaboration type"
-  }
+    {
+        "name": "Rock",
+        "categoryName": "Genres"
+    },
+    {
+        "name": "Pop",
+        "categoryName": "Genres"
+    },
+    {
+        "name": "Hip-Hop / Rap",
+        "categoryName": "Genres"
+    },
+    {
+        "name": "Electronic",
+        "categoryName": "Genres"
+    },
+    {
+        "name": "Jazz",
+        "categoryName": "Genres"
+    },
+    {
+        "name": "Blues",
+        "categoryName": "Genres"
+    },
+    {
+        "name": "R&B",
+        "categoryName": "Genres"
+    },
+    {
+        "name": "Soul",
+        "categoryName": "Genres"
+    },
+    {
+        "name": "Funk",
+        "categoryName": "Genres"
+    },
+    {
+        "name": "Country",
+        "categoryName": "Genres"
+    },
+    {
+        "name": "Folk",
+        "categoryName": "Genres"
+    },
+    {
+        "name": "Metal",
+        "categoryName": "Genres"
+    },
+    {
+        "name": "Punk",
+        "categoryName": "Genres"
+    },
+    {
+        "name": "Alternative Rock",
+        "categoryName": "Genres"
+    },
+    {
+        "name": "Indie Rock",
+        "categoryName": "Genres"
+    },
+    {
+        "name": "Classic Rock",
+        "categoryName": "Genres"
+    },
+    {
+        "name": "Progressive Rock",
+        "categoryName": "Genres"
+    },
+    {
+        "name": "Psychedelic Rock",
+        "categoryName": "Genres"
+    },
+    {
+        "name": "Techno",
+        "categoryName": "Genres"
+    },
+    {
+        "name": "House",
+        "categoryName": "Genres"
+    },
+    {
+        "name": "EDM",
+        "categoryName": "Genres"
+    },
+    {
+        "name": "Ambient",
+        "categoryName": "Genres"
+    },
+    {
+        "name": "Synth-Pop",
+        "categoryName": "Genres"
+    },
+    {
+        "name": "Trap",
+        "categoryName": "Genres"
+    },
+    {
+        "name": "Reggae",
+        "categoryName": "Genres"
+    },
+    {
+        "name": "Latin",
+        "categoryName": "Genres"
+    },
+    {
+        "name": "Classical",
+        "categoryName": "Genres"
+    },
+    {
+        "name": "Orchestral",
+        "categoryName": "Genres"
+    },
+    {
+        "name": "Singer-Songwriter",
+        "categoryName": "Genres"
+    },
+    {
+        "name": "Americana",
+        "categoryName": "Genres"
+    },
+    {
+        "name": "Bluegrass",
+        "categoryName": "Genres"
+    },
+    {
+        "name": "Experimental",
+        "categoryName": "Genres"
+    },
+    {
+        "name": "World Music",
+        "categoryName": "Genres"
+    },
+    {
+        "name": "Gospel",
+        "categoryName": "Genres"
+    },
+    {
+        "name": "Pop Punk",
+        "categoryName": "Genres"
+    },
+    {
+        "name": "Shoegaze",
+        "categoryName": "Genres"
+    },
+    {
+        "name": "Actively Gigging",
+        "categoryName": "Band Status"
+    },
+    {
+        "name": "Studio Recording",
+        "categoryName": "Band Status"
+    },
+    {
+        "name": "Writing New Material",
+        "categoryName": "Band Status"
+    },
+    {
+        "name": "Seeking Record Label",
+        "categoryName": "Band Status"
+    },
+    {
+        "name": "Looking for Gigs",
+        "categoryName": "Band Status"
+    },
+    {
+        "name": "Looking for Management",
+        "categoryName": "Band Status"
+    },
+    {
+        "name": "On Hiatus",
+        "categoryName": "Band Status"
+    },
+    {
+        "name": "Just Formed",
+        "categoryName": "Band Status"
+    },
+    {
+        "name": "Hobby Project",
+        "categoryName": "Band Status"
+    },
+    {
+        "name": "Planning a Tour",
+        "categoryName": "Band Status"
+    },
+    {
+        "name": "Music Video Production",
+        "categoryName": "Activity"
+    },
+    {
+        "name": "Booking / Management",
+        "categoryName": "Activity"
+    },
+    {
+        "name": "Session Musician",
+        "categoryName": "Activity"
+    },
+    {
+        "name": "Music Teacher",
+        "categoryName": "Activity"
+    },
+    {
+        "name": "VJ (Visual Jockey)",
+        "categoryName": "Activity"
+    },
+    {
+        "name": "Looking for a band",
+        "categoryName": "Collaboration type"
+    },
+    {
+        "name": "Looking for band members",
+        "categoryName": "Collaboration type"
+    },
+    {
+        "name": "Jamming",
+        "categoryName": "Collaboration type"
+    },
+    {
+        "name": "Song collaboration",
+        "categoryName": "Collaboration type"
+    },
+    {
+        "name": "Touring",
+        "categoryName": "Collaboration type"
+    },
+    {
+        "name": "Studio session work",
+        "categoryName": "Collaboration type"
+    }
 ]
