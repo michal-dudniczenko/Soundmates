@@ -13,6 +13,7 @@ public class DictionaryRepository(
     {
         return await _context.BandRoles
             .AsNoTracking()
+            .OrderBy(br => br.Name)
             .ToListAsync();
     }
 
@@ -20,6 +21,7 @@ public class DictionaryRepository(
     {
         return await _context.Countries
             .AsNoTracking()
+            .OrderBy(c => c.Name)
             .ToListAsync();
     }
 
@@ -28,6 +30,7 @@ public class DictionaryRepository(
         return await _context.Cities
             .AsNoTracking()
             .Where(c => c.CountryId == countryId)
+            .OrderBy(c => c.Name)
             .ToListAsync();
     }
 
@@ -35,6 +38,7 @@ public class DictionaryRepository(
     {
         return await _context.Genders
             .AsNoTracking()
+            .OrderBy(g => g.Name)
             .ToListAsync();
     }
 
@@ -42,6 +46,7 @@ public class DictionaryRepository(
     {
         return await _context.TagCategories
             .AsNoTracking()
+            .OrderBy(tc => tc.Name)
             .ToListAsync();
     }
 
@@ -49,6 +54,7 @@ public class DictionaryRepository(
     {
         return await _context.Tags
             .AsNoTracking()
+            .OrderBy(t => t.Name)
             .ToListAsync();
     }
 }

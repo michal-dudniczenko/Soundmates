@@ -34,7 +34,6 @@ builder.Services.AddAuthorization();
 
 builder.Services.AddControllers();
 
-// CORS - only define once
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFlutter5555", policy =>
@@ -78,7 +77,6 @@ if (app.Environment.IsDevelopment())
 
 app.UseExceptionHandler();
 
-// IMPORTANT: UseCors must be BEFORE UseStaticFiles to allow the flutter app to access static files using CORS
 app.UseCors("AllowFlutter5555");
 app.UseStaticFiles();
 
