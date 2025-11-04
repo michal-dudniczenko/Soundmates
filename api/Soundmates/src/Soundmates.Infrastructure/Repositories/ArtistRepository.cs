@@ -62,7 +62,7 @@ public class ArtistRepository(
             .Select(l => l.ReceiverId)
             .ToListAsync();
 
-        artists = artists.Where(a => !likedUsersIds.Contains(a.Id) && !dislikedUsersIds.Contains(a.Id));
+        artists = artists.Where(a => !likedUsersIds.Contains(a.User.Id) && !dislikedUsersIds.Contains(a.User.Id));
 
         var originCity = userMatchPreference.User.City;
 

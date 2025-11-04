@@ -64,8 +64,7 @@ public class BandRepository(
             .Select(l => l.ReceiverId)
             .ToListAsync();
 
-        bands = bands.Where(a => !likedUsersIds.Contains(a.Id) && !dislikedUsersIds.Contains(a.Id));
-
+        bands = bands.Where(a => !likedUsersIds.Contains(a.User.Id) && !dislikedUsersIds.Contains(a.User.Id));
 
         var originCity = userMatchPreference.User.City;
 
