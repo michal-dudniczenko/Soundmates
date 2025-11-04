@@ -2,6 +2,7 @@
 using Soundmates.Domain.Entities;
 using Soundmates.Domain.Interfaces.Repositories;
 using Soundmates.Infrastructure.Database;
+using static Soundmates.Infrastructure.Repositories.Utils.RepositoryUtils;
 
 namespace Soundmates.Infrastructure.Repositories;
 
@@ -27,6 +28,8 @@ public class BandRepository(
     {
         var userMatchPreference = await _context.UserMatchPreferences
             .AsNoTracking()
+            .Include(ump => ump.User)
+                .ThenInclude(u => u.City)
             .Include(ump => ump.Tags)
                 .ThenInclude(t => t.TagCategory)
             .FirstOrDefaultAsync(ump => ump.UserId == userId)
@@ -47,22 +50,32 @@ public class BandRepository(
             .Include(b => b.User)
                 .ThenInclude(u => u.ProfilePictures);
 
-        bands = bands.Where(b => b.Id != userId && b.User.IsActive && b.User.IsEmailConfirmed && !b.User.IsFirstLogin && b.UserId != userId);
-        bands = bands.Where(b =>
-             !_context.Likes.Any(l => l.GiverId == userId && l.ReceiverId == b.UserId)
-             && !_context.Dislikes.Any(dl => dl.GiverId == userId && dl.ReceiverId == b.UserId));
+        bands = bands.Where(b => b.Id != userId && b.User.IsActive && b.User.IsEmailConfirmed && !b.User.IsFirstLogin && b.User.Id != userId);
 
-        if (userMatchPreference.MaxDistance is not null)
+        var likedUsersIds = await _context.Likes
+            .AsNoTracking()
+            .Where(l => l.GiverId == userId)
+            .Select(l => l.ReceiverId)
+            .ToListAsync();
+
+        var dislikedUsersIds = await _context.Dislikes
+            .AsNoTracking()
+            .Where(l => l.GiverId == userId)
+            .Select(l => l.ReceiverId)
+            .ToListAsync();
+
+        bands = bands.Where(a => !likedUsersIds.Contains(a.Id) && !dislikedUsersIds.Contains(a.Id));
+
+
+        var originCity = userMatchPreference.User.City;
+
+        if (userMatchPreference.MaxDistance is not null && originCity is not null)
         {
-            var originCity = userMatchPreference.User?.City;
-            if (originCity is not null)
-            {
-                bands = bands.Where(a => a.User.City != null);
-                bands = bands.Where(a =>
-                    CalculateHaversineDistance(originCity.Latitude, originCity.Longitude, a.User.City!.Latitude, a.User.City!.Longitude
-                    ) <= userMatchPreference.MaxDistance.Value
-                );
-            }
+            bands = bands.Where(a => a.User.City != null);
+            bands = bands.Where(a =>
+                CalculateHaversineDistance(originCity.Latitude, originCity.Longitude, a.User.City!.Latitude, a.User.City!.Longitude
+                ) <= userMatchPreference.MaxDistance.Value
+            );
         }
 
         if (userMatchPreference.CountryId is not null)
@@ -90,10 +103,21 @@ public class BandRepository(
             bands = bands.Where(b => b.User.Tags.Any(t => t.Id == tag.Id));
         }
 
+        var maxDistance = userMatchPreference.MaxDistance;
+
+        var userPreferenceTagIds = userMatchPreference.Tags
+            .Where(t => !t.TagCategory.IsForBand)
+            .Select(t => t.Id)
+            .ToList();
+
         return await bands
-            .OrderBy(a => a.Id)
+            .OrderByDescending(a =>
+                (a.User.Tags.Count(t => userPreferenceTagIds.Contains(t.Id)) * 100.0) +
+                (originCity == null || a.User.City == null || maxDistance == null
+                || maxDistance.Value == 0 ? 0.0 : (1.0 - (CalculateHaversineDistance(originCity.Latitude, originCity.Longitude, a.User.City.Latitude, a.User.City.Longitude) / maxDistance.Value)) * 100.0))
             .Skip(offset)
-            .Take(limit).ToListAsync();
+            .Take(limit)
+            .ToListAsync();
     }
 
     public async Task UpdateAddAsync(Band entity, IList<Guid> tagsIds, IList<Guid> musicSamplesOrder, IList<Guid> profilePicturesOrder)
@@ -189,24 +213,5 @@ public class BandRepository(
         }
 
         await _context.SaveChangesAsync();
-    }
-
-    private static double CalculateHaversineDistance(double originLat, double originLon, double destLat, double destLon)
-    {
-        const double earthRadiusKm = 6371.0;
-        double originLatRad = originLat * (Math.PI / 180.0);
-        double originLonRad = originLon * (Math.PI / 180.0);
-        double destLatRad = destLat * (Math.PI / 180.0);
-        double destLonRad = destLon * (Math.PI / 180.0);
-
-        // Haversine formula
-        double dLat = (destLatRad - originLatRad) / 2.0;
-        double dLon = (destLonRad - originLonRad) / 2.0;
-        double a = Math.Pow(Math.Sin(dLat), 2.0) +
-                   Math.Cos(originLatRad) * Math.Cos(destLatRad) *
-                   Math.Pow(Math.Sin(dLon), 2.0);
-
-        double c = 2.0 * Math.Asin(Math.Sqrt(a));
-        return earthRadiusKm * c;
     }
 }

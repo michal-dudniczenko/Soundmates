@@ -2,6 +2,7 @@
 using Soundmates.Domain.Entities;
 using Soundmates.Domain.Interfaces.Repositories;
 using Soundmates.Infrastructure.Database;
+using static Soundmates.Infrastructure.Repositories.Utils.RepositoryUtils;
 
 namespace Soundmates.Infrastructure.Repositories;
 
@@ -9,7 +10,6 @@ public class ArtistRepository(
     ApplicationDbContext _context
 ) : IArtistRepository
 {
-    private record ScoredArtist(Artist Artist, double MatchScore);
     public async Task<Artist?> GetByUserIdAsync(Guid userId)
     {
         return await _context.Artists
@@ -27,6 +27,8 @@ public class ArtistRepository(
     {
         var userMatchPreference = await _context.UserMatchPreferences
             .AsNoTracking()
+            .Include(ump => ump.User)
+                .ThenInclude(u => u.City)
             .Include(ump => ump.Tags)
                 .ThenInclude(t => t.TagCategory)
             .FirstOrDefaultAsync(ump => ump.UserId == userId)
@@ -34,7 +36,7 @@ public class ArtistRepository(
 
         if (!userMatchPreference.ShowArtists)
         {
-            return Enumerable.Empty<Artist>();
+            return [];
         }
 
         IQueryable<Artist> artists = _context.Artists
@@ -46,22 +48,31 @@ public class ArtistRepository(
             .Include(a => a.User)
                 .ThenInclude(u => u.ProfilePictures);
 
-        artists = artists.Where(a => a.User.IsActive && a.User.IsEmailConfirmed && !a.User.IsFirstLogin && a.UserId != userId);
-        artists = artists.Where(a =>
-             !_context.Likes.Any(l => l.GiverId == userId && l.ReceiverId == a.UserId)
-             && !_context.Dislikes.Any(dl => dl.GiverId == userId && dl.ReceiverId == a.UserId));
+        artists = artists.Where(a => a.User.IsActive && a.User.IsEmailConfirmed && !a.User.IsFirstLogin && a.User.Id != userId);
 
-        if (userMatchPreference.MaxDistance is not null)
+        var likedUsersIds = await _context.Likes
+            .AsNoTracking()
+            .Where(l => l.GiverId == userId)
+            .Select(l => l.ReceiverId)
+            .ToListAsync();
+
+        var dislikedUsersIds = await _context.Dislikes
+            .AsNoTracking()
+            .Where(l => l.GiverId == userId)
+            .Select(l => l.ReceiverId)
+            .ToListAsync();
+
+        artists = artists.Where(a => !likedUsersIds.Contains(a.Id) && !dislikedUsersIds.Contains(a.Id));
+
+        var originCity = userMatchPreference.User.City;
+
+        if (userMatchPreference.MaxDistance is not null && originCity is not null)
         {
-            var originCity = userMatchPreference.User?.City;
-            if (originCity is not null)
-            {
-                artists = artists.Where(a => a.User.City != null);
-                artists = artists.Where(a =>
-                    CalculateHaversineDistance(originCity.Latitude, originCity.Longitude, a.User.City!.Latitude, a.User.City!.Longitude
-                    ) <= userMatchPreference.MaxDistance.Value
-                );
-            }
+            artists = artists.Where(a => a.User.City != null);
+            artists = artists.Where(a =>
+                CalculateHaversineDistance(originCity.Latitude, originCity.Longitude, a.User.City!.Latitude, a.User.City!.Longitude
+                ) <= userMatchPreference.MaxDistance.Value
+            );
         }
 
         if (userMatchPreference.CountryId is not null)
@@ -97,14 +108,21 @@ public class ArtistRepository(
         {
             artists = artists.Where(a => a.User.Tags.Any(t => t.Id == tag.Id));
         }
+        
+        var maxDistance = userMatchPreference.MaxDistance;
 
-        var scoredQuery = ScorePotentialMatches(artists, userMatchPreference);
+        var userPreferenceTagIds = userMatchPreference.Tags
+            .Where(t => !t.TagCategory.IsForBand)
+            .Select(t => t.Id)
+            .ToList();
 
-        return await scoredQuery
-            .OrderByDescending(x => x.MatchScore)
+        return await artists
+            .OrderByDescending(a => 
+                (a.User.Tags.Count(t => userPreferenceTagIds.Contains(t.Id)) * 100.0) +
+                (originCity == null || a.User.City == null || maxDistance == null 
+                || maxDistance.Value == 0 ? 0.0 : (1.0 - (CalculateHaversineDistance(originCity.Latitude, originCity.Longitude, a.User.City.Latitude, a.User.City.Longitude) / maxDistance.Value)) * 100.0))
             .Skip(offset)
             .Take(limit)
-            .Select(x => x.Artist)
             .ToListAsync();
     }
 
@@ -192,41 +210,5 @@ public class ArtistRepository(
         }
 
         await _context.SaveChangesAsync();
-    }
-    private static double CalculateHaversineDistance(double originLat, double originLon, double destLat, double destLon)
-    {
-        const double earthRadiusKm = 6371.0;
-        double originLatRad = originLat * (Math.PI / 180.0);
-        double originLonRad = originLon * (Math.PI / 180.0);
-        double destLatRad = destLat * (Math.PI / 180.0);
-        double destLonRad = destLon * (Math.PI / 180.0);
-
-        // Haversine formula
-        double dLat = (destLatRad - originLatRad) / 2.0;
-        double dLon = (destLonRad - originLonRad) / 2.0;
-        double a = Math.Pow(Math.Sin(dLat), 2.0) +
-                   Math.Cos(originLatRad) * Math.Cos(destLatRad) *
-                   Math.Pow(Math.Sin(dLon), 2.0);
-
-        double c = 2.0 * Math.Asin(Math.Sqrt(a));
-        return earthRadiusKm * c;
-    }
-
-    private static IQueryable<ScoredArtist> ScorePotentialMatches(IQueryable<Artist> artists, UserMatchPreference userMatchPreference)
-    {
-        var userPreferenceTagIds = userMatchPreference.Tags
-            .Where(t => !t.TagCategory.IsForBand)
-            .Select(t => t.Id)
-            .ToList();
-
-        var originCity = userMatchPreference.User?.City;
-        var maxDistance = userMatchPreference.MaxDistance;
-
-        return artists.Select(a => new ScoredArtist(
-            a,
-            (a.User.Tags.Count(t => userPreferenceTagIds.Contains(t.Id)) * 100.0) +
-            (originCity == null || a.User.City == null || maxDistance == null || maxDistance.Value == 0 ? 0.0 :
-             (1.0 - (CalculateHaversineDistance(originCity.Latitude, originCity.Longitude, a.User.City.Latitude, a.User.City.Longitude) / maxDistance.Value)) * 100.0)
-        ));
     }
 }
