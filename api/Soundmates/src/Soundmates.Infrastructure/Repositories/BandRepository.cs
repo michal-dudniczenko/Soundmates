@@ -47,11 +47,22 @@ public class BandRepository(
             .Include(b => b.User)
                 .ThenInclude(u => u.ProfilePictures);
 
-        bands = bands.Where(b => b.Id != userId && b.User.IsActive && b.User.IsEmailConfirmed && !b.User.IsFirstLogin);
+        bands = bands.Where(b => b.Id != userId && b.User.IsActive && b.User.IsEmailConfirmed && !b.User.IsFirstLogin && b.UserId != userId);
+        bands = bands.Where(b =>
+             !_context.Likes.Any(l => l.GiverId == userId && l.ReceiverId == b.UserId)
+             && !_context.Dislikes.Any(dl => dl.GiverId == userId && dl.ReceiverId == b.UserId));
 
         if (userMatchPreference.MaxDistance is not null)
         {
-            // TODO calculate distance
+            var originCity = userMatchPreference.User?.City;
+            if (originCity is not null)
+            {
+                bands = bands.Where(a => a.User.City != null);
+                bands = bands.Where(a =>
+                    CalculateHaversineDistance(originCity.Latitude, originCity.Longitude, a.User.City!.Latitude, a.User.City!.Longitude
+                    ) <= userMatchPreference.MaxDistance.Value
+                );
+            }
         }
 
         if (userMatchPreference.CountryId is not null)
@@ -178,5 +189,24 @@ public class BandRepository(
         }
 
         await _context.SaveChangesAsync();
+    }
+
+    private static double CalculateHaversineDistance(double originLat, double originLon, double destLat, double destLon)
+    {
+        const double earthRadiusKm = 6371.0;
+        double originLatRad = originLat * (Math.PI / 180.0);
+        double originLonRad = originLon * (Math.PI / 180.0);
+        double destLatRad = destLat * (Math.PI / 180.0);
+        double destLonRad = destLon * (Math.PI / 180.0);
+
+        // Haversine formula
+        double dLat = (destLatRad - originLatRad) / 2.0;
+        double dLon = (destLonRad - originLonRad) / 2.0;
+        double a = Math.Pow(Math.Sin(dLat), 2.0) +
+                   Math.Cos(originLatRad) * Math.Cos(destLatRad) *
+                   Math.Pow(Math.Sin(dLon), 2.0);
+
+        double c = 2.0 * Math.Asin(Math.Sqrt(a));
+        return earthRadiusKm * c;
     }
 }
