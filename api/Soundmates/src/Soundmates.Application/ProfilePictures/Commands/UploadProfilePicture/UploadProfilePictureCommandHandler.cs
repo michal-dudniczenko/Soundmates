@@ -44,7 +44,9 @@ public class UploadProfilePictureCommandHandler(
                 errorMessage: $"File size cannot exceed {MaxImageSizeMb} MB.");
         }
 
-        if (authorizedUser.ProfilePictures.Count >= MaxProfilePicturesCount)
+        var currentUserProfilePicturesCount = await _profilePictureRepository.GetUserProfilePicturesCountAsync(authorizedUser.Id);
+
+        if (currentUserProfilePicturesCount >= MaxProfilePicturesCount)
         {
             return Result.Failure(
                     errorType: ErrorType.BadRequest,

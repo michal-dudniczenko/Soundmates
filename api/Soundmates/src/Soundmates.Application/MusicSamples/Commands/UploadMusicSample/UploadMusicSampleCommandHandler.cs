@@ -68,7 +68,9 @@ public class UploadMusicSampleCommandHandler(
             }
         }
 
-        if (authorizedUser.MusicSamples.Count >= MaxMusicSamplesCount)
+        var currentUserMusicSamplesCount = await _musicSampleRepository.GetUserMusicSamplesCountAsync(authorizedUser.Id);
+
+        if (currentUserMusicSamplesCount >= MaxMusicSamplesCount)
         {
             return Result.Failure(
                     errorType: ErrorType.BadRequest,

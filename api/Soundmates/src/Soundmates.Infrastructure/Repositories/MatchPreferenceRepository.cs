@@ -53,7 +53,6 @@ public class MatchPreferenceRepository(
             existing.UserId = entity.UserId;
 
             existing.Tags.Clear();
-
             foreach(var tag in tags)
             {
                 existing.Tags.Add(tag);

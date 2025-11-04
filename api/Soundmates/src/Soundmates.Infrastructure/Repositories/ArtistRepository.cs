@@ -62,7 +62,7 @@ public class ArtistRepository(
             .Select(l => l.ReceiverId)
             .ToListAsync();
 
-        artists = artists.Where(a => !likedUsersIds.Contains(a.Id) && !dislikedUsersIds.Contains(a.Id));
+        artists = artists.Where(a => !likedUsersIds.Contains(a.User.Id) && !dislikedUsersIds.Contains(a.User.Id));
 
         var originCity = userMatchPreference.User.City;
 
@@ -128,7 +128,11 @@ public class ArtistRepository(
 
     public async Task UpdateAddAsync(Artist entity, IList<Guid> tagsIds, IList<Guid> musicSamplesOrder, IList<Guid> profilePicturesOrder)
     {
-        var existingUser = await _context.Users.FindAsync(entity.UserId)
+        var existingUser = await _context.Users
+            .Include(u => u.Tags)
+            .Include(u => u.ProfilePictures)
+            .Include(u => u.MusicSamples)
+            .FirstOrDefaultAsync(u => u.Id == entity.UserId)
             ?? throw new InvalidOperationException($"User with id {entity.UserId} was not found.");
 
         var artistTags = await _context.Tags
