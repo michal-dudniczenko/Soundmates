@@ -4,6 +4,7 @@ namespace Soundmates.Api.RequestDTOs.Messages;
 
 public class SendMessageDto
 {
+    [Required]
     public required Guid ReceiverId { get; set; }
 
     [Required]

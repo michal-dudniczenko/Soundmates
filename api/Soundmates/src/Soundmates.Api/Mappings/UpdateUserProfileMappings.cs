@@ -33,7 +33,6 @@ public static class UpdateUserProfileMappings
                 ProfilePicturesOrder: dto.ProfilePicturesOrder,
                 BandMembers: dto.BandMembers.Select(bm => new BandMemberDto
                 {
-                    Id = bm.Id,
                     Name = bm.Name.Trim(),
                     Age = bm.Age,
                     BandRoleId = bm.BandRoleId
