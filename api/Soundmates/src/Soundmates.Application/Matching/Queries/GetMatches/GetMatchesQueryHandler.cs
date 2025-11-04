@@ -37,7 +37,7 @@ public class GetMatchesQueryHandler(
 
         foreach (var match in matches)
         {
-            var user = match.User1Id == authorizedUser.Id ? match.User1 : match.User2;
+            var user = match.User1Id == authorizedUser.Id ? match.User2 : match.User1;
 
             if (user is null || !user.IsActive || user.IsFirstLogin || !user.IsEmailConfirmed || user.IsBand is null) continue;
 
