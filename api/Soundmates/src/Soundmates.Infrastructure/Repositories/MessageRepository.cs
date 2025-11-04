@@ -55,9 +55,9 @@ public class MessageRepository(
             });
 
         var latestMessages = conversationsGroups
-            .Select(g => g.OrderByDescending(m => m.Timestamp).First());
+            .Select(g => g.OrderBy(m => m.Timestamp).First());
 
         return latestMessages
-            .OrderByDescending(m => m.Timestamp);
+            .OrderBy(m => m.Timestamp);
     }
 }
