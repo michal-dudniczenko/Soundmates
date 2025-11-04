@@ -34,12 +34,11 @@ builder.Services.AddAuthorization();
 
 builder.Services.AddControllers();
 
-var clientCors = "AllowFlutter5555";
+// CORS - only define once
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy(clientCors, policy =>
+    options.AddPolicy("AllowFlutter5555", policy =>
     {
-
         policy.SetIsOriginAllowed(origin =>
         {
             if (string.IsNullOrEmpty(origin)) return false;
@@ -74,15 +73,14 @@ app.UseMiddleware<LogRequestInfoMiddleware>();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
-
     await app.InitializeMigrateDatabase();
 }
 
 app.UseExceptionHandler();
 
+// IMPORTANT: UseCors must be BEFORE UseStaticFiles to allow the flutter app to access static files using CORS
+app.UseCors("AllowFlutter5555");
 app.UseStaticFiles();
-
-app.UseCors(clientCors);
 
 app.UseAuthentication();
 app.UseAuthorization();
