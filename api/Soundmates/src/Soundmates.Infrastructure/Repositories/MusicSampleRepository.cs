@@ -23,6 +23,14 @@ public class MusicSampleRepository(
             .FirstOrDefaultAsync(ms => ms.Id == entityId);
     }
 
+    public async Task<int> GetUserMusicSamplesCountAsync(Guid userId)
+    {
+        return await _context.MusicSamples
+            .AsNoTracking()
+            .Where(ms => ms.UserId == userId)
+            .CountAsync();
+    }
+
     public async Task RemoveAsync(Guid entityId)
     {
         var sample = await _context.MusicSamples

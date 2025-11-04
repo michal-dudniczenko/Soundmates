@@ -7,4 +7,5 @@ public interface IMusicSampleRepository
     Task<MusicSample?> GetByIdAsync(Guid entityId);
     Task AddAsync(MusicSample entity);
     Task RemoveAsync(Guid entityId);
+    Task<int> GetUserMusicSamplesCountAsync(Guid userId);
 }

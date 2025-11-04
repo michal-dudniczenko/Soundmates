@@ -23,6 +23,14 @@ public class ProfilePictureRepository(
             .FirstOrDefaultAsync(pp => pp.Id == entityId);
     }
 
+    public async Task<int> GetUserProfilePicturesCountAsync(Guid userId)
+    {
+        return await _context.ProfilePictures
+            .AsNoTracking()
+            .Where(pp => pp.UserId == userId)
+            .CountAsync();
+    }
+
     public async Task RemoveAsync(Guid entityId)
     {
         var picture = await _context.ProfilePictures
