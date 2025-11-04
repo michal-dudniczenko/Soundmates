@@ -1,0 +1,144 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="Soundmates.Domain.Entities.Artist">
+    <Position X="6.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAADAAAAAAAAAACAAAAAAAwAAAAAEAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Entities\Artist.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Soundmates.Domain.Entities.Band">
+    <Position X="8.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAADAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAEAAAAAAA=</HashCode>
+      <FileName>Entities\Band.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Soundmates.Domain.Entities.BandMember">
+    <Position X="10" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACQAAAAAAAAAAAAEAAAAQAAAAAAAAAEAQAAAAAhAA=</HashCode>
+      <FileName>Entities\BandMember.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Soundmates.Domain.Entities.BandRole">
+    <Position X="11.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Entities\BandRole.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Soundmates.Domain.Entities.City">
+    <Position X="6.5" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAEAAAAAAAAAIAAQAAAIQAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Entities\City.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Soundmates.Domain.Entities.Country">
+    <Position X="8.25" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Entities\Country.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Soundmates.Domain.Entities.Dislike">
+    <Position X="1.75" Y="6.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Entities\Dislike.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Soundmates.Domain.Entities.Gender">
+    <Position X="10" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Entities\Gender.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Soundmates.Domain.Entities.Like">
+    <Position X="4.25" Y="6.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Entities\Like.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Soundmates.Domain.Entities.Match">
+    <Position X="11.75" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAQAAAAAAEIAACAAACAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Entities\Match.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Soundmates.Domain.Entities.Message">
+    <Position X="6.5" Y="6" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAgAAAAAAAAACAAAAAAAFAAAAAAAABAAIAAA=</HashCode>
+      <FileName>Entities\Message.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Soundmates.Domain.Entities.MusicSample" Collapsed="true">
+    <Position X="1.75" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Entities\MusicSample.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Soundmates.Domain.Entities.ProfilePicture" Collapsed="true">
+    <Position X="4.25" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Entities\ProfilePicture.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Soundmates.Domain.Entities.Reaction">
+    <Position X="3" Y="4.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAACAAAAAAAACAAAAAAAEAAAgAAAABAAAAAA=</HashCode>
+      <FileName>Entities\Reaction.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Soundmates.Domain.Entities.RefreshToken">
+    <Position X="8.25" Y="6" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAADAAAQAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Entities\RefreshToken.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Soundmates.Domain.Entities.Tag">
+    <Position X="10" Y="6" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAEAAAAQAAAAAAAAQAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Entities\Tag.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Soundmates.Domain.Entities.TagCategory">
+    <Position X="11.75" Y="6" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAAAAAAAAAAAAAAQAAAAAAEAAAAAAAAAAEAA=</HashCode>
+      <FileName>Entities\TagCategory.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Soundmates.Domain.Entities.User">
+    <Position X="6.5" Y="8.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AACCCAABACggAAAIECAAAAQACAIQAEAABAABAAAAAAE=</HashCode>
+      <FileName>Entities\User.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Soundmates.Domain.Entities.UserMatchPreference">
+    <Position X="8.25" Y="8.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAADAAABgAAAIAAAAAAgAAgAAAASAEAAQAAAAAAAAAM=</HashCode>
+      <FileName>Entities\UserMatchPreference.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Soundmates.Domain.Entities.UserMedia">
+    <Position X="3" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAADQAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAABAAAA=</HashCode>
+      <FileName>Entities\UserMedia.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
