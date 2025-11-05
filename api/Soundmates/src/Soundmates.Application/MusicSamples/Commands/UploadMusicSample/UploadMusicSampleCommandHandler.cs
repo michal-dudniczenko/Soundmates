@@ -3,23 +3,20 @@ using Soundmates.Application.Common;
 using Soundmates.Domain.Entities;
 using Soundmates.Domain.Interfaces.Repositories;
 using Soundmates.Domain.Interfaces.Services.Auth;
-using Soundmates.Domain.Interfaces.Services.Mp3;
 using static Soundmates.Application.Common.UserMediaHelpers;
 
 namespace Soundmates.Application.MusicSamples.Commands.UploadMusicSample;
 
 public class UploadMusicSampleCommandHandler(
     IMusicSampleRepository _musicSampleRepository,
-    IAuthService _authService,
-    IMp3Service _mp3Service
+    IAuthService _authService
 ) : IRequestHandler<UploadMusicSampleCommand, Result>
 {
-    private const int MaxSampleSizeMb = 1000;
+    private const int MaxSampleSizeMb = 100;
     private static readonly int MaxSampleSize = MaxSampleSizeMb * 1024 * 1024;
-    private static readonly string[] AllowedContentTypes = ["audio/mpeg"];
-    private static readonly string[] AllowedExtensions = [".mp3"];
+    private static readonly string[] AllowedContentTypes = ["audio/mpeg", "video/mp4"];
+    private static readonly string[] AllowedExtensions = [".mp3", ".mp4"];
     private const int MaxMusicSamplesCount = 5;
-    private static readonly TimeSpan MaxSampleDuration = TimeSpan.FromMinutes(5);
 
     public async Task<Result> Handle(UploadMusicSampleCommand request, CancellationToken cancellationToken)
     {
@@ -45,27 +42,6 @@ public class UploadMusicSampleCommandHandler(
             return Result.Failure(
                 errorType: ErrorType.BadRequest,
                 errorMessage: $"File size cannot exceed {MaxSampleSizeMb} MB.");
-        }
-
-        if (string.Equals(request.ContentType, "audio/mpeg", StringComparison.OrdinalIgnoreCase))
-        {
-            try
-            {
-                var duration = _mp3Service.GetMp3FileDuration(request.FileStream);
-
-                if (duration > MaxSampleDuration)
-                {
-                    return Result.Failure(
-                        errorType: ErrorType.BadRequest,
-                        errorMessage: $"Sample is too long. Maximum duration is {MaxSampleDuration.TotalSeconds} seconds.");
-                }
-            }
-            catch
-            {
-                return Result.Failure(
-                        errorType: ErrorType.BadRequest,
-                        errorMessage: "Invalid or corrupted MP3 file.");
-            }
         }
 
         var currentUserMusicSamplesCount = await _musicSampleRepository.GetUserMusicSamplesCountAsync(authorizedUser.Id);
