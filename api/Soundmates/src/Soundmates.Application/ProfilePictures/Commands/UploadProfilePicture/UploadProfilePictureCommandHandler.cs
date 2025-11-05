@@ -12,7 +12,7 @@ public class UploadProfilePictureCommandHandler(
     IAuthService _authService
 ) : IRequestHandler<UploadProfilePictureCommand, Result>
 {
-    private const int MaxImageSizeMb = 100;
+    private const int MaxImageSizeMb = 5;
     private static readonly int MaxImageSize = MaxImageSizeMb * 1024 * 1024;
     private static readonly string[] AllowedContentTypes = ["image/jpeg", "image/jpg"];
     private static readonly string[] AllowedExtensions = [".jpeg", ".jpg"];
