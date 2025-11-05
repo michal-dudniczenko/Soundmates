@@ -12,6 +12,8 @@
 
 api url: **http://localhost:5000**
 
+swagger available at: **http://localhost:5000/swagger**
+
 openapi available at: **http://localhost:5000/openapi/soundmates.json**
 
 adminer database management at: **http://localhost:8080**
@@ -27,14 +29,8 @@ adminer login data: (**case-sensitive**)
 
 #### TO DO:
 
--   dodac jakies filtrowanie propozycji, typy uzytkownikow - solista, duet, zespol itp
--   obecnie chat idzie przez http wiec mozna wysylac wiadomosci, ale odswiezanie skrzynki tylko przez jakis long polling, docelowo przez websockety
--   obecnie nie trzeba potwierdzac emaila, email jest z automatu 'potwierdzony', dodam to jako krok niezbedny zeby sie zalogowac
--   dodac jakis algorytm proponowania matchy, na podstawie odleglosci, wieku, czy online, idk jakis innych skladowych. obecnie zwracane sa w takiej kolejnosci w jakiej sa w bazie.
--   jak juz ogarne te potwierdzenie emaila to dodam jeszcze logowanie przez kodzik na maila i ogolnie 2FA i reset hasla
--   usuwanie matchy
--   jakies eventy przez web sockety zeby lista matchy aktualizowala sie live, jak dalismy komus wczesniej like i to z jego strony pojawi sie match
--   zmienic rok urodzenia w profilu na date urodzenia, zeby prawidlowo pokazywac wiek
+-   potwierdzanie maila przy rejestracji, reset hasla
+-   live eventy do chatu/powiadomien o nowych matchach
 
 #### Ogólny flow:
 
@@ -42,59 +38,15 @@ adminer login data: (**case-sensitive**)
 2. Po rejestracji profil jest pusty, musimy go wypelnic danymi (PUT) i dopiero wtedy bedziemy mogli korzystac z pozostalych funkcjonalnosci, dopoki tego nie zrobimy profil jest 'nieaktywny', mozna tylko sie logowac/wylogowac i deaktywowac konto.
 3. Praktycznie wszystkie endpointy dzialaja w oparciu o access token, on okresla to co dany user moze zrobic a czego nie, np. nie moze wyslac wiadomosci do kogos z kim nie ma matcha, nie moze usunac czyjegos zdjecia/nutki.
 4. Wszystkie endpointy typu aktualizacja profilu, deaktywacja, zmiana hasla itp beda dotyczyly tego usera ktory jest zakodowany w przeslanym access tokenie.
-5. Mechanizm matchowania dziala tak, ze GET /users zwraca uzytkownikow, ktorzy moga byc potencjalnym matchem, czyli tacy, ktorym nie dalismy wczesniej like/dislike. Przegladamy te profile i dajemy like/dislike i jak ktos tez dal nam like to pojawia sie match. Jak mamy matcha to mozemy napisac do tej osoby.
+5. Mechanizm matchowania dziala tak, ze GET /matching/artists oraz GET /matching/bands zwraca uzytkownikow, ktorzy moga byc potencjalnym matchem, czyli tacy, ktorym nie dalismy wczesniej like/dislike. Przegladamy te profile i dajemy like/dislike i jak ktos tez dal nam like to pojawia sie match. Jak mamy matcha to mozemy napisac do tej osoby.
 
-### Walidacje (wiadomo wszystko mozna zmieniac, podaje stan obecny):
+### Walidacje:
 
-1. email standardowo + max 100 znakow
-2. hasło 8-32 znakow, jedna mala, duza litera, cyfra, znak specjalny, tylko standardowe drukowalne znaki ascii
-3. wiadomosc max 4000 znakow
-4. profil: data urodzenia miedzy 1900 a dzisiaj, imie max 50 znakow, opis max 500 - opcjonalny, miasto, kraj max 100
-5. nutka max 5 mb, tylko .mp3, kazdy user max 5 nutek
-6. zdjecie max 5 mb, tylko .jpeg/.jpg, kazdy user max 5 zdjec
+Wszystkie ograniczenia/stale zdefiniowane sa w pliku dostepnym [tutaj](./api/Soundmates/src/Soundmates.Domain/Constants/AppConstants.cs).
 
-### /auth
-
-1. POST /auth/register - rejestracja
-2. POST /auth/login - logowanie, zwraca access + refresh token na 30 dni
-3. POST /auth/refresh - przesylamy refresh token zeby dostac nowy access token (zeby odnowic sesje i nie trzeba bylo sie logowac ponownie, przechowujemy tylko tokeny na kliencie)
-4. POST /auth/logout - uniewaznia obecne tokeny, trzeba sie zalogowac zeby dostac nowe
-
-### /users
-
-1. GET /users/profile - zwraca profil usera
-2. GET /users/{id} - zwraca profil innego uzytkownika, to samo co wyzej, ale bez emaila bo RODO
-3. GET /users - zwraca profile innych uzytkownikow, ktorzy sa potencjalnymi matchami dla usera
-4. POST /users/change-password - zmiana hasla usera
-5. PUT /users - aktualizacja profilu usera
-6. DELETE /users - deaktywacja konta usera, nie da sie cofnac, chyba ze recznie w db
-
-### /matching
-
-1. POST /matching/like - daje lajka uzytkownikowi
-2. POST /matching/dislike - daje dislajka uzytkownikowi
-3. GET /matching/matches - lista matchy usera
-
-### /messages
-
-1. GET /messages/{userId} - zwraca konwersacje usera z uzytkownikiem o userId
-2. GET /messages/preview - zwraca 'preview' konwersacji usera, po jednej ostatniej wiadomosci w kazdej z konwersacji
-3. POST /messages - wyslanie wiadomosci, mozna wyslac tylko do uzytkownika, z ktorym mamy matcha
-
-### /profile-pictures
-
-1. GET /profile-pictures - zwraca linki do zdjec usera
-2. GET /profile-pictures/{userId} - zwraca linki do zdjec uzytkownika o userId
-3. POST /profile-pictures - dodaje zdjecie
-4. DEL /profile-pictures/{pictureId} - usuwa zdjecie
-5. POST /profile-pictures/move-display-order-up/{pictureId} - zmienia kolejnosc wyswietlania zdjecia o pictureId o jedno do przodu
-6. POST /profile-pictures/move-display-order-down/{pictureId} - zmienia kolejnosc wyswietlania zdjecia o pictureId o jedno do tylu
-
-### /music-samples
-
-1. GET /music-samples - zwraca linki do nutek usera
-2. GET /music-samples/{userId} - zwraca linki do nutek uzytkownika o userId
-3. POST /music-samples - dodaje nutke
-4. DEL /music-samples/{pictureId} - usuwa nutke
-5. POST /music-samples/move-display-order-up/{musicSampleId} - zmienia kolejnosc wyswietlania nutki o musicSampleId o jedno do przodu
-6. POST /music-samples/move-display-order-down/{musicSampleId} - zmienia kolejnosc wyswietlania nutki o musicSampleId o jedno do tylu
+Dodatkowo dla hasła wymagane sa:
+- mala litera,
+- duza litera,
+- cyfra,
+- znak specjalny,
+- tylko standardowe drukowalne znaki ascii
