@@ -7,6 +7,7 @@ COPY src/Soundmates.Api/*.csproj ./src/Soundmates.Api/
 COPY src/Soundmates.Application/*.csproj ./src/Soundmates.Application/
 COPY src/Soundmates.Domain/*.csproj ./src/Soundmates.Domain/
 COPY src/Soundmates.Infrastructure/*.csproj ./src/Soundmates.Infrastructure/
+COPY tests/Soundmates.Tests/*.csproj ./tests/Soundmates.Tests/
 
 RUN dotnet restore
 
