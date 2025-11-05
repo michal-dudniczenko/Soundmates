@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using Soundmates.Api.Handlers;
 using Soundmates.Api.Middleware;
 using Soundmates.Application;
@@ -63,6 +64,32 @@ builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 if (builder.Environment.IsDevelopment())
 {
     builder.Services.AddOpenApi(documentName: "soundmates");
+
+    builder.Services.AddSwaggerGen(options =>
+    {
+        var jwtSecurityScheme = new OpenApiSecurityScheme
+        {
+            BearerFormat = "JWT",
+            Name = "JWT Authentication",
+            In = ParameterLocation.Header,
+            Type = SecuritySchemeType.Http,
+            Scheme = JwtBearerDefaults.AuthenticationScheme,
+            Description = "Enter access token",
+
+            Reference = new OpenApiReference
+            {
+                Id = JwtBearerDefaults.AuthenticationScheme,
+                Type = ReferenceType.SecurityScheme
+            }
+        };
+
+        options.AddSecurityDefinition(jwtSecurityScheme.Reference.Id, jwtSecurityScheme);
+
+        options.AddSecurityRequirement(new OpenApiSecurityRequirement
+        {
+            { jwtSecurityScheme, Array.Empty<string>() }
+        });
+    });
 }
 
 var app = builder.Build();
@@ -72,6 +99,13 @@ app.UseMiddleware<LogRequestInfoMiddleware>();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+
+    app.UseSwagger();
+    app.UseSwaggerUI(options => 
+    {
+        options.EnableTryItOutByDefault();
+    });
+
     await app.InitializeMigrateDatabase();
 }
 
