@@ -4,6 +4,7 @@ using Soundmates.Domain.Entities;
 using Soundmates.Domain.Interfaces.Repositories;
 using Soundmates.Domain.Interfaces.Services.Auth;
 using static Soundmates.Application.Common.UserMediaHelpers;
+using static Soundmates.Domain.Constants.AppConstants;
 
 namespace Soundmates.Application.MusicSamples.Commands.UploadMusicSample;
 
@@ -12,12 +13,6 @@ public class UploadMusicSampleCommandHandler(
     IAuthService _authService
 ) : IRequestHandler<UploadMusicSampleCommand, Result>
 {
-    private const int MaxSampleSizeMb = 100;
-    private static readonly int MaxSampleSize = MaxSampleSizeMb * 1024 * 1024;
-    private static readonly string[] AllowedContentTypes = ["audio/mpeg", "video/mp4"];
-    private static readonly string[] AllowedExtensions = [".mp3", ".mp4"];
-    private const int MaxMusicSamplesCount = 5;
-
     public async Task<Result> Handle(UploadMusicSampleCommand request, CancellationToken cancellationToken)
     {
         var authorizedUser = await _authService.GetAuthorizedUserAsync(subClaim: request.SubClaim, checkForFirstLogin: true);
@@ -29,12 +24,12 @@ public class UploadMusicSampleCommandHandler(
                 errorMessage: "Invalid access token.");
         }
 
-        if (!AllowedContentTypes.Contains(request.ContentType.ToLower())
-            || !AllowedExtensions.Contains(Path.GetExtension(request.FileName).ToLower()))
+        if (!AllowedSampleContentTypes.Contains(request.ContentType.ToLower())
+            || !AllowedSampleFileExtensions.Contains(Path.GetExtension(request.FileName).ToLower()))
         {
             return Result.Failure(
                 errorType: ErrorType.BadRequest,
-                errorMessage: $"Allowed file extensions: {String.Join(", ", AllowedExtensions)}");
+                errorMessage: $"Allowed file extensions: {String.Join(", ", AllowedSampleFileExtensions)}");
         }
 
         if (request.FileLength > MaxSampleSize)

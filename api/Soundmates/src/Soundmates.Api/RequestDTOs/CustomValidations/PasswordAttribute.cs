@@ -1,12 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using static Soundmates.Domain.Constants.AppConstants;
 
 namespace Soundmates.Api.RequestDTOs.CustomValidations;
 
 [AttributeUsage(AttributeTargets.Property)]
 public class PasswordAttribute : ValidationAttribute
 {
-    private const int minPasswordLength = 8;
-    private const int maxPasswordLength = 32;
     protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
     {
         if (value is string password)

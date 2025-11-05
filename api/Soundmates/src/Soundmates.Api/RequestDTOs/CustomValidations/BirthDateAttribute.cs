@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using static Soundmates.Domain.Constants.AppConstants;
 
 namespace Soundmates.Api.RequestDTOs.CustomValidations;
 
@@ -9,7 +10,7 @@ public class BirthDateAttribute : ValidationAttribute
     {
         if (value is DateOnly birthdate)
         {
-            DateOnly minDate = new(1900, 1, 1);
+            DateOnly minDate = MinUserBirthDate;
             DateOnly maxDate = DateOnly.FromDateTime(DateTime.UtcNow);
 
             if (birthdate >= minDate && birthdate <= maxDate)

@@ -3,6 +3,7 @@ using Soundmates.Application.Common;
 using Soundmates.Domain.Entities;
 using Soundmates.Domain.Interfaces.Repositories;
 using Soundmates.Domain.Interfaces.Services.Auth;
+using static Soundmates.Domain.Constants.AppConstants;
 
 namespace Soundmates.Application.Users.Commands.UpdateUserProfile.UpdateUserProfileBand;
 
@@ -20,6 +21,13 @@ public class UpdateUserProfileBandCommandHandler(
             return Result.Failure(
                 errorType: ErrorType.Unauthorized,
                 errorMessage: "Invalid access token.");
+        }
+
+        if (request.BandMembers.Count > MaxBandMembersCount)
+        {
+            return Result.Failure(
+                errorType: ErrorType.BadRequest,
+                errorMessage: $"Maximum number of band members is: {MaxBandMembersCount}");
         }
 
         authorizedUser.Name = request.Name;

@@ -4,6 +4,7 @@ using Soundmates.Domain.Entities;
 using Soundmates.Domain.Interfaces.Repositories;
 using Soundmates.Domain.Interfaces.Services.Auth;
 using static Soundmates.Application.Common.UserMediaHelpers;
+using static Soundmates.Domain.Constants.AppConstants;
 
 namespace Soundmates.Application.ProfilePictures.Commands.UploadProfilePicture;
 
@@ -12,12 +13,6 @@ public class UploadProfilePictureCommandHandler(
     IAuthService _authService
 ) : IRequestHandler<UploadProfilePictureCommand, Result>
 {
-    private const int MaxImageSizeMb = 5;
-    private static readonly int MaxImageSize = MaxImageSizeMb * 1024 * 1024;
-    private static readonly string[] AllowedContentTypes = ["image/jpeg", "image/jpg"];
-    private static readonly string[] AllowedExtensions = [".jpeg", ".jpg"];
-    private const int MaxProfilePicturesCount = 5;
-
     public async Task<Result> Handle(UploadProfilePictureCommand request, CancellationToken cancellationToken)
     {
         var authorizedUser = await _authService.GetAuthorizedUserAsync(subClaim: request.SubClaim, checkForFirstLogin: true);
@@ -29,12 +24,12 @@ public class UploadProfilePictureCommandHandler(
                 errorMessage: "Invalid access token.");
         }
 
-        if (!AllowedContentTypes.Contains(request.ContentType.ToLower())
-            || !AllowedExtensions.Contains(Path.GetExtension(request.FileName).ToLower()))
+        if (!AllowedImageContentTypes.Contains(request.ContentType.ToLower())
+            || !AllowedImageFileExtensions.Contains(Path.GetExtension(request.FileName).ToLower()))
         {
             return Result.Failure(
                 errorType: ErrorType.BadRequest,
-                errorMessage: $"Allowed file extensions: {string.Join(", ", AllowedExtensions)}");
+                errorMessage: $"Allowed file extensions: {string.Join(", ", AllowedImageFileExtensions)}");
         }
 
         if (request.FileLength > MaxImageSize)
