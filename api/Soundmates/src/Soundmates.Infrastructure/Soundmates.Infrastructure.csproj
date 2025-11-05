@@ -16,11 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Migrations\" />
-  </ItemGroup>
-
-  <ItemGroup>
-	  <Content Include="DataSeeding\SeedData\*.json" CopyToOutputDirectory="Always" />
+	  <Content Include="Database\DataSeeding\SeedData\*.json" CopyToOutputDirectory="Always" />
   </ItemGroup>
 
 </Project>

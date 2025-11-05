@@ -7,7 +7,7 @@ using Soundmates.Domain.Interfaces.Services.Auth;
 using Soundmates.Infrastructure.Database;
 using Soundmates.Infrastructure.Repositories;
 using Soundmates.Infrastructure.Services.Auth;
-using static Soundmates.Infrastructure.DataSeeding.SeedingScripts;
+using static Soundmates.Infrastructure.Database.DataSeeding.SeedingScripts;
 
 namespace Soundmates.Infrastructure;
 

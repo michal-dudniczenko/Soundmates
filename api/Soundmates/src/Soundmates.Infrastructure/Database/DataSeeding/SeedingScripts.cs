@@ -1,9 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Soundmates.Domain.Entities;
-using Soundmates.Infrastructure.DataSeeding.DTOs;
+using Soundmates.Infrastructure.Database.DataSeeding.DTOs;
 using System.Text.Json;
 
-namespace Soundmates.Infrastructure.DataSeeding;
+namespace Soundmates.Infrastructure.Database.DataSeeding;
 
 public static class SeedingScripts
 {
