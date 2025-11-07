@@ -1,9 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Soundmates.Domain.Entities;
-using Soundmates.Infrastructure.DataSeeding.DTOs;
+using Soundmates.Infrastructure.Database.DataSeeding.DTOs;
 using System.Text.Json;
 
-namespace Soundmates.Infrastructure.DataSeeding;
+namespace Soundmates.Infrastructure.Database.DataSeeding;
 
 public static class SeedingScripts
 {
@@ -12,7 +12,7 @@ public static class SeedingScripts
         PropertyNameCaseInsensitive = true
     };
 
-    private const string SeedDataDirectoryPath = "DataSeeding/SeedData";
+    private const string SeedDataDirectoryPath = "Database/DataSeeding/SeedData";
 
     private const string CountriesCitiesDataFileName = "countries-cities.json";
     private const string GendersDataFileName = "genders.json";

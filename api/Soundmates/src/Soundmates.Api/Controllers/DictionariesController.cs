@@ -30,10 +30,10 @@ public class DictionariesController(
 
     // GET /dictionaries/cities/{countryId}
     [HttpGet("cities/{countryId}")]
-    public async Task<ActionResult<List<CityDto>>> GetCities(Guid countryID)
+    public async Task<ActionResult<List<CityDto>>> GetCities(Guid countryId)
     {
         var query = new GetCitiesQuery(
-            CountryId: countryID);
+            CountryId: countryId);
 
         var result = await _mediator.Send(query);
 

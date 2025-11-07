@@ -26,5 +26,6 @@ public class UpdateMatchPreferenceDto
 
     public required int? BandMaxMembersCount { get; set; }
 
+    [Required]
     public required IList<Guid> FilterTagsIds { get; set; }
 }

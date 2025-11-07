@@ -31,7 +31,6 @@ public static class BandMappings
             }).ToList(),
             BandMembers = band.Members.OrderBy(m => m.DisplayOrder).Select(bm => new BandMemberDto
             {
-                Id = bm.Id,
                 Name = bm.Name,
                 Age = bm.Age,
                 BandRoleId = bm.BandRoleId
@@ -66,7 +65,6 @@ public static class BandMappings
             }).ToList(),
             BandMembers = band.Members.OrderBy(m => m.DisplayOrder).Select(bm => new BandMemberDto
             {
-                Id = bm.Id,
                 Name = bm.Name,
                 Age = bm.Age,
                 BandRoleId = bm.BandRoleId

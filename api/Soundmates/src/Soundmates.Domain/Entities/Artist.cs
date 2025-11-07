@@ -3,7 +3,7 @@
 public class Artist
 {
     public Guid Id { get; set; } = Guid.CreateVersion7();
-    public DateOnly BirthDate { get; set; }
+    public required DateOnly BirthDate { get; set; }
 
     public Guid GenderId { get; set; }
     public Gender Gender { get; set; } = null!;

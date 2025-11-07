@@ -1,12 +1,13 @@
 ﻿using Soundmates.Api.RequestDTOs.CustomValidations;
 using System.ComponentModel.DataAnnotations;
+using static Soundmates.Domain.Constants.AppConstants;
 
 namespace Soundmates.Api.RequestDTOs.Auth;
 
 public class RegisterDto
 {
     [Required]
-    [MaxLength(100)]
+    [MaxLength(MaxUserEmailLength)]
     [EmailAddress]
     public required string Email { get; set; }
 

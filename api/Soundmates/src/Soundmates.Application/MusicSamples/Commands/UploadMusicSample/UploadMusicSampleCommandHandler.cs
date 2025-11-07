@@ -3,24 +3,16 @@ using Soundmates.Application.Common;
 using Soundmates.Domain.Entities;
 using Soundmates.Domain.Interfaces.Repositories;
 using Soundmates.Domain.Interfaces.Services.Auth;
-using Soundmates.Domain.Interfaces.Services.Mp3;
 using static Soundmates.Application.Common.UserMediaHelpers;
+using static Soundmates.Domain.Constants.AppConstants;
 
 namespace Soundmates.Application.MusicSamples.Commands.UploadMusicSample;
 
 public class UploadMusicSampleCommandHandler(
     IMusicSampleRepository _musicSampleRepository,
-    IAuthService _authService,
-    IMp3Service _mp3Service
+    IAuthService _authService
 ) : IRequestHandler<UploadMusicSampleCommand, Result>
 {
-    private const int MaxSampleSizeMb = 1000;
-    private static readonly int MaxSampleSize = MaxSampleSizeMb * 1024 * 1024;
-    private static readonly string[] AllowedContentTypes = ["audio/mpeg"];
-    private static readonly string[] AllowedExtensions = [".mp3"];
-    private const int MaxMusicSamplesCount = 5;
-    private static readonly TimeSpan MaxSampleDuration = TimeSpan.FromMinutes(5);
-
     public async Task<Result> Handle(UploadMusicSampleCommand request, CancellationToken cancellationToken)
     {
         var authorizedUser = await _authService.GetAuthorizedUserAsync(subClaim: request.SubClaim, checkForFirstLogin: true);
@@ -32,12 +24,12 @@ public class UploadMusicSampleCommandHandler(
                 errorMessage: "Invalid access token.");
         }
 
-        if (!AllowedContentTypes.Contains(request.ContentType.ToLower())
-            || !AllowedExtensions.Contains(Path.GetExtension(request.FileName).ToLower()))
+        if (!AllowedSampleContentTypes.Contains(request.ContentType.ToLower())
+            || !AllowedSampleFileExtensions.Contains(Path.GetExtension(request.FileName).ToLower()))
         {
             return Result.Failure(
                 errorType: ErrorType.BadRequest,
-                errorMessage: $"Allowed file extensions: {String.Join(", ", AllowedExtensions)}");
+                errorMessage: $"Allowed file extensions: {String.Join(", ", AllowedSampleFileExtensions)}");
         }
 
         if (request.FileLength > MaxSampleSize)
@@ -45,27 +37,6 @@ public class UploadMusicSampleCommandHandler(
             return Result.Failure(
                 errorType: ErrorType.BadRequest,
                 errorMessage: $"File size cannot exceed {MaxSampleSizeMb} MB.");
-        }
-
-        if (string.Equals(request.ContentType, "audio/mpeg", StringComparison.OrdinalIgnoreCase))
-        {
-            try
-            {
-                var duration = _mp3Service.GetMp3FileDuration(request.FileStream);
-
-                if (duration > MaxSampleDuration)
-                {
-                    return Result.Failure(
-                        errorType: ErrorType.BadRequest,
-                        errorMessage: $"Sample is too long. Maximum duration is {MaxSampleDuration.TotalSeconds} seconds.");
-                }
-            }
-            catch
-            {
-                return Result.Failure(
-                        errorType: ErrorType.BadRequest,
-                        errorMessage: "Invalid or corrupted MP3 file.");
-            }
         }
 
         var currentUserMusicSamplesCount = await _musicSampleRepository.GetUserMusicSamplesCountAsync(authorizedUser.Id);

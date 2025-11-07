@@ -149,7 +149,9 @@ public class ArtistRepository(
             existingUser.Tags.Add(tag);
         }
 
-        var existingMusicSamples = await _context.MusicSamples.Where(ms => ms.UserId == existingUser.Id).ToListAsync();
+        var existingMusicSamples = await _context.MusicSamples
+            .Where(ms => ms.UserId == existingUser.Id)
+            .ToListAsync();
 
         if (musicSamplesOrder.Count != musicSamplesOrder.Distinct().Count())
         {

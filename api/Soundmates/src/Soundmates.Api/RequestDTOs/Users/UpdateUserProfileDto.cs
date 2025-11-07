@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
+using static Soundmates.Domain.Constants.AppConstants;
 
 namespace Soundmates.Api.RequestDTOs.Users;
 
@@ -9,10 +10,10 @@ namespace Soundmates.Api.RequestDTOs.Users;
 public abstract class UpdateUserProfileDto
 {
     [Required]
-    [MaxLength(50)]
+    [MaxLength(MaxUserNameLength)]
     public required string Name { get; set; }
 
-    [MaxLength(500)]
+    [MaxLength(MaxUserDescriptionLength)]
     public required string Description { get; set; }
 
     [Required]

@@ -65,7 +65,9 @@ public class UserRepository(
 
     public async Task<User?> GetByIdAsync(Guid entityId)
     {
-        return await _context.Users.FindAsync(entityId);
+        return await _context.Users
+            .AsNoTracking()
+            .FirstOrDefaultAsync(u => u.Id == entityId);
     }
 
     public async Task LogInUserAsync(Guid userId, string newRefreshTokenHash, DateTime newRefreshTokenExpiresAt)

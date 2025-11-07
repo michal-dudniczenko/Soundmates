@@ -1,10 +1,8 @@
 ﻿namespace Soundmates.Application.Common;
+using static Soundmates.Domain.Constants.AppConstants;
 
 public static class UserMediaHelpers
 {
-    private const string SamplesDirectoryPath = "samples/";
-    private const string ImagesDirectoryPath = "images/";
-
     public static string GetMusicSampleUrl(string fileName)
     {
         ArgumentNullException.ThrowIfNullOrWhiteSpace(fileName);

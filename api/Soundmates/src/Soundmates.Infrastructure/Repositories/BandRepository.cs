@@ -198,7 +198,6 @@ public class BandRepository(
         if (existingBand is null)
         {
             entity.User = existingUser;
-
             _context.Bands.Add(entity);
         }
         else
@@ -207,7 +206,16 @@ public class BandRepository(
 
             foreach (var member in entity.Members)
             {
-                existingBand.Members.Add(member);
+                var newMemberEntity = new BandMember
+                {
+                    Name = member.Name,
+                    Age = member.Age,
+                    DisplayOrder = member.DisplayOrder,
+                    BandRoleId = member.BandRoleId,
+                    BandId = existingBand.Id
+                };
+
+                _context.BandMembers.Add(newMemberEntity);
             }
         }
 

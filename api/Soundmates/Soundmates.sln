@@ -12,9 +12,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{756A707D-215D-49C9-A9C9-219276420823}"
-	ProjectSection(SolutionItems) = preProject
-		tests\.gitkeep = tests\.gitkeep
-	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8EC462FD-D22E-90A8-E5CE-7E832BA40C5D}"
 	ProjectSection(SolutionItems) = preProject
@@ -25,6 +22,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Soundmates.Application", "src\Soundmates.Application\Soundmates.Application.csproj", "{FF930BAA-081B-B3E8-2C19-E659319498C3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Soundmates.Tests", "tests\Soundmates.Tests\Soundmates.Tests.csproj", "{0AD91F9F-261F-4AB3-87CB-49A82BA4324F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -48,6 +47,10 @@ Global
 		{FF930BAA-081B-B3E8-2C19-E659319498C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FF930BAA-081B-B3E8-2C19-E659319498C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FF930BAA-081B-B3E8-2C19-E659319498C3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0AD91F9F-261F-4AB3-87CB-49A82BA4324F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0AD91F9F-261F-4AB3-87CB-49A82BA4324F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0AD91F9F-261F-4AB3-87CB-49A82BA4324F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0AD91F9F-261F-4AB3-87CB-49A82BA4324F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -57,6 +60,7 @@ Global
 		{E40B7AD4-4F10-F8F2-A0B6-D4882C526D88} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{F9A8A98B-E8E6-A734-64AE-2EFDB3B8BFDB} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{FF930BAA-081B-B3E8-2C19-E659319498C3} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{0AD91F9F-261F-4AB3-87CB-49A82BA4324F} = {756A707D-215D-49C9-A9C9-219276420823}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C5D49C8B-72E6-4C61-B3E8-5EE6D833E0FE}

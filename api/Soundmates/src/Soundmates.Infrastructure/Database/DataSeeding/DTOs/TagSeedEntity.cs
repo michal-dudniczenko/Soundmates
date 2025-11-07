@@ -1,4 +1,4 @@
-﻿namespace Soundmates.Infrastructure.DataSeeding.DTOs;
+﻿namespace Soundmates.Infrastructure.Database.DataSeeding.DTOs;
 
 public class TagSeedEntity
 {

@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace Soundmates.Infrastructure.Migrations
+namespace Soundmates.Infrastructure.Database.Migrations
 {
     /// <inheritdoc />
     public partial class InitialCreate : Migration
@@ -286,7 +286,7 @@ namespace Soundmates.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    FileName = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    FileName = table.Column<string>(type: "text", nullable: false),
                     DisplayOrder = table.Column<int>(type: "integer", nullable: false),
                     UserId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
@@ -306,7 +306,7 @@ namespace Soundmates.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    FileName = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    FileName = table.Column<string>(type: "text", nullable: false),
                     DisplayOrder = table.Column<int>(type: "integer", nullable: false),
                     UserId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
@@ -398,7 +398,7 @@ namespace Soundmates.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Name = table.Column<string>(type: "text", nullable: false),
+                    Name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     Age = table.Column<int>(type: "integer", nullable: false),
                     DisplayOrder = table.Column<int>(type: "integer", nullable: false),
                     BandId = table.Column<Guid>(type: "uuid", nullable: false),

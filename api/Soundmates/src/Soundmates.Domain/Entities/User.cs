@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using static Soundmates.Domain.Constants.AppConstants;
 
 namespace Soundmates.Domain.Entities;
 
@@ -6,17 +7,17 @@ public class User
 {
     public Guid Id { get; set; } = Guid.CreateVersion7();
 
-    [MaxLength(100)] 
+    [MaxLength(MaxUserEmailLength)] 
     public required string Email { get; set; }
 
     public required string PasswordHash { get; set; }
 
     public bool? IsBand { get; set; }
 
-    [MaxLength(50)]
+    [MaxLength(MaxUserNameLength)]
     public string? Name { get; set; }
 
-    [MaxLength(500)]
+    [MaxLength(MaxUserDescriptionLength)]
     public string Description { get; set; } = string.Empty;
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
