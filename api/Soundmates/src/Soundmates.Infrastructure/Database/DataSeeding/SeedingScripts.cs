@@ -12,7 +12,7 @@ public static class SeedingScripts
         PropertyNameCaseInsensitive = true
     };
 
-    private const string SeedDataDirectoryPath = "DataSeeding/SeedData";
+    private const string SeedDataDirectoryPath = "Database/DataSeeding/SeedData";
 
     private const string CountriesCitiesDataFileName = "countries-cities.json";
     private const string GendersDataFileName = "genders.json";
