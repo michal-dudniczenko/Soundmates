@@ -7,4 +7,5 @@ public interface IMessageRepository
     Task<IEnumerable<Message>> GetConversationAsync(Guid user1Id, Guid user2Id, int limit, int offset);
     Task<IEnumerable<Message>> GetConversationsPreviewAsync(Guid userId);
     Task AddAsync(Message entity);
+    Task ReadConversation(Guid readerId, Guid otherUserId);
 }

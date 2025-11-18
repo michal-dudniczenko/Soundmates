@@ -60,4 +60,12 @@ public class MessageRepository(
         return latestMessages
             .OrderBy(m => m.Timestamp);
     }
+
+    public async Task ReadConversation(Guid readerId, Guid otherUserId)
+    {
+        await _context.Messages
+            .Where(m => m.ReceiverId == readerId && m.SenderId == otherUserId && !m.IsSeen)
+            .ExecuteUpdateAsync(s => s
+                .SetProperty(m => m.IsSeen, true));
+    }
 }

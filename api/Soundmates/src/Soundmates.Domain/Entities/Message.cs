@@ -10,6 +10,8 @@ public class Message
     [MaxLength(MaxMessageContentLength)]
     public required string Content { get; set; }
 
+    public bool IsSeen { get; set; } = false;
+
     public DateTime Timestamp { get; private set; } = DateTime.UtcNow;
 
     public Guid SenderId { get; set; }

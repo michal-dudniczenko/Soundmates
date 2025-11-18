@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Soundmates.Api.Extensions;
 using Soundmates.Api.RequestDTOs.Messages;
 using Soundmates.Application.Messages.Commands.SendMessage;
+using Soundmates.Application.Messages.Commands.ViewConversation;
 using Soundmates.Application.Messages.Queries.GetConversation;
 using Soundmates.Application.Messages.Queries.GetConversationsPreview;
 using Soundmates.Application.ResponseDTOs.Messages;
@@ -63,6 +64,22 @@ public class MessagesController(
         var command = new SendMessageCommand(
             ReceiverId: sendMessageDto.ReceiverId,
             Content: sendMessageDto.Content.Trim(),
+            SubClaim: subClaim);
+
+        var result = await _mediator.Send(command);
+
+        return this.ResultToHttpResponse(result);
+    }
+
+    // POST /messages/view-conversation/{userId}
+    [HttpPost("view-conversation/{userId}")]
+    [Authorize]
+    public async Task<ActionResult> ViewConversation(Guid userId)
+    {
+        var subClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        var command = new ViewConversationCommand(
+            OtherUserId: userId,
             SubClaim: subClaim);
 
         var result = await _mediator.Send(command);
