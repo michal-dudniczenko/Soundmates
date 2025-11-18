@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Soundmates.Domain\Soundmates.Domain.csproj" />
+    <ProjectReference Include="..\Soundmates.Infrastructure\Soundmates.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

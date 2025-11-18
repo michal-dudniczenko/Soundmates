@@ -6,6 +6,7 @@ using Soundmates.Api.Middleware;
 using Soundmates.Application;
 using Soundmates.Infrastructure;
 using Soundmates.Infrastructure.Extensions;
+using Soundmates.Infrastructure.SignalRHub;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -29,6 +30,23 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
+        };
+
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var accessToken = context.Request.Query["access_token"];
+
+                // If the request is for the hub endpoint, extract token from query
+                var path = context.HttpContext.Request.Path;
+                if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/eventHub"))
+                {
+                    context.Token = accessToken;
+                }
+
+                return Task.CompletedTask;
+            }
         };
     });
 builder.Services.AddAuthorization();
@@ -116,6 +134,8 @@ app.UseStaticFiles();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapHub<EventHub>("/eventHub");
 
 app.MapControllers();
 

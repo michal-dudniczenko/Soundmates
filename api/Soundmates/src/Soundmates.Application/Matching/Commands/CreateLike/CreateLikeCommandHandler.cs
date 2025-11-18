@@ -1,15 +1,18 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.SignalR;
 using Soundmates.Application.Common;
 using Soundmates.Domain.Entities;
 using Soundmates.Domain.Interfaces.Repositories;
 using Soundmates.Domain.Interfaces.Services.Auth;
+using Soundmates.Infrastructure.SignalRHub;
 
 namespace Soundmates.Application.Matching.Commands.CreateLike;
 
 public class CreateLikeCommandHandler(
     IUserRepository _userRepository,
     IMatchRepository _matchRepository,
-    IAuthService _authService
+    IAuthService _authService,
+    IHubContext<EventHub> _hubContext
 ) : IRequestHandler<CreateLikeCommand, Result>
 {
     public async Task<Result> Handle(CreateLikeCommand request, CancellationToken cancellationToken)
@@ -63,6 +66,18 @@ public class CreateLikeCommandHandler(
             };
 
             await _matchRepository.AddMatchAsync(match);
+
+            // send event to user that already have liked our profile
+            await _hubContext.Clients.Group(request.ReceiverId.ToString()).SendAsync("MatchReceived", new
+            {
+                newLikeUserId = authorizedUser.Id,
+                newLikeUserName = authorizedUser.Name
+            }, cancellationToken);
+
+            await _hubContext.Clients.Group(authorizedUser.Id.ToString()).SendAsync("MatchCreated", new
+            {
+                existingLikeUserId = request.ReceiverId
+            }, cancellationToken);
         }
 
         return Result.Success();

@@ -1,8 +1,10 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.SignalR;
 using Soundmates.Application.Common;
 using Soundmates.Domain.Entities;
 using Soundmates.Domain.Interfaces.Repositories;
 using Soundmates.Domain.Interfaces.Services.Auth;
+using Soundmates.Infrastructure.SignalRHub;
 
 namespace Soundmates.Application.Messages.Commands.SendMessage;
 
@@ -10,7 +12,8 @@ public class SendMessageCommandHandler(
     IUserRepository _userRepository,
     IMessageRepository _messageRepository,
     IMatchRepository _matchRepository,
-    IAuthService _authService
+    IAuthService _authService,
+    IHubContext<EventHub> _hubContext
 ) : IRequestHandler<SendMessageCommand, Result>
 {
     public async Task<Result> Handle(SendMessageCommand request, CancellationToken cancellationToken)
@@ -57,6 +60,12 @@ public class SendMessageCommandHandler(
         };
 
         await _messageRepository.AddAsync(message);
+
+        await _hubContext.Clients.Group(request.ReceiverId.ToString()).SendAsync("MessageReceived", new
+        {
+            senderId = authorizedUser.Id,
+            senderName = authorizedUser.Name
+        }, cancellationToken);
 
         return Result.Success();
     }

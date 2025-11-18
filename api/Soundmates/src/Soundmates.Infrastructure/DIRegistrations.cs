@@ -58,6 +58,8 @@ public static class DIRegistrations
             return new AuthService(secretKey, userRepository);
         });
 
+        services.AddSignalR();
+
         return services;
     }
 }
