@@ -1,3 +1,4 @@
+using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -10,6 +11,8 @@ using Soundmates.Infrastructure.SignalRHub;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
+
+JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
@@ -38,13 +41,11 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             {
                 var accessToken = context.Request.Query["access_token"];
 
-                // If the request is for the hub endpoint, extract token from query
                 var path = context.HttpContext.Request.Path;
                 if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/eventHub"))
                 {
                     context.Token = accessToken;
                 }
-
                 return Task.CompletedTask;
             }
         };
