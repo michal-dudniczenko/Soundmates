@@ -29,7 +29,8 @@ public class GetConversationsPreviewQueryHandler(
             Content = m.Content,
             Timestamp = m.Timestamp,
             SenderId = m.SenderId,
-            ReceiverId = m.ReceiverId
+            ReceiverId = m.ReceiverId,
+            IsSeen = m.IsSeen
         }).ToList();
 
         return Result<List<MessageDto>>.Success(lastMessagesDtos);
