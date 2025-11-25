@@ -1,7 +1,9 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.SignalR;
 using Soundmates.Application.Common;
 using Soundmates.Domain.Interfaces.Repositories;
 using Soundmates.Domain.Interfaces.Services.Auth;
+using Soundmates.Infrastructure.SignalRHub;
 
 namespace Soundmates.Application.Messages.Commands.ViewConversation;
 
@@ -9,7 +11,8 @@ public class ViewConversationCommandHandler(
     IUserRepository _userRepository,
     IMessageRepository _messageRepository,
     IMatchRepository _matchRepository,
-    IAuthService _authService
+    IAuthService _authService,
+    IHubContext<EventHub> _hubContext
 ) : IRequestHandler<ViewConversationCommand, Result>
 {
     public async Task<Result> Handle(ViewConversationCommand request, CancellationToken cancellationToken)
@@ -49,6 +52,12 @@ public class ViewConversationCommandHandler(
         }
 
         await _messageRepository.ReadConversation(readerId: authorizedUser.Id, otherUserId: request.OtherUserId);
+
+        await _hubContext.Clients.Group(request.OtherUserId.ToString()).SendAsync("ConversationSeen", new
+        {
+            userId = request.OtherUserId,
+            timestamp = DateTime.UtcNow
+        }, cancellationToken);
 
         return Result.Success();
     }
