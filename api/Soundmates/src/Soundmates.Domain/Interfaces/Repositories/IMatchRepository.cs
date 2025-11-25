@@ -11,4 +11,5 @@ public interface IMatchRepository
     Task<bool> CheckIfMatchExistsAsync(Guid user1Id, Guid user2Id);
     Task<bool> CheckIfLikeExistsAsync(Guid giverId, Guid receiverId);
     Task<bool> CheckIfDislikeExistsAsync(Guid giverId, Guid receiverId);
+    Task DeleteMatchAsync(Guid user1Id, Guid user2Id);
 }

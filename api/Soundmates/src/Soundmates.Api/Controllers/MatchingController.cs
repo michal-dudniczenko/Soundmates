@@ -5,11 +5,13 @@ using Soundmates.Api.Extensions;
 using Soundmates.Api.RequestDTOs.Matching;
 using Soundmates.Application.Matching.Commands.CreateDislike;
 using Soundmates.Application.Matching.Commands.CreateLike;
+using Soundmates.Application.Matching.Commands.Unmatch;
 using Soundmates.Application.Matching.Commands.UpdateMatchPreference;
 using Soundmates.Application.Matching.Queries.GetMatches;
 using Soundmates.Application.Matching.Queries.GetMatchPreference;
 using Soundmates.Application.Matching.Queries.GetPotentialMatchesArtists;
 using Soundmates.Application.Matching.Queries.GetPotentialMatchesBands;
+using Soundmates.Application.Matching.Queries.MatchExists;
 using Soundmates.Application.ResponseDTOs.Matching;
 using Soundmates.Application.ResponseDTOs.Users;
 using System.Security.Claims;
@@ -151,6 +153,38 @@ public class MatchingController(
             SubClaim: subClaim);
 
         var result = await _mediator.Send(command);
+
+        return this.ResultToHttpResponse(result);
+    }
+
+    // GET /matching/match/exists/{userId}
+    [HttpGet("match/exists/{userId}")]
+    [Authorize]
+    public async Task<ActionResult<bool>> MatchExists(Guid userId)
+    {
+        var subClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        var query = new MatchExistsQuery(
+            OtherUserId: userId,
+            SubClaim: subClaim);
+
+        var result = await _mediator.Send(query);
+
+        return this.ResultToHttpResponse(result);
+    }
+
+    // DELETE /matching/unmatch/{userId}
+    [HttpDelete("unmatch/{userId}")]
+    [Authorize]
+    public async Task<ActionResult> Unmatch(Guid userId)
+    {
+        var subClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        var query = new UnmatchCommand(
+            OtherUserId: userId,
+            SubClaim: subClaim);
+
+        var result = await _mediator.Send(query);
 
         return this.ResultToHttpResponse(result);
     }

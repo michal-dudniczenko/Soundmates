@@ -58,4 +58,12 @@ public class MatchRepository(
             .Take(limit)
             .ToListAsync();
     }
+
+    public async Task DeleteMatchAsync(Guid user1Id, Guid user2Id)
+    {
+        await _context.Matches
+            .Where(m => (m.User1Id == user1Id && m.User2Id == user2Id)
+                || (m.User1Id == user2Id && m.User2Id == user1Id))
+            .ExecuteDeleteAsync();
+    }
 }
