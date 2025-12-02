@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using Soundmates.Api.RequestDTOs.Reports;
 using Soundmates.Application.Reports.Commands.ReportUser;
 using System.Security.Claims;
-using System.Threading.Tasks;
 
 namespace Soundmates.Api.Controllers
 {

@@ -1,8 +1,6 @@
 using MediatR;
 using Soundmates.Application.Common;
 using Soundmates.Domain.Interfaces.Services;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Soundmates.Application.Reports.Commands.ReportUser
 {

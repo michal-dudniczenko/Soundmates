@@ -1,5 +1,3 @@
-using System.Threading.Tasks;
-
 namespace Soundmates.Domain.Interfaces.Services
 {
     public interface IEmailService

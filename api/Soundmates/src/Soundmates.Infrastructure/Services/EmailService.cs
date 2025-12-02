@@ -1,10 +1,8 @@
 using MailKit.Net.Smtp;
-using MimeKit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using MimeKit;
 using Soundmates.Domain.Interfaces.Services;
-using System;
-using System.Threading.Tasks;
 
 namespace Soundmates.Infrastructure.Services
 {
