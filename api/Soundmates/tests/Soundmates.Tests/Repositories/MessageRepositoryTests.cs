@@ -38,10 +38,8 @@ public class MessageRepositoryTests : IDisposable
     {
         var country = new Country { Name = string.Empty };
         var city = new City { Latitude = 0d, Longitude = 0d, Name = string.Empty, Country = country };
-        var gender = new Gender { Name = string.Empty };
 
-        var userId = Guid.NewGuid();
-        return new User { Id = userId, Email = string.Empty, PasswordHash = string.Empty, Country = country, City = city };
+        return new User { Id = id, Email = string.Empty, PasswordHash = string.Empty, Country = country, City = city };
     }
 
     private Message CreateMessage(Guid sender, Guid receiver, int ts, bool seen = false)
@@ -182,8 +180,9 @@ public class MessageRepositoryTests : IDisposable
     // ReadConversation
     // =====================================================================
     [Fact]
-    public async Task ReadConversation_SetsMessagesAsSeen()
+    public async Task ReadConversation_MarksOnlyUnseenMessagesAsSeen()
     {
+        // Arrange
         using var ctx = CreateDb();
         var repo = CreateRepo(ctx);
 
@@ -193,26 +192,31 @@ public class MessageRepositoryTests : IDisposable
         ctx.Users.AddRange(self, other);
         await ctx.SaveChangesAsync();
 
-        ctx.Messages.AddRange(
-            CreateMessage(other.Id, self.Id, -2, seen: false),
-            CreateMessage(other.Id, self.Id, -1, seen: false),
-            CreateMessage(self.Id, other.Id, -1, seen: false) // should NOT be updated
-        );
+        // Messages: one seen, one unseen
+        var seenMessage = CreateMessage(other.Id, self.Id, -2, seen: true);
+        var unseenMessage = CreateMessage(other.Id, self.Id, -1, seen: false);
 
+        ctx.Messages.AddRange(seenMessage, unseenMessage);
         await ctx.SaveChangesAsync();
 
+        // Act
         await repo.ReadConversation(self.Id, other.Id);
 
-        var updated = ctx.Messages
-            .Where(m => m.ReceiverId == self.Id && m.SenderId == other.Id)
-            .ToList();
+        // Assert
+        var messages = await ctx.Messages.AsNoTracking().ToListAsync();
 
-        Assert.False(updated.All(m => m.IsSeen));
+        var seenMsg = messages.Single(m => m.Id == seenMessage.Id);
+        var unseenMsg = messages.Single(m => m.Id == unseenMessage.Id);
+
+        Assert.True(seenMsg.IsSeen, "Already seen message should stay seen");
+        Assert.True(unseenMsg.IsSeen, "Previously unseen message should now be marked as seen");
     }
+
 
     [Fact]
-    public async Task ReadConversation_DoesNotChangeAlreadySeenMessages()
+    public async Task ReadConversation_MarksUnseenMessagesAsSeen_LeavesAlreadySeenMessagesIntact()
     {
+        // Arrange
         using var ctx = CreateDb();
         var repo = CreateRepo(ctx);
 
@@ -222,18 +226,24 @@ public class MessageRepositoryTests : IDisposable
         ctx.Users.AddRange(self, other);
         await ctx.SaveChangesAsync();
 
-        ctx.Messages.AddRange(
-            CreateMessage(other.Id, self.Id, -2, seen: true),
-            CreateMessage(other.Id, self.Id, -1, seen: false)
-        );
+        // Create messages: one already seen, one not seen
+        var seenMessage = CreateMessage(other.Id, self.Id, ts: -2, seen: true);
+        var unseenMessage = CreateMessage(other.Id, self.Id, ts: -1, seen: false);
 
+        ctx.Messages.AddRange(seenMessage, unseenMessage);
         await ctx.SaveChangesAsync();
 
+        // Act
         await repo.ReadConversation(self.Id, other.Id);
 
-        var msgs = ctx.Messages.ToList();
+        // Reload messages from context to get updated state
+        ctx.Entry(seenMessage).Reload();
+        ctx.Entry(unseenMessage).Reload();
 
-        Assert.True(msgs.First(m => m.Timestamp < msgs.Last().Timestamp).IsSeen);
+        // Assert
+        Assert.True(seenMessage.IsSeen, "Already seen message should remain seen.");
+        Assert.True(unseenMessage.IsSeen, "Previously unseen message should now be marked as seen.");
     }
+
 }
 
