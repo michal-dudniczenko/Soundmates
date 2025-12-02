@@ -58,6 +58,8 @@ public static class DIRegistrations
             return new AuthService(secretKey, userRepository);
         });
 
+        services.AddScoped<Soundmates.Domain.Interfaces.Services.IEmailService, Soundmates.Infrastructure.Services.EmailService>();
+
         services.AddSignalR();
 
         return services;
