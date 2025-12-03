@@ -27,11 +27,6 @@ adminer login data: (**case-sensitive**)
 
 ## API tutorial
 
-#### TO DO:
-
--   potwierdzanie maila przy rejestracji, reset hasla
--   live eventy do chatu/powiadomien o nowych matchach
-
 #### Ogólny flow:
 
 1. Rejestrujemy sie, logujemy, dostajemy tokeny, access na 30 minut i refresh na 30 dni.
