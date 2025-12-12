@@ -1,5 +1,9 @@
-﻿################################################################################
-# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
-################################################################################
+.vs/
+.vscode/
 
-/api/Soundmates/src/Soundmates.Api/wwwroot/images
+bin/
+obj/
+
+*.user
+
+src/Soundmates.Api/wwwroot/images
